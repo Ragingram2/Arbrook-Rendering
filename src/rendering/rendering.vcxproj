@@ -1,0 +1,309 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="DebugOGL Win64|x64">
+      <Configuration>DebugOGL Win64</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugDX11 Win64|x64">
+      <Configuration>DebugDX11 Win64</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseOGL Win64|x64">
+      <Configuration>ReleaseOGL Win64</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseDX11 Win64|x64">
+      <Configuration>ReleaseDX11 Win64</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{03CFAD0B-6F39-6282-B877-1328242140D7}</ProjectGuid>
+    <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>rendering</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugOGL Win64|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>ClangCL</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDX11 Win64|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>ClangCL</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseOGL Win64|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>ClangCL</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDX11 Win64|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>ClangCL</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='DebugOGL Win64|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='DebugDX11 Win64|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='ReleaseOGL Win64|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='ReleaseDX11 Win64|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugOGL Win64|x64'">
+    <OutDir>$(SolutionDir)bin\lib\</OutDir>
+    <IntDir>$(SolutionDir)bin\obj\Win64\DebugOGL\rendering\</IntDir>
+    <TargetName>rendering-d</TargetName>
+    <TargetExt>.lib</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDX11 Win64|x64'">
+    <OutDir>$(SolutionDir)bin\lib\</OutDir>
+    <IntDir>$(SolutionDir)bin\obj\Win64\DebugDX11\rendering\</IntDir>
+    <TargetName>rendering-d</TargetName>
+    <TargetExt>.lib</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseOGL Win64|x64'">
+    <OutDir>$(SolutionDir)bin\lib\</OutDir>
+    <IntDir>$(SolutionDir)bin\obj\Win64\ReleaseOGL\rendering\</IntDir>
+    <TargetName>rendering</TargetName>
+    <TargetExt>.lib</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDX11 Win64|x64'">
+    <OutDir>$(SolutionDir)bin\lib\</OutDir>
+    <IntDir>$(SolutionDir)bin\obj\Win64\ReleaseDX11\rendering\</IntDir>
+    <TargetName>rendering</TargetName>
+    <TargetExt>.lib</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugOGL Win64|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>ARBROOK_INTERNAL;PROJECT_NAME=rendering;TRACY_ENABLE;DEBUG;BX_CONFIG_DEBUG;RenderingAPI_OGL=0;RenderingAPI=0;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..;..\..\include;..\..\include\DXC;..\..\include\GL;..\..\include\glew;..\..\include\glfw;..\..\include\glslang;..\..\include\png;..\..\include\spirv-cross;..\..\include\spirv-tools;..\..\include\stb;..\..\include\glew\src;..\..\include\glfw\src;..\..\include\DXC\include;..\..\include\glfw\include;..\..\include\glslang\Include;..\..\include\spirv-cross\include;..\..\include\glslang\Public;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include;..\..\include\imgui;..\..\..\core\src;..\..\..\core\include;..\..\..\..\include;..\..\..\..\include\assimp;..\..\..\..\include\compat;..\..\..\..\include\rythe-standard-library;..\..\..\..\include\tracy;..\..\..\..\include\rythe-standard-library\src;..\..\..\..\include\assimp\include;..\..\..\..\include\rythe-standard-library\third_party;..\..\..\..\include\rythe-standard-library\third_party\spdlog;..\..\..\..\include\rythe-standard-library\third_party\spdlog\src;..\..\..\..\include\rythe-standard-library\third_party\spdlog\include;..\..\..\..\include\tracy\public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <AdditionalOptions>-Wno-nonportable-include-path -Wno-reorder-init-list -Wno-reorder-ctor -Wno-c99-designator -Wno-microsoft-exception-spec %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>core-d.lib;assimp-d.lib;zlibstatic-d.lib;TracyProfiler-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDX11 Win64|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>ARBROOK_INTERNAL;PROJECT_NAME=rendering;TRACY_ENABLE;DEBUG;BX_CONFIG_DEBUG;RenderingAPI_DX11=1;RenderingAPI=1;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..;..\..\include;..\..\include\DXC;..\..\include\GL;..\..\include\glew;..\..\include\glfw;..\..\include\glslang;..\..\include\png;..\..\include\spirv-cross;..\..\include\spirv-tools;..\..\include\stb;..\..\include\glew\src;..\..\include\glfw\src;..\..\include\DXC\include;..\..\include\glfw\include;..\..\include\glslang\Include;..\..\include\spirv-cross\include;..\..\include\glslang\Public;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include;..\..\include\imgui;..\..\..\core\src;..\..\..\core\include;..\..\..\..\include;..\..\..\..\include\assimp;..\..\..\..\include\compat;..\..\..\..\include\rythe-standard-library;..\..\..\..\include\tracy;..\..\..\..\include\rythe-standard-library\src;..\..\..\..\include\assimp\include;..\..\..\..\include\rythe-standard-library\third_party;..\..\..\..\include\rythe-standard-library\third_party\spdlog;..\..\..\..\include\rythe-standard-library\third_party\spdlog\src;..\..\..\..\include\rythe-standard-library\third_party\spdlog\include;..\..\..\..\include\tracy\public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <AdditionalOptions>-Wno-nonportable-include-path -Wno-reorder-init-list -Wno-reorder-ctor -Wno-c99-designator -Wno-microsoft-exception-spec %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>core-d.lib;assimp-d.lib;zlibstatic-d.lib;TracyProfiler-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseOGL Win64|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>ARBROOK_INTERNAL;PROJECT_NAME=rendering;TRACY_ENABLE;NDEBUG;RenderingAPI_OGL=0;RenderingAPI=0;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..;..\..\include;..\..\include\DXC;..\..\include\GL;..\..\include\glew;..\..\include\glfw;..\..\include\glslang;..\..\include\png;..\..\include\spirv-cross;..\..\include\spirv-tools;..\..\include\stb;..\..\include\glew\src;..\..\include\glfw\src;..\..\include\DXC\include;..\..\include\glfw\include;..\..\include\glslang\Include;..\..\include\spirv-cross\include;..\..\include\glslang\Public;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include;..\..\include\imgui;..\..\..\core\src;..\..\..\core\include;..\..\..\..\include;..\..\..\..\include\assimp;..\..\..\..\include\compat;..\..\..\..\include\rythe-standard-library;..\..\..\..\include\tracy;..\..\..\..\include\rythe-standard-library\src;..\..\..\..\include\assimp\include;..\..\..\..\include\rythe-standard-library\third_party;..\..\..\..\include\rythe-standard-library\third_party\spdlog;..\..\..\..\include\rythe-standard-library\third_party\spdlog\src;..\..\..\..\include\rythe-standard-library\third_party\spdlog\include;..\..\..\..\include\tracy\public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <AdditionalOptions>-Wno-nonportable-include-path -Wno-reorder-init-list -Wno-reorder-ctor -Wno-c99-designator -Wno-microsoft-exception-spec %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>assimp.lib;zlibstatic.lib;TracyProfiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDX11 Win64|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>ARBROOK_INTERNAL;PROJECT_NAME=rendering;TRACY_ENABLE;NDEBUG;RenderingAPI_DX11=1;RenderingAPI=1;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..;..\..\include;..\..\include\DXC;..\..\include\GL;..\..\include\glew;..\..\include\glfw;..\..\include\glslang;..\..\include\png;..\..\include\spirv-cross;..\..\include\spirv-tools;..\..\include\stb;..\..\include\glew\src;..\..\include\glfw\src;..\..\include\DXC\include;..\..\include\glfw\include;..\..\include\glslang\Include;..\..\include\spirv-cross\include;..\..\include\glslang\Public;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include;..\..\include\imgui;..\..\..\core\src;..\..\..\core\include;..\..\..\..\include;..\..\..\..\include\assimp;..\..\..\..\include\compat;..\..\..\..\include\rythe-standard-library;..\..\..\..\include\tracy;..\..\..\..\include\rythe-standard-library\src;..\..\..\..\include\assimp\include;..\..\..\..\include\rythe-standard-library\third_party;..\..\..\..\include\rythe-standard-library\third_party\spdlog;..\..\..\..\include\rythe-standard-library\third_party\spdlog\src;..\..\..\..\include\rythe-standard-library\third_party\spdlog\include;..\..\..\..\include\tracy\public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <AdditionalOptions>-Wno-nonportable-include-path -Wno-reorder-init-list -Wno-reorder-ctor -Wno-c99-designator -Wno-microsoft-exception-spec %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>assimp.lib;zlibstatic.lib;TracyProfiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\imgui\backends\imgui_impl_dx11.h" />
+    <ClInclude Include="..\..\include\imgui\backends\imgui_impl_opengl3.h" />
+    <ClInclude Include="cache\buffercache.hpp" />
+    <ClInclude Include="cache\cache.hpp" />
+    <ClInclude Include="cache\materialcache.hpp" />
+    <ClInclude Include="cache\meshcache.hpp" />
+    <ClInclude Include="cache\modelcache.hpp" />
+    <ClInclude Include="cache\shadercache.hpp" />
+    <ClInclude Include="cache\texturecache.hpp" />
+    <ClInclude Include="cache\windowprovider.hpp" />
+    <ClInclude Include="components\camera.hpp" />
+    <ClInclude Include="components\components.hpp" />
+    <ClInclude Include="components\light.hpp" />
+    <ClInclude Include="components\mesh_renderer.hpp" />
+    <ClInclude Include="components\skyboxrenderer.hpp" />
+    <ClInclude Include="components\spriterenderer.hpp" />
+    <ClInclude Include="data\bufferhandle.hpp" />
+    <ClInclude Include="data\handles.hpp" />
+    <ClInclude Include="data\material.hpp" />
+    <ClInclude Include="data\materialhandle.hpp" />
+    <ClInclude Include="data\mesh.hpp" />
+    <ClInclude Include="data\meshhandle.hpp" />
+    <ClInclude Include="data\model.hpp" />
+    <ClInclude Include="data\modelhandle.hpp" />
+    <ClInclude Include="data\renderingtest.hpp" />
+    <ClInclude Include="data\shaderhandle.hpp" />
+    <ClInclude Include="data\shadersource.hpp" />
+    <ClInclude Include="data\texturehandle.hpp" />
+    <ClInclude Include="data\textureparameters.hpp" />
+    <ClInclude Include="data\vertex.hpp" />
+    <ClInclude Include="data\vertexattribute.hpp" />
+    <ClInclude Include="data\windowhandle.hpp" />
+    <ClInclude Include="interface\DirectX\buffer.hpp" />
+    <ClInclude Include="interface\DirectX\dx11includes.hpp" />
+    <ClInclude Include="interface\DirectX\enumtypes.hpp" />
+    <ClInclude Include="interface\DirectX\inputlayout.hpp" />
+    <ClInclude Include="interface\DirectX\renderinterface.hpp" />
+    <ClInclude Include="interface\DirectX\shader.hpp" />
+    <ClInclude Include="interface\DirectX\shadercompiler.hpp" />
+    <ClInclude Include="interface\DirectX\shaderincluder.hpp" />
+    <ClInclude Include="interface\DirectX\texture.hpp" />
+    <ClInclude Include="interface\DirectX\window.hpp" />
+    <ClInclude Include="interface\OpenGL\buffer.hpp" />
+    <ClInclude Include="interface\OpenGL\enumtypes.hpp" />
+    <ClInclude Include="interface\OpenGL\glslangincludes.hpp" />
+    <ClInclude Include="interface\OpenGL\inputlayout.hpp" />
+    <ClInclude Include="interface\OpenGL\oglincludes.hpp" />
+    <ClInclude Include="interface\OpenGL\renderinterface.hpp" />
+    <ClInclude Include="interface\OpenGL\shader.hpp" />
+    <ClInclude Include="interface\OpenGL\shadercompiler.hpp" />
+    <ClInclude Include="interface\OpenGL\texture.hpp" />
+    <ClInclude Include="interface\OpenGL\window.hpp" />
+    <ClInclude Include="interface\config.hpp" />
+    <ClInclude Include="interface\definitions\buffer.hpp" />
+    <ClInclude Include="interface\definitions\definitions.hpp" />
+    <ClInclude Include="interface\definitions\enumtypes.hpp" />
+    <ClInclude Include="interface\definitions\inputlayout.hpp" />
+    <ClInclude Include="interface\definitions\renderinterface.hpp" />
+    <ClInclude Include="interface\definitions\shader.hpp" />
+    <ClInclude Include="interface\definitions\texture.hpp" />
+    <ClInclude Include="interface\definitions\window.hpp" />
+    <ClInclude Include="interface\ibuffer.hpp" />
+    <ClInclude Include="interface\iinputlayout.hpp" />
+    <ClInclude Include="interface\irenderinterface.hpp" />
+    <ClInclude Include="interface\ishader.hpp" />
+    <ClInclude Include="interface\itexture.hpp" />
+    <ClInclude Include="interface\iwindow.hpp" />
+    <ClInclude Include="modules\rendermodule.hpp" />
+    <ClInclude Include="pipeline\base\graphicsstage.hpp" />
+    <ClInclude Include="pipeline\base\graphicsstagebase.hpp" />
+    <ClInclude Include="pipeline\base\pipeline.hpp" />
+    <ClInclude Include="pipeline\base\pipelinebase.hpp" />
+    <ClInclude Include="pipeline\base\pipelineprovider.hpp" />
+    <ClInclude Include="pipeline\base\pipelineprovider.inl" />
+    <ClInclude Include="pipeline\defaultpipeline.hpp" />
+    <ClInclude Include="pipeline\stages\clearstage.hpp" />
+    <ClInclude Include="pipeline\stages\guistage.hpp" />
+    <ClInclude Include="pipeline\stages\lightrenderstage.hpp" />
+    <ClInclude Include="pipeline\stages\renderstage.hpp" />
+    <ClInclude Include="pipeline\stages\slyboxstage.hpp" />
+    <ClInclude Include="rendering.hpp" />
+    <ClInclude Include="systems\renderer.hpp" />
+    <ClInclude Include="systems\rendertestsystem.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\include\imgui\backends\imgui_impl_dx11.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugOGL Win64|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseOGL Win64|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\include\imgui\backends\imgui_impl_glfw.cpp" />
+    <ClCompile Include="..\..\include\imgui\backends\imgui_impl_opengl3.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDX11 Win64|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseDX11 Win64|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\include\imgui\imgui.cpp" />
+    <ClCompile Include="..\..\include\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\..\include\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\..\include\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\..\include\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="cache\buffercache.cpp" />
+    <ClCompile Include="cache\materialcache.cpp" />
+    <ClCompile Include="cache\meshcache.cpp" />
+    <ClCompile Include="cache\modelcache.cpp" />
+    <ClCompile Include="cache\shadercache.cpp" />
+    <ClCompile Include="cache\texturecache.cpp" />
+    <ClCompile Include="pipeline\base\graphicsstage.cpp" />
+    <ClCompile Include="pipeline\base\pipeline.cpp" />
+    <ClCompile Include="systems\renderer.cpp" />
+    <ClCompile Include="systems\rendertestsystem.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\core\src\core\core.vcxproj">
+      <Project>{4E40957C-3A77-960D-E363-7C10CF79120F}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
