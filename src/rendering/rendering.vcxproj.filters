@@ -306,21 +306,6 @@
     <ClCompile Include="..\..\include\imgui\backends\imgui_impl_opengl3.cpp">
       <Filter>include\imgui\backends</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\imgui\imgui.cpp">
-      <Filter>include\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\imgui\imgui_demo.cpp">
-      <Filter>include\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\imgui\imgui_draw.cpp">
-      <Filter>include\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\imgui\imgui_tables.cpp">
-      <Filter>include\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\imgui\imgui_widgets.cpp">
-      <Filter>include\imgui</Filter>
-    </ClCompile>
     <ClCompile Include="cache\buffercache.cpp">
       <Filter>cache</Filter>
     </ClCompile>
