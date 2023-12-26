@@ -1,4 +1,4 @@
-createProject("engine","rendering","StaticLib")
+createProject("engine","graphics","StaticLib")
 includedirs {
     basicIncludes,
     "C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/Include",
@@ -6,11 +6,11 @@ includedirs {
 }  
 defines {"GLEW_STATIC"}
 files { 
-    "src/rendering/**.h",
-    "src/rendering/**.hpp",
-    "src/rendering/**.inl",
-    "src/rendering/**.c",
-    "src/rendering/**.cpp",
+    "src/graphics/**.h",
+    "src/graphics/**.hpp",
+    "src/graphics/**.inl",
+    "src/graphics/**.c",
+    "src/graphics/**.cpp",
     "include/imgui/*.cpp",
     "include/imgui/backends/imgui_impl_glfw.cpp",
 }
