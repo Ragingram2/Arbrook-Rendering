@@ -45,7 +45,7 @@ namespace rythe::rendering::internal
 
 		void initialize(math::ivec2 res, const std::string& name, GLFWwindow* window = nullptr)
 		{
-			log::debug("Initializing OpenGL");
+			log::info("Initializing OpenGL");
 			if (!window)
 				m_windowHandle = WindowProvider::addWindow();
 

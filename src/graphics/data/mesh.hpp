@@ -41,7 +41,6 @@ namespace rythe::rendering
 
 		void load(const aiScene* scene)
 		{
-			//name = std::string(scene->mName.C_Str());
 			if (!scene->HasMeshes())
 			{
 				log::error("The scene we tried to load did not contain any meshes, curious");
@@ -51,7 +50,7 @@ namespace rythe::rendering
 			meshes.reserve(scene->mNumMeshes);
 			vertexCount = 0;
 			indexCount = 0;
-			log::debug("Loading {} Meshe(s)", scene->mNumMeshes);
+
 			for (unsigned int i = 0; i < scene->mNumMeshes; i++)
 			{
 				meshes.emplace_back();

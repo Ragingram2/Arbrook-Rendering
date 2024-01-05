@@ -1,57 +1,67 @@
 #include "graphics/cache/materialcache.hpp"
-#include "graphics/cache/shadercache.hpp"
-#include "graphics/cache/texturecache.hpp"
+#include "graphics/cache/importers/shaderimporter.hpp"
+#include "graphics/cache/importers/textureimporter.hpp"
 
 namespace rythe::rendering
 {
-	std::unordered_map<std::string, std::unique_ptr<material>> MaterialCache::m_materials;
+	std::unordered_map<rsl::id_type, std::unique_ptr<material>> MaterialCache::m_materials;
+	std::unordered_map<rsl::id_type, std::string> MaterialCache::m_names;
 
-	material_handle MaterialCache::loadMaterial(const std::string& name, const shader_handle shader)
+	ast::asset_handle<material> MaterialCache::loadMaterial(const std::string& name, ast::asset_handle<shader> shader)
 	{
-		if (m_materials.contains(name))
+		rsl::id_type id = rsl::nameHash(name);
+		if (m_materials.contains(id))
 		{
 			log::warn("Material {} already exists, ignoring creation request and returning existing material", name);
-			return { m_materials[name].get() };
+			return { id, m_materials[id].get() };
 		}
 
-		auto mat = m_materials.emplace(name, std::make_unique<material>()).first->second.get();
+		std::unique_ptr<material> mat = std::make_unique<material>();
 		mat->shader = shader;
 		mat->name = name;
-		return { mat };
+		m_materials.emplace(id, std::move(mat));
+		return { id,  m_materials[id].get() };
 	}
-	material_handle MaterialCache::loadMaterial(const std::string& name, const std::string& shaderName)
+	ast::asset_handle<material> MaterialCache::loadMaterial(const std::string& name, const std::string& shaderName)
 	{
-		return loadMaterial(name, ShaderCache::getShader(shaderName));
+		return loadMaterial(name, rsl::nameHash(shaderName));
 	}
-	material_handle MaterialCache::loadMaterialFromFile(const std::string& name, const std::string& shaderPath)
+	ast::asset_handle<material> MaterialCache::loadMaterial(const std::string& name, rsl::id_type shaderId)
 	{
-		shader_handle shader = ShaderCache::createShader(shaderPath);
-
-		return loadMaterial(name, shader);
+		return loadMaterial(name, ast::AssetCache<shader>::getAsset(shaderId));
 	}
-	material_handle MaterialCache::getMaterial(const std::string& name)
+	ast::asset_handle<material> MaterialCache::loadMaterialFromFile(const std::string& name, fs::path shaderPath)
 	{
-		if (m_materials.contains(name))
+		return loadMaterial(name, ast::AssetCache<shader>::createAsset(name, shaderPath, default_shader_params, false));
+	}
+	ast::asset_handle<material> MaterialCache::getMaterial(const std::string& name)
+	{
+		rsl::id_type id = rsl::nameHash(name);
+		if (m_materials.contains(id))
 		{
-			return { m_materials[name].get() };
+			return { id, m_materials[id].get() };
 		}
-		return material_handle();
+		return { 0, nullptr };
 	}
 	void MaterialCache::deleteMaterial(const std::string& name)
 	{
-		if (m_materials.contains(name))
+		deleteMaterial(rsl::nameHash(name));
+	}
+	void MaterialCache::deleteMaterial(rsl::id_type nameHash)
+	{
+		if (m_materials.contains(nameHash))
 		{
-			m_materials[name]->shader->clearBuffers();
-			//add a similar func for textures
-			m_materials.erase(name);
+			m_materials[nameHash]->shader->clearBuffers();
+			m_materials.erase(nameHash);
+			m_names.erase(nameHash);
 		}
 	}
-	std::vector<material_handle> MaterialCache::getMaterials()
+	std::vector<ast::asset_handle<material>> MaterialCache::getMaterials()
 	{
-		std::vector<material_handle> handles;
+		std::vector<ast::asset_handle<material>> handles;
 		for (auto& [id, handle] : m_materials)
 		{
-			handles.push_back(material_handle{ handle.get() });
+			handles.emplace_back(id, handle.get());
 		}
 		return handles;
 	}

@@ -56,25 +56,25 @@ namespace rythe::rendering::internal
 			std::string src = source.sources[static_cast<int>(type)].second;
 			std::string sourceName = std::format("{}.shader", source.fileName);
 
-			log::debug("[{}] Preproccessing Shader", file);
+			log::info("[{}] Preproccessing Shader", file);
 			CHECKERROR(D3DPreprocess(src.c_str(), src.length(), sourceName.c_str(), nullptr, m_includer, &ppShaderBlob, &errors), "Shader failed to preprocess", m_windowHandle->checkError());
 
 			if (errors && errors->GetBufferSize())
-				rsl::log::error("[{}] Shader Preprocesing {}", file, static_cast<char*>(errors->GetBufferPointer()));
+				log::error("[{}] Shader Preprocesing {}", file, static_cast<char*>(errors->GetBufferPointer()));
 			else
-				rsl::log::debug("[{}] Shader Preprocesing Success", file);
+				log::info("[{}] Shader Preprocesing Success", file);
 
 			errors = nullptr;
 
 			ID3DBlob* shaderBlob;
-			rsl::log::debug("[{}] Compiling Shader", file);
+			log::info("[{}] Compiling Shader", file);
 			CHECKERROR(D3DCompile(ppShaderBlob->GetBufferPointer(), ppShaderBlob->GetBufferSize(), sourceName.c_str(), nullptr, m_includer, "main", profile.c_str(), flags, 0, &shaderBlob, &errors), "Shader failed to compile", m_windowHandle->checkError());
 
 
 			if (errors && errors->GetBufferSize())
 				rsl::log::error("[{}] Shader Compilation {}", file, static_cast<char*>(errors->GetBufferPointer()));
 			else
-				rsl::log::debug("[{}] Shader Compilation Success", file);
+				rsl::log::info("[{}] Shader Compilation Success", file);
 
 			return std::move(shaderBlob);
 		}

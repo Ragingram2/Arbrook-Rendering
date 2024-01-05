@@ -67,7 +67,6 @@ namespace rythe::rendering::internal
 			if (!data)
 				log::error("Image failed to load");
 
-			log::debug("Channel Count: {}", channels);
 			switch (m_usageType)
 			{
 			case static_cast<GLenum>(0):

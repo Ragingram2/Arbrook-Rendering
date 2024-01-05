@@ -21,6 +21,7 @@ namespace rythe::rendering
 	struct Ishader
 	{
 		friend class ShaderCache;
+		friend class ShaderImporter;
 		friend struct internal::inputlayout;
 	private:
 		APIType m_impl;

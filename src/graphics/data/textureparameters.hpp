@@ -2,24 +2,45 @@
 #include <string>
 
 #include "core/math/math.hpp"
+#include "core/assets/importsettings.hpp"
 #include "graphics/interface/definitions/enumtypes.hpp"
 
 namespace rythe::rendering
 {
-	struct texture_parameters
+	template<typename APIType>
+	struct Itexture;
+
+	namespace internal
+	{
+		struct texture;
+	}
+
+	using texture = Itexture<internal::texture>;
+}
+
+namespace rythe::core::assets
+{
+	template<>
+	struct import_settings<rendering::texture>
 	{
 	public:
-		WrapMode wrapModeS = WrapMode::REPEAT;
-		WrapMode wrapModeT = WrapMode::REPEAT;
-		WrapMode wrapModeR = WrapMode::REPEAT;
-		FilterMode filterMode = FilterMode::LINEAR;
-		FormatType format = FormatType::RGB;
-		UsageType usage = UsageType::DEFAULT;
+		rendering::TargetType targetType = rendering::TargetType::TEXTURE2D;
+		rendering::WrapMode wrapModeS = rendering::WrapMode::REPEAT;
+		rendering::WrapMode wrapModeT = rendering::WrapMode::REPEAT;
+		rendering::WrapMode wrapModeR = rendering::WrapMode::REPEAT;
+		rendering::FilterMode filterMode = rendering::FilterMode::LINEAR;
+		rendering::FormatType format = rendering::FormatType::RGB;
+		rendering::UsageType usage = rendering::UsageType::DEFAULT;
 		int mipLevels = 1;
 		bool generateMipMaps = false;
 	};
+}
 
-	constexpr texture_parameters default_params{
+namespace rythe::rendering
+{
+	using texture_parameters = core::assets::import_settings<rendering::texture>;
+
+	constexpr core::assets::import_settings<rendering::texture> default_params{
 		.wrapModeS = WrapMode::REPEAT,
 		.wrapModeT = WrapMode::REPEAT,
 		.wrapModeR = WrapMode::REPEAT,

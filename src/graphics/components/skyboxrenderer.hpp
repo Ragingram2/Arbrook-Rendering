@@ -1,9 +1,11 @@
 #pragma once
-#include "graphics/data/texturehandle.hpp"
+#include "core/assets/assethandle.hpp"
+#include "graphics/interface/definitions/texture.hpp"
+
 namespace rythe::rendering
 {
 	struct skybox_renderer
 	{
-		texture_handle skyboxTex;
+		ast::asset_handle<texture> skyboxTex;
 	};
 }

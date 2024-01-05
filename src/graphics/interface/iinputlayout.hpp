@@ -1,10 +1,10 @@
 #pragma once
-#include "graphics/data/shaderhandle.hpp"
+#include "core/assets/assethandle.hpp"
 #include "graphics/data/bufferhandle.hpp"
-
+#include "graphics/interface/definitions/shader.hpp"
 #include "graphics/interface/definitions/enumtypes.hpp"
 
-
+namespace ast = rythe::core::assets;
 namespace rythe::rendering
 {
 	template<typename APIType>
@@ -14,7 +14,7 @@ namespace rythe::rendering
 		APIType m_impl;
 	public:
 
-		void initialize(unsigned int numBuffers, shader_handle shader) { m_impl.initialize(numBuffers, shader); }
+		void initialize(unsigned int numBuffers, ast::asset_handle<shader> shader) { m_impl.initialize(numBuffers, shader); }
 
 		void bind() { m_impl.bind(); }
 

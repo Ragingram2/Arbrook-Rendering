@@ -5,11 +5,13 @@
 #include <rsl/logging>
 
 #include "core/components/transform.hpp"
+#include "core/assets/assethandle.hpp"
 #include "graphics/cache/cache.hpp"
 #include "graphics/interface/definitions/definitions.hpp"
 #include "graphics/pipeline/base/graphicsstage.hpp"
 #include "graphics/components/components.hpp"
 
+namespace ast = rythe::core::assets;
 namespace rythe::rendering
 {
 	using renderFunc = void(core::transform, camera);
@@ -21,7 +23,7 @@ namespace rythe::rendering
 		buffer_handle cameraBuffer;
 		buffer_handle materialBuffer;
 		buffer_handle lightBuffer;
-		std::vector<shader_handle> m_shaders;
+		std::vector<ast::asset_handle<shader>> m_shaders;
 		virtual void setup(core::transform camTransf, camera& cam) override
 		{
 			cam.calculate_projection();
@@ -62,10 +64,10 @@ namespace rythe::rendering
 			for (auto& ent : m_filter)
 			{
 				auto& renderer = ent.getComponent<mesh_renderer>();
-				material_handle material = renderer.material;
-				shader_handle shader = renderer.material->shader;
-				model_handle model = renderer.model;
-				mesh_handle mesh = renderer.model->meshHandle;
+				ast::asset_handle<material> material = renderer.material;
+				ast::asset_handle<shader> shader = renderer.material->shader;
+				ast::asset_handle<model> model = renderer.model;
+				ast::asset_handle<mesh> mesh = renderer.model->meshHandle;
 				if (renderer.dirty)
 				{
 					model->initialize(shader, mesh, renderer.instanced);

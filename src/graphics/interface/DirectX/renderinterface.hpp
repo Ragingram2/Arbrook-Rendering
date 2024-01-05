@@ -40,7 +40,7 @@ namespace rythe::rendering::internal
 
 		void initialize(math::ivec2 res, const std::string& name, GLFWwindow* window = nullptr)
 		{
-			log::debug("Initializing DX11");
+			log::info("Initializing DX11");
 			if (!window)
 				m_windowHandle = WindowProvider::addWindow();
 

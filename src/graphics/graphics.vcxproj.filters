@@ -4,6 +4,9 @@
     <Filter Include="cache">
       <UniqueIdentifier>{B95D350F-2572-5DC0-EEF3-00205AC759F1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="cache\importers">
+      <UniqueIdentifier>{ADAF0639-193B-74FD-224C-F7F18E56D0FD}</UniqueIdentifier>
+    </Filter>
     <Filter Include="components">
       <UniqueIdentifier>{8BA12798-7759-69E5-E060-4241CC3704D6}</UniqueIdentifier>
     </Filter>
@@ -60,19 +63,19 @@
     <ClInclude Include="cache\cache.hpp">
       <Filter>cache</Filter>
     </ClInclude>
+    <ClInclude Include="cache\importers\meshimporter.hpp">
+      <Filter>cache\importers</Filter>
+    </ClInclude>
+    <ClInclude Include="cache\importers\shaderimporter.hpp">
+      <Filter>cache\importers</Filter>
+    </ClInclude>
+    <ClInclude Include="cache\importers\textureimporter.hpp">
+      <Filter>cache\importers</Filter>
+    </ClInclude>
     <ClInclude Include="cache\materialcache.hpp">
       <Filter>cache</Filter>
     </ClInclude>
-    <ClInclude Include="cache\meshcache.hpp">
-      <Filter>cache</Filter>
-    </ClInclude>
     <ClInclude Include="cache\modelcache.hpp">
-      <Filter>cache</Filter>
-    </ClInclude>
-    <ClInclude Include="cache\shadercache.hpp">
-      <Filter>cache</Filter>
-    </ClInclude>
-    <ClInclude Include="cache\texturecache.hpp">
       <Filter>cache</Filter>
     </ClInclude>
     <ClInclude Include="cache\windowprovider.hpp">
@@ -99,37 +102,19 @@
     <ClInclude Include="data\bufferhandle.hpp">
       <Filter>data</Filter>
     </ClInclude>
-    <ClInclude Include="data\handles.hpp">
-      <Filter>data</Filter>
-    </ClInclude>
     <ClInclude Include="data\material.hpp">
-      <Filter>data</Filter>
-    </ClInclude>
-    <ClInclude Include="data\materialhandle.hpp">
       <Filter>data</Filter>
     </ClInclude>
     <ClInclude Include="data\mesh.hpp">
       <Filter>data</Filter>
     </ClInclude>
-    <ClInclude Include="data\meshhandle.hpp">
-      <Filter>data</Filter>
-    </ClInclude>
     <ClInclude Include="data\model.hpp">
-      <Filter>data</Filter>
-    </ClInclude>
-    <ClInclude Include="data\modelhandle.hpp">
       <Filter>data</Filter>
     </ClInclude>
     <ClInclude Include="data\renderingtest.hpp">
       <Filter>data</Filter>
     </ClInclude>
-    <ClInclude Include="data\shaderhandle.hpp">
-      <Filter>data</Filter>
-    </ClInclude>
     <ClInclude Include="data\shadersource.hpp">
-      <Filter>data</Filter>
-    </ClInclude>
-    <ClInclude Include="data\texturehandle.hpp">
       <Filter>data</Filter>
     </ClInclude>
     <ClInclude Include="data\textureparameters.hpp">
@@ -324,19 +309,19 @@
     <ClCompile Include="cache\buffercache.cpp">
       <Filter>cache</Filter>
     </ClCompile>
+    <ClCompile Include="cache\importers\meshimporter.cpp">
+      <Filter>cache\importers</Filter>
+    </ClCompile>
+    <ClCompile Include="cache\importers\shaderimporter.cpp">
+      <Filter>cache\importers</Filter>
+    </ClCompile>
+    <ClCompile Include="cache\importers\textureimporter.cpp">
+      <Filter>cache\importers</Filter>
+    </ClCompile>
     <ClCompile Include="cache\materialcache.cpp">
       <Filter>cache</Filter>
     </ClCompile>
-    <ClCompile Include="cache\meshcache.cpp">
-      <Filter>cache</Filter>
-    </ClCompile>
     <ClCompile Include="cache\modelcache.cpp">
-      <Filter>cache</Filter>
-    </ClCompile>
-    <ClCompile Include="cache\shadercache.cpp">
-      <Filter>cache</Filter>
-    </ClCompile>
-    <ClCompile Include="cache\texturecache.cpp">
       <Filter>cache</Filter>
     </ClCompile>
     <ClCompile Include="pipeline\base\graphicsstage.cpp">

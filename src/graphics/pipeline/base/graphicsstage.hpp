@@ -1,15 +1,13 @@
 #pragma once
-
 #include <tracy/Tracy.hpp>
 
 #include <rsl/primitives>
 #include <rsl/utilities>
 
-#include "core/logging/logging.hpp"
-
+#include "core/systems/system.hpp"
 #include "graphics/interface/definitions/definitions.hpp"
-#include "graphics/cache/shadercache.hpp"
-#include "graphics/cache/texturecache.hpp"
+#include "graphics/cache/importers/shaderimporter.hpp"
+#include "graphics/cache/importers/textureimporter.hpp"
 #include "graphics/cache/buffercache.hpp"
 #include "graphics/pipeline/base/pipelinebase.hpp"
 #include "graphics/pipeline/base/graphicsstagebase.hpp"

@@ -1,9 +1,11 @@
 #pragma once
+#include "core/components/transform.hpp"
+#include "core/assets/assethandle.hpp"
 #include "graphics/pipeline/base/graphicsstage.hpp"
 #include "graphics/components/components.hpp"
-#include "graphics/data/materialhandle.hpp"
 #include "graphics/cache/materialcache.hpp"
-#include "core/components/transform.hpp"
+#include "graphics/cache/modelcache.hpp"
+#include "graphics/data/model.hpp"
 
 
 namespace rythe::rendering
@@ -11,8 +13,8 @@ namespace rythe::rendering
 	struct skybox_stage : public graphics_stage<skybox_stage, skybox_renderer>
 	{
 		buffer_handle cameraBuffer;
-		material_handle skyboxMat;
-		model_handle cubeHandle;
+		ast::asset_handle<material> skyboxMat;
+		ast::asset_handle<model> cubeHandle;
 		virtual void setup(core::transform camTransf, camera& cam) override
 		{
 			cam.calculate_projection();

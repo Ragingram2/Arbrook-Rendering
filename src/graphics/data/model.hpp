@@ -1,14 +1,16 @@
 #pragma once
 
-#include "graphics/data/meshhandle.hpp"
-#include "graphics/data/shaderhandle.hpp"
+#include "core/assets/assethandle.hpp"
+
 #include "graphics/data/bufferhandle.hpp"
+#include "graphics/data/mesh.hpp"
 #include "graphics/interface/definitions/buffer.hpp"
 #include "graphics/interface/definitions/inputlayout.hpp"
 #include "graphics/cache/buffercache.hpp"
 #include "graphics/components/light.hpp"
 #include "graphics/components/camera.hpp"
 
+namespace ast = rythe::core::assets;
 namespace rythe::rendering
 {
 	struct model
@@ -22,13 +24,12 @@ namespace rythe::rendering
 		buffer_handle colorBuffer;
 		buffer_handle tangentBuffer;
 		buffer_handle matrixBuffer;
-		mesh_handle meshHandle;
-
+		ast::asset_handle<mesh> meshHandle;
 
 		model() = default;
 		model(const model& mod) : name(mod.name), indexBuffer(mod.indexBuffer), vertexBuffer(mod.vertexBuffer), normalBuffer(mod.normalBuffer), uvBuffer(mod.uvBuffer), colorBuffer(mod.colorBuffer), tangentBuffer(mod.tangentBuffer), matrixBuffer(mod.matrixBuffer) { }
 
-		void initialize(shader_handle shader, mesh_handle handle, bool instanced)
+		void initialize(ast::asset_handle<shader> shader, ast::asset_handle<mesh> handle, bool instanced)
 		{
 			meshHandle = handle;
 			layout.release();

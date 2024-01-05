@@ -21,6 +21,7 @@ namespace rythe::rendering
 	struct Itexture
 	{
 		friend class TextureCache;
+		friend class TextureImporter;
 		friend struct Itexture<internal::texture>;
 	private:
 		APIType m_impl;

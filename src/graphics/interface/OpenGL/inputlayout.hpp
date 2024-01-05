@@ -5,18 +5,21 @@
 
 
 #include <rsl/primitives>
+#include <rsl/logging>
 
-#include "core/logging/logging.hpp"
-#include "graphics/data/shaderhandle.hpp"
+#include "core/assets/assethandle.hpp"
 #include "graphics/data/vertex.hpp"
 #include "graphics/data/vertexattribute.hpp"
+#include "graphics/interface/definitions/shader.hpp"
 #include "graphics/interface/OpenGL/oglincludes.hpp"
 #include "graphics/interface/config.hpp"
 #include Buffer_HPP_PATH
 #include EnumTypes_HPP_PATH
 
+namespace ast = rythe::core::assets;
 namespace rythe::rendering::internal
 {
+	namespace log = rsl::log;
 	struct inputlayout
 	{
 	public:
@@ -26,7 +29,7 @@ namespace rythe::rendering::internal
 		std::unordered_map<int, std::set<int>> m_flatIndeces;
 	public:
 
-		void initialize(unsigned int numBuffers, shader_handle shader)
+		void initialize(unsigned int numBuffers, ast::asset_handle<Ishader<shader>> shader)
 		{
 			glGenVertexArrays(1, &id);
 		}

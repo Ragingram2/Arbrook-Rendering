@@ -83,7 +83,7 @@ namespace rythe::rendering::internal
 
 			std::string file{ std::format("{}-{}", source.fileName, shaderType) };
 			auto hlslSource = source.sources[shaderIdx].second;
-			//log::debug("[{}] HLSL Source:\n{}", file, hlslSource);
+
 			std::vector<unsigned int> spirVBin = compileToSpirV(profile, shaderType, source.fileName, hlslSource);
 			if (spirVBin.size() < 1)
 			{
@@ -97,10 +97,9 @@ namespace rythe::rendering::internal
 				return 0;
 			}
 
-			//log::debug("[{}] GLSL Source\n{}", file, glslSource);
 			unsigned int id = glCreateShader(static_cast<GLenum>(type));
 
-			rsl::log::debug("[{}] Compiling GLSL Shader", file);
+			log::info("[{}] Compiling GLSL Shader", file);
 			const char* src = glslSource.c_str();
 			glShaderSource(id, 1, &src, NULL);
 			glCompileShader(id);
@@ -114,14 +113,14 @@ namespace rythe::rendering::internal
 
 				std::vector<GLchar> infoLog(maxLength);
 				glGetShaderInfoLog(id, maxLength, &maxLength, &infoLog[0]);
-				rsl::log::error("[{}] Shader Compilation Failed", file);
-				rsl::log::error("[{}] Shader Compilation {}", file, infoLog.data());
+				log::error("[{}] Shader Compilation Failed", file);
+				log::error("[{}] Shader Compilation {}", file, infoLog.data());
 
 				glDeleteShader(id);
 				return 0;
 			}
 
-			rsl::log::debug("[{}] GLSL Shader Compilation Success", file);
+			log::info("[{}] GLSL Shader Compilation Success", file);
 
 			return id;
 		}
@@ -189,7 +188,7 @@ namespace rythe::rendering::internal
 				spv::SpvBuildLogger logger;
 				glslang::GlslangToSpv(*i, spirVBin, &logger);
 				if (logger.getAllMessages().length() > 0)
-					log::debug("[{}] SpirV Conversion output log: {}", file, logger.getAllMessages());
+					log::info("[{}] SpirV Conversion output log: {}", file, logger.getAllMessages());
 
 				//if (!glslang::OutputSpvBin(spirVBin, fileName.c_str()))
 				//	log::error("[{}] Output to SpirV bin failed", file);
@@ -210,7 +209,7 @@ namespace rythe::rendering::internal
 			{
 				unsigned set = glsl.get_decoration(resource.id, spv::DecorationDescriptorSet);
 				unsigned binding = glsl.get_decoration(resource.id, spv::DecorationBinding);
-				log::debug("Image %s at set = %u, binding = %u\n", resource.name.c_str(), set, binding);
+				log::info("Image %s at set = %u, binding = %u\n", resource.name.c_str(), set, binding);
 
 				glsl.unset_decoration(resource.id, spv::DecorationDescriptorSet);
 
