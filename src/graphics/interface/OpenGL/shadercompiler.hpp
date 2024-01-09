@@ -41,7 +41,7 @@ namespace rythe::rendering::internal
 
 			m_includer.pushExternalLocalDirectory("resources\\shaders\\include");
 
-			m_windowHandle = WindowProvider::get(0);
+			m_windowHandle = WindowProvider::activeWindow;
 			m_initialized = true;
 		}
 

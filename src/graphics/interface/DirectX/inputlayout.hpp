@@ -40,7 +40,7 @@ namespace rythe::rendering::internal
 	public:
 		void initialize(unsigned int numBuffers, shader_handle shader)
 		{
-			m_windowHandle = WindowProvider::get(0);
+			m_windowHandle = WindowProvider::activeWindow;
 			m_vsBlob = shader->getImpl().VS;
 		}
 

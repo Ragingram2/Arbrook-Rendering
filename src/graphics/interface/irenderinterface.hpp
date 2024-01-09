@@ -13,6 +13,7 @@ namespace rythe::rendering
 	private:
 		APIType m_impl;
 	public:
+		void setWindow(window_handle handle) { m_impl.setWindow(handle); }
 		void initialize(math::ivec2 res, const std::string& name, GLFWwindow* window = nullptr) { m_impl.initialize(res, name, window); }
 		void close() { m_impl.close(); }
 		GLFWwindow* getGlfwWindow() { return m_impl.getGlfwWindow(); }
@@ -47,13 +48,6 @@ namespace rythe::rendering
 		void setStencilFunction(Face face, DepthFuncs func, unsigned int ref, unsigned int mask) { m_impl.setStencilFunction(static_cast<internal::Face>(face), static_cast<internal::DepthFuncs>(func), ref, mask); }
 		void updateDepthStencil() { m_impl.updateDepthStencil(); }
 
-		//void setScissorTest();
-		//void setBlend(bool blend);
-		//void setBlendParam()
-		//void createRenderTarget()
-
 		void checkError() { m_impl.checkError(); }
-
-		void BGFXMode(bool enabled) { m_impl.BGFXMode(enabled); }
 	};
 }

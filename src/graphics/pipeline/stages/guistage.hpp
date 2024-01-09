@@ -28,6 +28,7 @@ namespace rythe::rendering
 			RI->makeCurrent();
 			auto* ctx = ImGui::CreateContext();
 			ImGui::StyleColorsDark();
+			ctx->IO.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 			ImGui::SetCurrentContext(ctx);
 #if RenderingAPI == RenderingAPI_OGL
 			if (!ImGui_ImplGlfw_InitForOpenGL(RI->getGlfwWindow(), true))

@@ -34,7 +34,7 @@ namespace rythe::rendering::internal
 		{
 			if (m_initialized) return;
 
-			m_windowHandle = WindowProvider::get(0);
+			m_windowHandle = WindowProvider::activeWindow;
 			m_initialized = true;
 		}
 

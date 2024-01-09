@@ -42,13 +42,24 @@ namespace rythe::rendering::internal
 		DepthStencilInfo m_depthStencilInfo;
 		window_handle m_windowHandle;
 	public:
+		void setWindow(window_handle handle)
+		{
+			m_windowHandle = handle;
+			m_windowHandle->initialize(handle->getResolution(),handle->getName(), handle->getGlfwWindow());
+			m_windowHandle->makeCurrent();
+		}
 
 		void initialize(math::ivec2 res, const std::string& name, GLFWwindow* window = nullptr)
 		{
 			log::info("Initializing OpenGL");
-			if (!window)
-				m_windowHandle = WindowProvider::addWindow();
-
+			if (!window && WindowProvider::get(name) == nullptr)
+				m_windowHandle = WindowProvider::addWindow(name);
+			else if (WindowProvider::get(name) != nullptr)
+			{
+				m_windowHandle = WindowProvider::get(name);
+				return;
+			}
+			
 			m_windowHandle->initialize(res, name, window);
 			m_windowHandle->makeCurrent();
 
@@ -330,7 +341,7 @@ namespace rythe::rendering::internal
 		{
 		case GL_DEBUG_SEVERITY_HIGH:
 			log::error("[{}-{}] {}: {}", s, t, id, message);
-			__debugbreak();
+			//__debugbreak();
 			break;
 		case GL_DEBUG_SEVERITY_MEDIUM:
 			log::warn("[{}-{}] {}: {}", s, t, id, message);

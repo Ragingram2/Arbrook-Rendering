@@ -273,6 +273,9 @@
     <ClInclude Include="pipeline\stages\slyboxstage.hpp">
       <Filter>pipeline\stages</Filter>
     </ClInclude>
+    <ClInclude Include="pipeline\stages\submitstage.hpp">
+      <Filter>pipeline\stages</Filter>
+    </ClInclude>
     <ClInclude Include="rendering.hpp" />
     <ClInclude Include="systems\renderer.hpp">
       <Filter>systems</Filter>

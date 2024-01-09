@@ -9,6 +9,7 @@ namespace rythe::rendering
 	{
 		virtual void setup(core::transform camTransf, camera& cam) override
 		{
+			RI->makeCurrent();
 			BufferCache::createConstantBuffer<camera_data>("CameraBuffer", SV_CAMERA, UsageType::STATICDRAW);
 			BufferCache::createConstantBuffer<material_data>("MaterialBuffer", SV_MATERIALS, UsageType::STATICDRAW);
 			RI->setSwapInterval(0);

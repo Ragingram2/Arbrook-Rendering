@@ -24,7 +24,7 @@ namespace rythe::rendering
 
 		Renderer() : core::System<Renderer, core::transform, camera>()
 		{
-			setPipeline<DefaultPipeline>();
+			provider = std::make_unique<pipeline_provider<DefaultPipeline>>();
 		}
 		virtual ~Renderer() = default;
 
@@ -85,9 +85,11 @@ namespace rythe::rendering
 		template<typename Type>
 		static void setPipeline()
 		{
+			log::debug("Setting pipeline {}", typeid(Type).name());
+			auto oldRI = pipeline->RI;
 			provider = std::make_unique<pipeline_provider<Type>>();
-			//pipeline = provider->get(0);
-			//RI = &pipeline->RI;
+			pipeline = provider->get(0);
+			pipeline->RI = oldRI;
 		}
 
 		static PipelineBase* getCurrentPipeline()

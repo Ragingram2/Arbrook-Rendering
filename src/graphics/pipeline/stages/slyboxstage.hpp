@@ -19,7 +19,7 @@ namespace rythe::rendering
 		{
 			cam.calculate_projection();
 			skyboxMat = MaterialCache::loadMaterialFromFile("skybox", "resources/shaders/skybox.shader");
-			cubeHandle = ModelCache::getModel("sphere");
+			cubeHandle = ModelCache::getModel("cube");
 			cameraBuffer = BufferCache::getBuffer("CameraBuffer");
 			cubeHandle->initialize(skyboxMat->shader, cubeHandle->meshHandle, false);
 			for (auto& ent : m_filter)

@@ -41,7 +41,7 @@ namespace rythe::rendering::internal
 
 		void initialize(TargetType texType, texture_parameters _params)
 		{
-			m_windowHandle = WindowProvider::get(0);
+			m_windowHandle = WindowProvider::activeWindow;
 			params = _params;
 			m_texType = static_cast<D3D11_BIND_FLAG>(texType);
 			m_usageType = static_cast<D3D11_USAGE>(_params.usage);

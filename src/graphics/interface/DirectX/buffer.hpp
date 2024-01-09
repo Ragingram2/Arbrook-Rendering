@@ -50,7 +50,7 @@ namespace rythe::rendering::internal
 		template<typename elementType>
 		void initialize(TargetType target, UsageType usage, int size, elementType data[] = nullptr)
 		{
-			m_windowHandle = WindowProvider::get(0);
+			m_windowHandle = WindowProvider::activeWindow;
 			m_target = target;
 			m_usage = usage;
 			m_size = size;

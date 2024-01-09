@@ -51,7 +51,7 @@ namespace rythe::rendering::internal
 
 		void initialize(const std::string& name, const shader_source& source)
 		{
-			m_windowHandle = WindowProvider::get(0);
+			m_windowHandle = WindowProvider::activeWindow;
 			ShaderCompiler::initialize();
 			VS = ShaderCompiler::compile(ShaderType::VERTEX,source);
 			PS = ShaderCompiler::compile(ShaderType::FRAGMENT, source);

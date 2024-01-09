@@ -7,7 +7,7 @@
 
 namespace rythe::rendering
 {
-	namespace log = core::log;
+	namespace log = rythe::core::log;
 
 	class RenderModule : public core::Module
 	{

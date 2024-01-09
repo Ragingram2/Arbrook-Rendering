@@ -99,6 +99,8 @@ namespace rythe::rendering::internal
 			{
 				glGenerateMipmap(m_texType);
 			}
+
+			stbi_image_free(data);
 		}
 	};
 }

@@ -77,6 +77,11 @@ namespace rythe::rendering::internal
 			return m_resolution;
 		}
 
+		std::string getName()
+		{
+			return m_windowName;
+		}
+
 		void checkError()
 		{
 			GLenum errcode;

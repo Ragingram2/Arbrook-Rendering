@@ -38,6 +38,12 @@ namespace rythe::rendering::internal
 		window_handle m_windowHandle;
 	public:
 
+		void setWindow(window_handle handle)
+		{
+			m_windowHandle = handle;
+			m_windowHandle->initialize(handle->getResolution(), handle->getName(), handle->getGlfwWindow());
+			m_windowHandle->makeCurrent();
+		}
 		void initialize(math::ivec2 res, const std::string& name, GLFWwindow* window = nullptr)
 		{
 			log::info("Initializing DX11");

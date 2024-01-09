@@ -72,9 +72,14 @@ namespace rythe::rendering
 			std::stringstream ss[shader_type::COUNT];
 			shader_type type = shader_type::NONE;
 			bool parse = false;
-
+			int braceCounter = 0;
 			while (getline(stream, line))
 			{
+				if (line.find('{'))
+					braceCounter++;
+				if (line.find('}'))
+					braceCounter--;
+
 				if (line.find("namespace") != std::string::npos && !parse)
 				{
 					if (line.find("vertex") != std::string::npos)
@@ -99,21 +104,38 @@ namespace rythe::rendering
 					}
 					else
 					{
-						log::error("No Shader Type be found or maybe specified type is not supported");
+						log::error("No ShaderType could be found or specified type is not supported");
 						log::error(line);
 						log::error("Stopping parsing");
 						break;
 					}
 					getline(stream, line);
+					if (line.find('{'))
+						braceCounter++;
+					if (line.find('}'))
+						braceCounter--;
 					getline(stream, line);
+					if (line.find('{'))
+						braceCounter++;
+					if (line.find('}'))
+						braceCounter--;
 					parse = true;
 
 				}
-				else if (line.find("}//end") != std::string::npos)
+				else if (line.find("}") != std::string::npos && braceCounter == 0)
 				{
 					parse = false;
 					continue;
 				}
+				else if (braceCounter > 0)
+				{
+					log::error("Unequal braces, this will lead to incorrect parsing");
+				}
+				//else if (line.find("}//end") != std::string::npos)
+				//{
+				//	parse = false;
+				//	continue;
+				//}
 
 				if (parse)
 				{

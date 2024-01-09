@@ -44,7 +44,7 @@ namespace rythe::rendering
 		void render(core::transform camTransf, camera& cam) override
 		{
 			m_abort = false;
-			RI.makeCurrent();
+
 			for (auto& [_, stage] : m_stages)
 			{
 				if (!stage->isInitialized())
@@ -57,7 +57,6 @@ namespace rythe::rendering
 				if (m_abort)
 					break;
 			}
-			RI.swapBuffers();
 		}
 
 		template<typename Type>
