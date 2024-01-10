@@ -12,7 +12,6 @@
 #include "core/logging/logging.hpp"
 #include "graphics/cache/windowprovider.hpp"
 #include "graphics/data/shadersource.hpp"
-#include "graphics/data/texturehandle.hpp"
 #include "graphics/interface/DirectX/dx11includes.hpp"
 #include "graphics/interface/definitions/window.hpp"
 #include "graphics/interface/config.hpp"
@@ -41,14 +40,21 @@ namespace rythe::rendering::internal
 		void setWindow(window_handle handle)
 		{
 			m_windowHandle = handle;
-			m_windowHandle->initialize(handle->getResolution(), handle->getName(), handle->getGlfwWindow());
 			m_windowHandle->makeCurrent();
 		}
+
 		void initialize(math::ivec2 res, const std::string& name, GLFWwindow* window = nullptr)
 		{
 			log::info("Initializing DX11");
-			if (!window)
-				m_windowHandle = WindowProvider::addWindow();
+			if (!window && WindowProvider::get(name) == nullptr)
+				m_windowHandle = WindowProvider::addWindow(name);
+			else if (WindowProvider::get(name) != nullptr)
+			{
+				m_windowHandle = WindowProvider::get(name);
+				WindowProvider::setActive(name);
+				return;
+			}
+			WindowProvider::setActive(name);
 
 			m_windowHandle->initialize(res, name, window);
 			m_windowHandle->makeCurrent();
@@ -116,9 +122,6 @@ namespace rythe::rendering::internal
 
 			setDepthFunction(DepthFuncs::LESS);
 			updateDepthStencil();
-			//hr = m_windowHandle->dev->CreateDepthStencilState(&m_depthStencilDesc, &m_depthStencilState);
-			//CHECKERROR(hr, "Creating the depth stencil state failed", checkError());
-			//m_windowHandle->devcon->OMSetDepthStencilState(m_depthStencilState, 1);
 
 			ZeroMemory(&m_depthStencilViewDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
 
@@ -154,6 +157,7 @@ namespace rythe::rendering::internal
 
 		void close()
 		{
+			log::debug("Something Called Close");
 			m_windowHandle->swapchain->SetFullscreenState(FALSE, NULL);
 			m_windowHandle->swapchain->Release();
 			m_windowHandle->backbuffer->Release();

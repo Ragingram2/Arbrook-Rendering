@@ -45,7 +45,6 @@ namespace rythe::rendering::internal
 		void setWindow(window_handle handle)
 		{
 			m_windowHandle = handle;
-			m_windowHandle->initialize(handle->getResolution(),handle->getName(), handle->getGlfwWindow());
 			m_windowHandle->makeCurrent();
 		}
 

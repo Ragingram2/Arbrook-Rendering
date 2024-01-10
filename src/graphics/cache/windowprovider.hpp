@@ -61,6 +61,9 @@ namespace rythe::rendering
 			auto id = rsl::nameHash(windowName);
 			if (m_windows.count(id))
 			{
+				if (m_windows.size() < 2)
+					log::debug("About to destroy last window");
+
 				glfwDestroyWindow(m_windows[id].get()->getGlfwWindow());
 				m_windows.erase(id);
 				m_names.erase(id);

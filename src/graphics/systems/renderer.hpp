@@ -85,7 +85,7 @@ namespace rythe::rendering
 		template<typename Type>
 		static void setPipeline()
 		{
-			log::debug("Setting pipeline {}", typeid(Type).name());
+			//log::debug("Setting pipeline {}", typeid(Type).name());
 			auto oldRI = pipeline->RI;
 			provider = std::make_unique<pipeline_provider<Type>>();
 			pipeline = provider->get(0);

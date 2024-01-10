@@ -69,27 +69,16 @@ namespace rythe::rendering
 			layout.bind();
 			if (vertexBuffer != nullptr)
 				vertexBuffer->bind();
-			//vertexBuffer->bufferData(meshHandle->vertices.data(), meshHandle->vertices.size());
 
 			if (indexBuffer != nullptr)
 				indexBuffer->bind();
-			//indexBuffer->bufferData(meshHandle->indices.data(), meshHandle->indices.size());
 
 			if (normalBuffer != nullptr)
 				normalBuffer->bind();
-			//normalBuffer->bufferData(meshHandle->normals.data(), meshHandle->normals.size());
 
 			if (uvBuffer != nullptr)
 				uvBuffer->bind();
-			//uvBuffer->bufferData(meshHandle->texCoords.data(), meshHandle->texCoords.size());
-
 		}
-
-		//void unbind()
-		//{
-		//	layout.unbind();
-		//	vertexBuffer.unbind();
-		//}
 	};
 
 }

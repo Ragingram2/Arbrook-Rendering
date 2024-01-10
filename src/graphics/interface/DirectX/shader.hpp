@@ -12,6 +12,11 @@
 #include "graphics/interface/config.hpp"
 #include EnumTypes_HPP_PATH
 
+namespace rythe::rendering
+{
+	template<typename APIType>
+	struct Ishader;
+}
 namespace rythe::rendering::internal
 {
 	struct shader
@@ -25,6 +30,7 @@ namespace rythe::rendering::internal
 		std::unordered_map<std::string, buffer_handle> m_constBuffers;
 		window_handle m_windowHandle;
 	public:
+
 		unsigned int programId;
 		std::string name;
 

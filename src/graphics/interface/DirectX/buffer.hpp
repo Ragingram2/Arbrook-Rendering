@@ -81,7 +81,7 @@ namespace rythe::rendering::internal
 		}
 
 		template<typename elementType>
-		void bufferData(elementType data[], int size = 0)
+		void bufferData(elementType* data, int size = 0)
 		{
 			//if (m_target == TargetType::INDEX_BUFFER)
 			//{
@@ -112,13 +112,16 @@ namespace rythe::rendering::internal
 
 		void release()
 		{
-			//do stuff here later
+			m_internalBuffer->Release();
 		}
 
 	private:
 		template<typename elementType>
-		void createBuffer(elementType data[])
+		void createBuffer(elementType* data)
 		{
+			if (m_internalBuffer != nullptr)
+				m_internalBuffer->Release();
+
 			ZeroMemory(&m_bufferDesc, sizeof(m_bufferDesc));
 
 			m_bufferDesc.Usage = static_cast<D3D11_USAGE>(m_usage);

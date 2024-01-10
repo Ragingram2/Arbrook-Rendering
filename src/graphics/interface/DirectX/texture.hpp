@@ -11,6 +11,7 @@
 
 namespace rythe::rendering::internal
 {
+	//this should behave more like buffers
 	struct texture
 	{
 	private:

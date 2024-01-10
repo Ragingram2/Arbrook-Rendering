@@ -70,7 +70,7 @@ namespace rythe::rendering::internal
 		}
 
 		template<typename elementType>
-		void bufferData(elementType data[], int size = 1)
+		void bufferData(elementType* data, int size = 1)
 		{
 			//if (m_target == TargetType::INDEX_BUFFER)
 			//{
@@ -108,7 +108,7 @@ namespace rythe::rendering::internal
 
 	private:
 		template<typename elementType>
-		void createBuffer(elementType data[])
+		void createBuffer(elementType* data)
 		{
 			if (id == 0)
 				glGenBuffers(1, &id);
