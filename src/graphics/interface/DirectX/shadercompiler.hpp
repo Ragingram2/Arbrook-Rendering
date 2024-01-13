@@ -47,7 +47,7 @@ namespace rythe::rendering::internal
 #if defined( DEBUG ) || defined( _DEBUG )
 			flags |= D3DCOMPILE_DEBUG;
 			flags |= D3DCOMPILE_OPTIMIZATION_LEVEL0;
-#elif
+#else
 			flags |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
 #endif
 

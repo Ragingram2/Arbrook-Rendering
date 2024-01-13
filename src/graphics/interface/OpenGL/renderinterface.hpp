@@ -58,18 +58,23 @@ namespace rythe::rendering::internal
 				m_windowHandle = WindowProvider::get(name);
 				return;
 			}
-			
-			m_windowHandle->initialize(res, name, window);
-			m_windowHandle->makeCurrent();
 
+			if (!glfwInit())
+			{
+				log::error("GLFW could not initialize");
+				return;
+			}
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+			m_windowHandle->initialize(res, name, window);
+			m_windowHandle->makeCurrent();
 
-			if (glewInit() != GLEW_OK)
+			GLenum err = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+			if (err != 1)
 			{
-				log::error("Something went wrong when initializing GLEW");
+				log::error("Failed to initialize GLAD: Error Code [{}]", err);
 				return;
 			}
 
@@ -77,11 +82,11 @@ namespace rythe::rendering::internal
 			glEnable(GL_DEBUG_OUTPUT);
 			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
-			if (GLEW_AMD_debug_output)
+			if (GLAD_GL_AMD_debug_output)
 				glDebugMessageCallbackAMD(&RenderInterface::debugCallbackAMD, nullptr);
-			else if (GLEW_KHR_debug)
+			else if (GLAD_GL_KHR_debug)
 				glDebugMessageCallback(&RenderInterface::debugCallback, nullptr);
-			else if (GLEW_ARB_debug_output)
+			else if (GLAD_GL_ARB_debug_output)
 				glDebugMessageCallbackARB(&RenderInterface::debugCallbackARB, nullptr);
 #endif
 		}

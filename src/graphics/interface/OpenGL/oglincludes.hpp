@@ -1,3 +1,3 @@
 #pragma once
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <gl/GL.h>

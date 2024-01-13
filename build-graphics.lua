@@ -13,6 +13,7 @@ files {
     "src/graphics/**.cpp",
     "include/imgui/*.cpp",
     "include/imgui/backends/imgui_impl_glfw.cpp",
+    "include/GL/src/glad.c"
 }
 dofile "arbrook/core/include-core.lua"
 

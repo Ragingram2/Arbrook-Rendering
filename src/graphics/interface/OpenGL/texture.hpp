@@ -22,7 +22,7 @@ namespace rythe::rendering::internal
 	public:
 		int channels;
 		math::ivec2 resolution;
-		unsigned int id;
+		unsigned int id = 0;
 		std::string name;
 		unsigned char* data;
 		texture_parameters params;

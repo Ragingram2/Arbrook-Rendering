@@ -66,7 +66,7 @@ namespace rythe::rendering::internal
 
 	enum class WrapMode
 	{
-		CLAMP = GL_CLAMP,
+		CLAMP = GL_CLAMP_TO_EDGE,
 		CLAMP_TO_EDGE = GL_CLAMP_TO_EDGE,
 		CLAMP_TO_BORDER = GL_CLAMP_TO_BORDER,
 		REPEAT = GL_REPEAT
