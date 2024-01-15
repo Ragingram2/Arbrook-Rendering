@@ -63,8 +63,6 @@ namespace rythe::rendering
 			auto& cam = camEnt.getComponent<camera>();
 			cam.calculate_projection();
 			pipeline->render(transf, getCamera());
-
-			//RI->pollEvents();
 		}
 
 		void shutdown()
