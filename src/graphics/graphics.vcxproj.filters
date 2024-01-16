@@ -289,6 +289,8 @@
     <ClInclude Include="systems\rendertestsystem.hpp">
       <Filter>systems</Filter>
     </ClInclude>
+    <ClInclude Include="cache\shadercache.hpp" />
+    <ClInclude Include="data\shaderhandle.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\include\GL\src\glad.c">
@@ -348,5 +350,6 @@
     <ClCompile Include="systems\rendertestsystem.cpp">
       <Filter>systems</Filter>
     </ClCompile>
+    <ClCompile Include="cache\shadercache.cpp" />
   </ItemGroup>
 </Project>

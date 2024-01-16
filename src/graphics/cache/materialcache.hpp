@@ -4,13 +4,14 @@
 #include <unordered_map>
 
 #include "core/assets/assethandle.hpp"
+#include "graphics/data/shaderhandle.hpp"
 #include "graphics/data/material.hpp"
 
 namespace fs = std::filesystem;
 namespace ast = rythe::core::assets;
 namespace rythe::rendering
 {
-	using shader_params = ast::import_settings<shader>;
+	using shader_params = ast::import_settings<shader_source>;
 	constexpr shader_params default_shader_params{};
 
 	class MaterialCache
@@ -20,7 +21,8 @@ namespace rythe::rendering
 		static std::unordered_map<rsl::id_type, std::string> m_names;
 	public:
 		//needs import settings
-		static ast::asset_handle<material> loadMaterial(const std::string& name, ast::asset_handle<shader> shader);
+		static ast::asset_handle<material> loadMaterial(const std::string& name, ast::asset_handle<shader_source> shader);
+		static ast::asset_handle<material> loadMaterial(const std::string& name, shader_handle shader);
 		static ast::asset_handle<material> loadMaterial(const std::string& name, const std::string& shaderName);
 		static ast::asset_handle<material> loadMaterial(const std::string& name, rsl::id_type shaderId);
 		static ast::asset_handle<material> loadMaterialFromFile(const std::string& name, fs::path shaderPath);

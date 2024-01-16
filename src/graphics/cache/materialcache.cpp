@@ -1,4 +1,6 @@
 #include "graphics/cache/materialcache.hpp"
+#include "graphics/cache/shadercache.hpp"
+
 #include "graphics/cache/importers/shaderimporter.hpp"
 #include "graphics/cache/importers/textureimporter.hpp"
 
@@ -7,7 +9,8 @@ namespace rythe::rendering
 	std::unordered_map<rsl::id_type, std::unique_ptr<material>> MaterialCache::m_materials;
 	std::unordered_map<rsl::id_type, std::string> MaterialCache::m_names;
 
-	ast::asset_handle<material> MaterialCache::loadMaterial(const std::string& name, ast::asset_handle<shader> shader)
+
+	ast::asset_handle<material> MaterialCache::loadMaterial(const std::string& name, shader_handle shader)
 	{
 		rsl::id_type id = rsl::nameHash(name);
 		if (m_materials.contains(id))
@@ -17,22 +20,28 @@ namespace rythe::rendering
 		}
 
 		std::unique_ptr<material> mat = std::make_unique<material>();
-		mat->shader = shader;
+		mat->shader = shader; ;
 		mat->name = name;
 		m_materials.emplace(id, std::move(mat));
+		m_names.emplace(id, name);
 		return { id,  m_materials[id].get() };
 	}
+
 	ast::asset_handle<material> MaterialCache::loadMaterial(const std::string& name, const std::string& shaderName)
 	{
 		return loadMaterial(name, rsl::nameHash(shaderName));
 	}
 	ast::asset_handle<material> MaterialCache::loadMaterial(const std::string& name, rsl::id_type shaderId)
 	{
-		return loadMaterial(name, ast::AssetCache<shader>::getAsset(shaderId));
+		return loadMaterial(name, ast::AssetCache<shader_source>::getAsset(shaderId));
+	}
+	ast::asset_handle<material> MaterialCache::loadMaterial(const std::string& name, ast::asset_handle<shader_source> shader)
+	{
+		return loadMaterial(name, ShaderCache::createShader(shader->fileName, shader));
 	}
 	ast::asset_handle<material> MaterialCache::loadMaterialFromFile(const std::string& name, fs::path shaderPath)
 	{
-		return loadMaterial(name, ast::AssetCache<shader>::createAsset(name, shaderPath, default_shader_params, false));
+		return loadMaterial(name, ast::AssetCache<shader_source>::createAsset(name, shaderPath, default_shader_params, false));
 	}
 	ast::asset_handle<material> MaterialCache::getMaterial(const std::string& name)
 	{
@@ -51,7 +60,7 @@ namespace rythe::rendering
 	{
 		if (m_materials.contains(nameHash))
 		{
-			m_materials[nameHash]->shader->clearBuffers();
+			ShaderCache::deleteShader(m_materials[nameHash]->shader->getName());
 			m_materials.erase(nameHash);
 			m_names.erase(nameHash);
 		}

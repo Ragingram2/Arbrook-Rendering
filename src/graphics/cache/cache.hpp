@@ -2,6 +2,7 @@
 #include "modelcache.hpp"
 #include "buffercache.hpp"
 #include "materialcache.hpp"
+#include "shadercache.hpp"
 
 #include "importers/meshimporter.hpp"
 #include "importers/shaderimporter.hpp"

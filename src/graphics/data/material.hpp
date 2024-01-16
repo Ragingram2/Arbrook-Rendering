@@ -1,5 +1,6 @@
 #pragma once
 #include "core/assets/assethandle.hpp"
+#include "graphics/data/shaderhandle.hpp"
 #include "graphics/interface/definitions/shader.hpp"
 #include "graphics/interface/definitions/texture.hpp"
 
@@ -17,7 +18,7 @@ namespace rythe::rendering
 		material_data data;
 		ast::asset_handle<texture> diffuse;
 		ast::asset_handle<texture> specular;
-		ast::asset_handle<shader> shader;
+		shader_handle shader;
 
 		material() = default;
 		material(const material& mat) : diffuse(mat.diffuse), specular(mat.specular), shader(mat.shader) {}

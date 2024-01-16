@@ -3,6 +3,7 @@
 #include "core/assets/assethandle.hpp"
 
 #include "graphics/data/bufferhandle.hpp"
+#include "graphics/data/shaderhandle.hpp"
 #include "graphics/data/mesh.hpp"
 #include "graphics/interface/definitions/buffer.hpp"
 #include "graphics/interface/definitions/inputlayout.hpp"
@@ -29,7 +30,7 @@ namespace rythe::rendering
 		model() = default;
 		model(const model& mod) : name(mod.name), indexBuffer(mod.indexBuffer), vertexBuffer(mod.vertexBuffer), normalBuffer(mod.normalBuffer), uvBuffer(mod.uvBuffer), colorBuffer(mod.colorBuffer), tangentBuffer(mod.tangentBuffer), matrixBuffer(mod.matrixBuffer) { }
 
-		void initialize(ast::asset_handle<shader> shader, ast::asset_handle<mesh> handle, bool instanced)
+		void initialize(shader_handle shader, ast::asset_handle<mesh> handle, bool instanced)
 		{
 			meshHandle = handle;
 			layout.release();

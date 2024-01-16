@@ -7,6 +7,7 @@
 #include "core/components/transform.hpp"
 #include "core/assets/assethandle.hpp"
 #include "graphics/cache/cache.hpp"
+#include "graphics/data/shaderhandle.hpp"
 #include "graphics/interface/definitions/definitions.hpp"
 #include "graphics/pipeline/base/graphicsstage.hpp"
 #include "graphics/components/components.hpp"
@@ -23,7 +24,7 @@ namespace rythe::rendering
 		buffer_handle cameraBuffer;
 		buffer_handle materialBuffer;
 		buffer_handle lightBuffer;
-		std::vector<ast::asset_handle<shader>> m_shaders;
+		std::vector<shader_handle> m_shaders;
 		virtual void setup(core::transform camTransf, camera& cam) override
 		{
 			cam.calculate_projection();
@@ -65,7 +66,7 @@ namespace rythe::rendering
 			{
 				auto& renderer = ent.getComponent<mesh_renderer>();
 				ast::asset_handle<material> material = renderer.material;
-				ast::asset_handle<shader> shader = renderer.material->shader;
+				shader_handle shader = renderer.material->shader;
 				ast::asset_handle<model> model = renderer.model;
 				ast::asset_handle<mesh> mesh = renderer.model->meshHandle;
 				if (renderer.dirty)

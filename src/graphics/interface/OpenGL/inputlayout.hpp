@@ -8,6 +8,7 @@
 #include <rsl/logging>
 
 #include "core/assets/assethandle.hpp"
+#include "graphics/data/shaderhandle.hpp"
 #include "graphics/data/vertex.hpp"
 #include "graphics/data/vertexattribute.hpp"
 #include "graphics/interface/definitions/shader.hpp"
@@ -29,7 +30,7 @@ namespace rythe::rendering::internal
 		std::unordered_map<int, std::set<int>> m_flatIndeces;
 	public:
 
-		void initialize(unsigned int numBuffers, ast::asset_handle<Ishader<shader>> shader)
+		void initialize(unsigned int numBuffers, shader_handle shader)
 		{
 			glGenVertexArrays(1, &id);
 		}

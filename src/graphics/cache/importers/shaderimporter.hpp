@@ -7,15 +7,19 @@
 #include <iostream>
 #include <filesystem>
 
+#include <rsl/logging>
+
 #include "core/assets/assets.hpp"
 #include "graphics/data/shadersource.hpp"
-#include "graphics/interface/definitions/shader.hpp"
+//#include "graphics/interface/definitions/shader.hpp"
 
 namespace fs = std::filesystem;
 namespace ast = rythe::core::assets;
+
 namespace rythe::rendering
 {
-	class ShaderImporter : public ast::AssetImporter<shader>
+	namespace log = rsl::log;
+	class ShaderImporter : public ast::AssetImporter<shader_source>
 	{
 	private:
 		static constexpr const char* supportedFormats[] = { ".shader" };
@@ -36,17 +40,16 @@ namespace rythe::rendering
 			return false;
 		}
 
-		virtual ast::asset_handle<shader> load(rsl::id_type id, fs::path filePath, shader* data, const ast::import_settings<shader>& settings) override
+		virtual ast::asset_handle<shader_source> load(rsl::id_type id, fs::path filePath, shader_source* data, const ast::import_settings<shader_source>& settings) override
 		{
 			auto name = filePath.stem().string();
 
-			data->m_impl.initialize(name, loadShader(filePath));
-			data->m_impl.name = name;
+			*data = loadShader(filePath);
 
 			return { id, data };
 		}
 
-		virtual void free(shader& asset) override
+		virtual void free(shader_source& asset) override
 		{
 
 		}
@@ -55,7 +58,6 @@ namespace rythe::rendering
 		shader_source loadShader(fs::path filepath)
 		{
 			std::ifstream stream(filepath);
-			std::filesystem::directory_entry path{ filepath };
 
 			enum shader_type : int
 			{
@@ -131,11 +133,6 @@ namespace rythe::rendering
 				{
 					log::error("Unequal braces, this will lead to incorrect parsing");
 				}
-				//else if (line.find("}//end") != std::string::npos)
-				//{
-				//	parse = false;
-				//	continue;
-				//}
 
 				if (parse)
 				{
@@ -148,7 +145,7 @@ namespace rythe::rendering
 				}
 			}
 
-			return { path.path().stem().string(), ss };
+			return { filepath.stem().string(), filepath, ss };
 		}
 	};
 }

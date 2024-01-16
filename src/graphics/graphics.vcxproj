@@ -197,6 +197,7 @@
     <ClInclude Include="cache\importers\textureimporter.hpp" />
     <ClInclude Include="cache\materialcache.hpp" />
     <ClInclude Include="cache\modelcache.hpp" />
+    <ClInclude Include="cache\shadercache.hpp" />
     <ClInclude Include="cache\windowprovider.hpp" />
     <ClInclude Include="components\camera.hpp" />
     <ClInclude Include="components\components.hpp" />
@@ -209,6 +210,7 @@
     <ClInclude Include="data\mesh.hpp" />
     <ClInclude Include="data\model.hpp" />
     <ClInclude Include="data\renderingtest.hpp" />
+    <ClInclude Include="data\shaderhandle.hpp" />
     <ClInclude Include="data\shadersource.hpp" />
     <ClInclude Include="data\textureparameters.hpp" />
     <ClInclude Include="data\vertex.hpp" />
@@ -289,6 +291,7 @@
     <ClCompile Include="cache\importers\textureimporter.cpp" />
     <ClCompile Include="cache\materialcache.cpp" />
     <ClCompile Include="cache\modelcache.cpp" />
+    <ClCompile Include="cache\shadercache.cpp" />
     <ClCompile Include="pipeline\base\graphicsstage.cpp" />
     <ClCompile Include="pipeline\base\pipeline.cpp" />
     <ClCompile Include="systems\renderer.cpp" />

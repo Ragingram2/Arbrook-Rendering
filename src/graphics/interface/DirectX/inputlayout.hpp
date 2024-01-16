@@ -7,6 +7,7 @@
 #include "core/assets/assethandle.hpp"
 #include "graphics/cache/windowprovider.hpp"
 #include "graphics/data/bufferhandle.hpp"
+#include "graphics/data/shaderhandle.hpp"
 #include "graphics/data/vertexattribute.hpp"
 #include "graphics/interface/definitions/window.hpp"
 #include "graphics/interface/config.hpp"
@@ -39,7 +40,7 @@ namespace rythe::rendering::internal
 		ID3DBlob* m_vsBlob = nullptr;
 		window_handle m_windowHandle;
 	public:
-		void initialize(unsigned int numBuffers, ast::asset_handle<Ishader<shader>> shader)
+		void initialize(unsigned int numBuffers, shader_handle shader)
 		{
 			m_windowHandle = WindowProvider::activeWindow;
 			m_vsBlob = shader->getImpl().VS;
