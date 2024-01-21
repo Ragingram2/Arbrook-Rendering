@@ -1,10 +1,9 @@
 #pragma once
-#include "core/assets/assethandle.hpp"
 #include "graphics/data/shaderhandle.hpp"
+#include "graphics/data/texturehandle.hpp"
 #include "graphics/interface/definitions/shader.hpp"
 #include "graphics/interface/definitions/texture.hpp"
 
-namespace ast = rythe::core::assets;
 namespace rythe::rendering
 {
 	struct material_data
@@ -16,8 +15,8 @@ namespace rythe::rendering
 	{
 		std::string name;
 		material_data data;
-		ast::asset_handle<texture> diffuse;
-		ast::asset_handle<texture> specular;
+		texture_handle diffuse;
+		texture_handle specular;
 		shader_handle shader;
 
 		material() = default;

@@ -1,6 +1,6 @@
 #pragma once
 #include <rsl/math>
-
+#include <tracy/Tracy.hpp>
 //#include "core/components/property.hpp"
 #include "core/components/transform.hpp"
 #include "core/ecs/component_family.hpp"
@@ -27,6 +27,7 @@ namespace rythe::rendering
 		
 		math::mat4 calculate_view(core::transform* parent)
 		{
+			ZoneScopedN("Calculate Camera View");
 			if (parent)
 			{
 				view = parent->from_world();

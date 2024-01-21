@@ -5,6 +5,8 @@
 
 #include "core/events/defaults/component_event.hpp"
 #include "graphics/pipeline/base/graphicsstage.hpp"
+#include "graphics/interface/definitions/framebuffer.hpp"
+
 #define MAX_LIGHT_COUNT 9
 namespace rythe::rendering
 {
@@ -18,6 +20,7 @@ namespace rythe::rendering
 		rsl::uint m_lastIdx = 0;
 		buffer_handle lightBuffer;
 		light_buffer lightDataStruct;
+		framebuffer* fbo;
 		virtual void setup(core::transform camTransf, camera& cam) override
 		{
 			lightBuffer = BufferCache::createConstantBuffer<light_buffer>("LightBuffer", SV_LIGHTS, UsageType::STATICDRAW);

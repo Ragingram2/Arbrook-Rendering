@@ -25,10 +25,10 @@ namespace rythe::rendering
 			auto id = rsl::nameHash(windowName);
 			if (m_windows.count(id))
 			{
-				return activeWindow = { m_windows[id].get() };
+				return activeWindow = window_handle{ m_windows[id].get() };
 			}
 			log::error("The window you tried to make active \"{}\", does not exist");
-			return { nullptr };
+			return activeWindow;
 		}
 
 		static window_handle addWindow(const std::string& windowName)

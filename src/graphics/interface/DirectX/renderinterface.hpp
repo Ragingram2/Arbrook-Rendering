@@ -26,7 +26,6 @@ namespace rythe::rendering::internal
 	private:
 		ID3D11RasterizerState* m_rasterizerState = nullptr;
 		ID3D11DepthStencilState* m_depthStencilState = nullptr;
-		ID3D11Texture2D* m_backBuffer = nullptr;
 		D3D11_VIEWPORT m_viewport;
 		DXGI_SWAP_CHAIN_DESC m_swapChainDesc;
 		D3D11_TEXTURE2D_DESC m_depthTexDesc;
@@ -39,12 +38,14 @@ namespace rythe::rendering::internal
 
 		void setWindow(window_handle handle)
 		{
+			ZoneScopedN("[DX11 Renderinterface] setWindow()");
 			m_windowHandle = handle;
 			m_windowHandle->makeCurrent();
 		}
 
 		void initialize(math::ivec2 res, const std::string& name, GLFWwindow* window = nullptr)
 		{
+			ZoneScopedN("[DX11 Renderinterface] initialize()");
 			log::info("Initializing DX11");
 			if (!window && WindowProvider::get(name) == nullptr)
 				m_windowHandle = WindowProvider::addWindow(name);
@@ -56,9 +57,9 @@ namespace rythe::rendering::internal
 			}
 			WindowProvider::setActive(name);
 
+			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 			m_windowHandle->initialize(res, name, window);
 			m_windowHandle->makeCurrent();
-			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
 			ZeroMemory(&m_swapChainDesc, sizeof(DXGI_SWAP_CHAIN_DESC));
 
@@ -93,10 +94,11 @@ namespace rythe::rendering::internal
 			CHECKERROR(hr, "Retrieving the info queue failed", checkError());
 #endif
 
+			ID3D11Texture2D* m_backBuffer;
 			hr = m_windowHandle->swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&m_backBuffer);
 			CHECKERROR(hr, "Retrieving the backbuffer failed", checkError());
 
-			hr = m_windowHandle->dev->CreateRenderTargetView(m_backBuffer, NULL, &m_windowHandle->backbuffer);
+			hr = m_windowHandle->dev->CreateRenderTargetView(m_backBuffer, NULL, &m_windowHandle->renderTargetView);
 			CHECKERROR(hr, "Creating a render target view failed", checkError());
 
 			m_backBuffer->Release();
@@ -131,7 +133,7 @@ namespace rythe::rendering::internal
 			hr = m_windowHandle->dev->CreateDepthStencilView(m_windowHandle->depthStencilBuffer, &m_depthStencilViewDesc, &m_windowHandle->depthStencilView);
 			CHECKERROR(hr, "Creating the depth stencil view failed", checkError());
 
-			m_windowHandle->devcon->OMSetRenderTargets(1, &m_windowHandle->backbuffer, m_windowHandle->depthStencilView);
+			m_windowHandle->devcon->OMSetRenderTargets(1, &m_windowHandle->renderTargetView, m_windowHandle->depthStencilView);
 
 			ZeroMemory(&m_rasterizerDesc, sizeof(D3D11_RASTERIZER_DESC));
 
@@ -157,88 +159,103 @@ namespace rythe::rendering::internal
 
 		void close()
 		{
+			ZoneScopedN("[DX11 Renderinterface] close()");
 			log::debug("Something Called Close");
 			m_windowHandle->swapchain->SetFullscreenState(FALSE, NULL);
 			m_windowHandle->swapchain->Release();
-			m_windowHandle->backbuffer->Release();
+			m_windowHandle->renderTargetView->Release();
 			m_windowHandle->dev->Release();
 			m_windowHandle->devcon->Release();
 		}
 
 		GLFWwindow* getGlfwWindow()
 		{
+			ZoneScopedN("[DX11 Renderinterface] getGlfwWindow()");
 			return m_windowHandle->getGlfwWindow();
 		}
 
 		window_handle getWindowHandle()
 		{
+			ZoneScopedN("[DX11 Renderinterface] getWindowHandle()");
 			return m_windowHandle;
 		}
 
 		void makeCurrent()
 		{
+			ZoneScopedN("[DX11 Renderinterface] makeCurrent()");
 			m_windowHandle->makeCurrent();
 		}
 
 		void setSwapInterval(int interval)
 		{
+			ZoneScopedN("[DX11 Renderinterface] setSwapInterval()");
 			m_windowHandle->setSwapInterval(interval);
 		}
 
 		bool shouldWindowClose()
 		{
+			ZoneScopedN("[DX11 Renderinterface] shouldWindowClose()");
 			return m_windowHandle->shouldClose();
 		}
 
 		void setWindowTitle(const std::string& name)
 		{
+			ZoneScopedN("[DX11 Renderinterface] setWindowTitle()");
 			m_windowHandle->setWindowTitle(name);
 		}
 
 		void pollEvents()
 		{
+			ZoneScopedN("[DX11 Renderinterface] pollEvents()");
 			m_windowHandle->pollEvents();
 		}
 
 		void swapBuffers()
 		{
+			ZoneScopedN("[DX11 Renderinterface] swapBuffers()");
 			m_windowHandle->swapchain->Present(0, 0);
 		}
 
 		void drawArrays(PrimitiveType mode, unsigned int startVertex, unsigned int vertexCount)
 		{
+			ZoneScopedN("[DX11 Renderinterface] drawArrays()");
 			m_windowHandle->devcon->IASetPrimitiveTopology(static_cast<D3D11_PRIMITIVE_TOPOLOGY>(mode));
 			m_windowHandle->devcon->Draw(vertexCount, startVertex);
 		}
 
 		void drawArraysInstanced(PrimitiveType mode, unsigned int vertexCount, unsigned int instanceCount, unsigned int startVertex, unsigned int startInstance)
 		{
+			ZoneScopedN("[DX11 Renderinterface] drawArraysInstanced()");
 			m_windowHandle->devcon->IASetPrimitiveTopology(static_cast<D3D11_PRIMITIVE_TOPOLOGY>(mode));
 			m_windowHandle->devcon->DrawInstanced(vertexCount, instanceCount, startVertex, startInstance);
 		}
 
 		void drawIndexed(PrimitiveType mode, unsigned int indexCount, unsigned int startIndex, unsigned int baseVertex)
 		{
+			ZoneScopedN("[DX11 Renderinterface] drawIndexed()");
 			m_windowHandle->devcon->IASetPrimitiveTopology(static_cast<D3D11_PRIMITIVE_TOPOLOGY>(mode));
 			m_windowHandle->devcon->DrawIndexed(indexCount, startIndex, baseVertex);
 		}
 
 		void drawIndexedInstanced(PrimitiveType mode, unsigned int indexCount, unsigned int instanceCount, unsigned int startIndex, unsigned int baseVertex, unsigned int startInstance)
 		{
+			ZoneScopedN("[DX11 Renderinterface] drawIndexedInstanced()");
 			m_windowHandle->devcon->IASetPrimitiveTopology(static_cast<D3D11_PRIMITIVE_TOPOLOGY>(mode));
 			m_windowHandle->devcon->DrawIndexedInstanced(indexCount, instanceCount, startIndex, baseVertex, startInstance);
 		}
 
 		void clear(internal::ClearBit flags)
 		{
+			ZoneScopedN("[DX11 Renderinterface] clear()");
 			if (flags == internal::ClearBit::COLOR_DEPTH_STENCIL || flags == internal::ClearBit::DEPTH_STENCIL || flags == internal::ClearBit::DEPTH || flags == internal::ClearBit::STENCIL)
 				m_windowHandle->devcon->ClearDepthStencilView(m_windowHandle->depthStencilView, static_cast<D3D11_CLEAR_FLAG>(flags), 1.f, 0);
 			if (flags == internal::ClearBit::COLOR || flags == internal::ClearBit::COLOR_DEPTH || flags == internal::ClearBit::COLOR_DEPTH_STENCIL)
-				m_windowHandle->devcon->ClearRenderTargetView(m_windowHandle->backbuffer, m_colorData);
+				m_windowHandle->devcon->ClearRenderTargetView(m_windowHandle->renderTargetView, m_colorData);
 		}
 
 		void setClearColor(math::vec4 color)
 		{
+			ZoneScopedN("[DX11 Renderinterface] setClearColor()");
 			m_colorData[0] = color.r;
 			m_colorData[1] = color.g;
 			m_colorData[2] = color.b;
@@ -247,6 +264,7 @@ namespace rythe::rendering::internal
 
 		void setViewport(float numViewPorts, float leftX, float leftY, float width, float height, float minDepth, float maxDepth)
 		{
+			ZoneScopedN("[DX11 Renderinterface] setViewport()");
 			if (width == 0 && height == 0)
 			{
 				width = m_windowHandle->m_resolution.x;
@@ -267,6 +285,7 @@ namespace rythe::rendering::internal
 
 		void cullFace(CullMode mode = CullMode::NONE)
 		{
+			ZoneScopedN("[DX11 Renderinterface] cullFace()");
 			m_rasterizerDesc.CullMode = static_cast<D3D11_CULL_MODE>(mode);
 
 			// Create the rasterizer state object.
@@ -277,6 +296,7 @@ namespace rythe::rendering::internal
 
 		void setWindOrder(WindOrder order)
 		{
+			ZoneScopedN("[DX11 Renderinterface] setWindOrder()");
 			m_rasterizerDesc.FrontCounterClockwise = (order == WindOrder::CCW);
 
 			CHECKERROR(m_windowHandle->dev->CreateRasterizerState(&m_rasterizerDesc, &m_rasterizerState), "Creating rasterizer state failed", checkError());
@@ -286,11 +306,13 @@ namespace rythe::rendering::internal
 
 		void depthTest(bool enable)
 		{
+			ZoneScopedN("[DX11 Renderinterface] depthTest()");
 			m_depthStencilDesc.DepthEnable = enable;
 		}
 
 		void depthWrite(bool enable)
 		{
+			ZoneScopedN("[DX11 Renderinterface] depthWrite()");
 			if (enable)
 				m_depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 			else
@@ -299,21 +321,25 @@ namespace rythe::rendering::internal
 
 		void setStencilMask(int mask)
 		{
+			ZoneScopedN("[DX11 Renderinterface] setStencilMask()");
 			m_depthStencilDesc.StencilWriteMask = mask;
 		}
 
 		void setDepthFunction(internal::DepthFuncs function)
 		{
+			ZoneScopedN("[DX11 Renderinterface] setDepthFunction()");
 			m_depthStencilDesc.DepthFunc = static_cast<D3D11_COMPARISON_FUNC>(function);
 		}
 
 		void stencilTest(bool enable)
 		{
+			ZoneScopedN("[DX11 Renderinterface] stencilTest()");
 			m_depthStencilDesc.StencilEnable = enable;
 		}
 
 		void setStencilOp(Face face, StencilOp fail, StencilOp  zfail, StencilOp  zpass)
 		{
+			ZoneScopedN("[DX11 Renderinterface] setStencilOp()");
 			switch (face)
 			{
 			case Face::FRONT:
@@ -347,6 +373,7 @@ namespace rythe::rendering::internal
 
 		void setStencilFunction(Face face, DepthFuncs func, unsigned int ref, unsigned int mask)
 		{
+			ZoneScopedN("[DX11 Renderinterface] setStencilFunction()");
 			m_depthStencilDesc.StencilReadMask = mask;
 			switch (face)
 			{
@@ -369,6 +396,7 @@ namespace rythe::rendering::internal
 
 		void updateDepthStencil()
 		{
+			ZoneScopedN("[DX11 Renderinterface] updateDepthStencil()");
 			CHECKERROR(m_windowHandle->dev->CreateDepthStencilState(&m_depthStencilDesc, &m_depthStencilState), "Creating the depth stencil state failed", checkError());
 
 			m_windowHandle->devcon->OMSetDepthStencilState(m_depthStencilState, 1);
@@ -376,6 +404,7 @@ namespace rythe::rendering::internal
 
 		void checkError()
 		{
+			ZoneScopedN("[DX11 Renderinterface] checkError()");
 			m_windowHandle->checkError();
 		}
 	};

@@ -1,4 +1,5 @@
 #include "graphics/cache/modelcache.hpp"
+#include "graphics/cache/materialcache.hpp"
 #include "graphics/cache/importers/meshimporter.hpp"
 
 
@@ -11,8 +12,13 @@ namespace rythe::rendering
 	std::unordered_map<rsl::id_type, std::unique_ptr<model>> ModelCache::m_models;
 	std::unordered_map<rsl::id_type, std::string> ModelCache::m_names;
 
-	ast::asset_handle<model> ModelCache::createModel(const std::string& name, ast::asset_handle<mesh> handle)
+	ast::asset_handle<model> ModelCache::createModel(const std::string& name, ast::asset_handle<mesh> meshHandle, ast::asset_handle<material> matHandle)
 	{
+		if (!matHandle)
+		{
+			matHandle = MaterialCache::getMaterial("error");
+		}
+
 		rsl::id_type id = rsl::nameHash(name);
 
 		if (m_models.contains(id))
@@ -23,16 +29,19 @@ namespace rythe::rendering
 
 		m_names.emplace(id, name);
 		auto mod = m_models.emplace(id, std::make_unique<model>()).first->second.get();
-		mod->meshHandle = handle;
+		mod->meshHandle = meshHandle;
+		mod->matHandle = matHandle;
 		mod->name = name;
 		return { id, mod };
 	}
 	ast::asset_handle<model> ModelCache::getModel(const std::string& name)
 	{
+		ZoneScopedN("Get Model(String)");
 		return getModel(rsl::nameHash(name));
 	}
 	ast::asset_handle<model> ModelCache::getModel(rsl::id_type nameHash)
 	{
+		ZoneScopedN("Get Model(NameHash)");
 		if (m_models.contains(nameHash))
 		{
 			return { nameHash, m_models[nameHash].get() };
@@ -56,7 +65,7 @@ namespace rythe::rendering
 	{
 		for (auto& handle : meshes)
 		{
-			createModel(handle->name, handle);
+			createModel(handle->name, handle, {0,nullptr});
 		}
 	}
 	std::vector<ast::asset_handle<model>> ModelCache::getModels()

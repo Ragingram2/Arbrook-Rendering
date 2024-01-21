@@ -2,6 +2,8 @@
 #include <memory>
 #include <string>
 
+#include <tracy/Tracy.hpp>
+
 #include "graphics/data/windowhandle.hpp"
 #include "graphics/interface/definitions/enumtypes.hpp"
 

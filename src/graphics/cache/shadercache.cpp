@@ -60,17 +60,32 @@ namespace rythe::rendering
 
 	std::vector<shader_handle> ShaderCache::getShaders()
 	{
-
+		std::vector<shader_handle> handles;
+		for (auto& [id, handle] : m_shaders)
+		{
+			handles.emplace_back(handle.get());
+		}
+		return handles;
 	}
 
 	std::vector<std::string> ShaderCache::getShaderNames()
 	{
-
+		std::vector<std::string> names;
+		for (auto& [id, name] : m_names)
+		{
+			names.push_back(name);
+		}
+		return names;
 	}
 
 	std::vector<const char*> ShaderCache::getShaderNamesC()
 	{
-
+		std::vector<const char*> names;
+		for (auto& [id, name] : m_names)
+		{
+			names.push_back(name.c_str());
+		}
+		return names;
 	}
 
 }

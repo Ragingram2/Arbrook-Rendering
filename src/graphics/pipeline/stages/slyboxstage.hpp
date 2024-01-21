@@ -21,7 +21,8 @@ namespace rythe::rendering
 			skyboxMat = MaterialCache::loadMaterialFromFile("skybox", "resources/shaders/skybox.shader");
 			cubeHandle = ModelCache::getModel("cube");
 			cameraBuffer = BufferCache::getBuffer("CameraBuffer");
-			cubeHandle->initialize(skyboxMat->shader, cubeHandle->meshHandle, false);
+			initializeSkyboxModel(cubeHandle, skyboxMat);
+
 			for (auto& ent : m_filter)
 			{
 				skyboxMat->diffuse = ent.getComponent<skybox_renderer>().skyboxTex;
@@ -35,14 +36,14 @@ namespace rythe::rendering
 				return;
 
 			cam.calculate_view(&camTransf);
-			camera_data mat = { camTransf.position, cam.projection, cam.view, math::mat4(1.0f) };
+			camera_data data{ .viewPosition = camTransf.position,.projection = cam.projection,.view = cam.view, .model = math::mat4(1.0f) };
 
 			RI->depthTest(true);
 			RI->depthWrite(true);
 			RI->setDepthFunction(DepthFuncs::LESS_EQUAL);
 			RI->updateDepthStencil();
 			RI->cullFace(CullMode::FRONT);
-			cameraBuffer->bufferData(&mat, 1);
+			cameraBuffer->bufferData(&data, 1);
 			skyboxMat->bind();
 			cubeHandle->bind();
 
@@ -57,5 +58,24 @@ namespace rythe::rendering
 		}
 
 		virtual rsl::priority_type priority() override { return SKYBOX_PRIORITY; }
+
+		void initializeSkyboxModel(ast::asset_handle<model> model, ast::asset_handle<material> mat)
+		{
+			auto& meshHandle = model->meshHandle;
+			auto& matHandle = model->matHandle = mat;
+			auto& layout = model->layout;
+
+			layout.release();
+			layout.initialize(1, matHandle->shader);
+			layout.bind();
+
+			model->vertexBuffer = BufferCache::createVertexBuffer<math::vec4>(std::format("{}-Vertex Buffer", meshHandle->name), 0, UsageType::STATICDRAW, meshHandle->vertices);
+			model->layout.setAttributePtr(model->vertexBuffer, "POSITION", 0, FormatType::RGBA32F, 0, sizeof(math::vec4), 0);
+
+			model->indexBuffer = BufferCache::createIndexBuffer(std::format("{}-Index Buffer", meshHandle->name), UsageType::STATICDRAW, meshHandle->indices);
+			model->uvBuffer = BufferCache::createVertexBuffer<math::vec2>(std::format("{}-UV Buffer", meshHandle->name), 1, UsageType::STATICDRAW, meshHandle->texCoords);
+			layout.setAttributePtr(model->uvBuffer, "TEXCOORD", 0, FormatType::RG32F, 1, sizeof(math::vec2), 0);
+			layout.submitAttributes();
+		}
 	};
 }

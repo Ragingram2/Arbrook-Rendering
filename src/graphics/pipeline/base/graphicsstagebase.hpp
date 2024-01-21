@@ -6,6 +6,7 @@
 #include "graphics/interface/definitions/definitions.hpp"
 #include "graphics/components/camera.hpp"
 #include "graphics/pipeline/base/pipelinebase.hpp"
+#include "graphics/interface/definitions/framebuffer.hpp"
 
 namespace rythe::rendering
 {
@@ -31,5 +32,13 @@ namespace rythe::rendering
 			m_initialized = true;
 			setup(camTransf, cam);
 		}
+
+		framebuffer* addFramebuffer(const std::string& name) { return pipeline->addFramebuffer(name); }
+		framebuffer* getFramebuffer(const std::string& name) { return getFramebuffer(rsl::nameHash(name)); }
+		framebuffer* getFramebuffer(rsl::id_type nameHash) { return pipeline->getFramebuffer(nameHash); }
+		bool hasFramebuffer(const std::string& name) const { return hasFramebuffer(rsl::nameHash(name)); }
+		bool hasFramebuffer(rsl::id_type nameHash) const { return pipeline->hasFramebuffer(nameHash); }
+
+
 	};
 }

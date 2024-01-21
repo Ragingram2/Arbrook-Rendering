@@ -14,6 +14,9 @@ namespace rythe::rendering
 		bool m_abort = false;
 	public:
 		RenderInterface RI;//This should be the only real version
+		std::unordered_map<rsl::id_type, std::unique_ptr<framebuffer>> m_framebuffers;
+		std::unordered_map < rsl::id_type, std::string> m_names;
+
 		virtual void init() =0;
 		virtual void render(core::transform camTransf, camera& cam) =0;
 		virtual void shutdown() {}
@@ -22,5 +25,25 @@ namespace rythe::rendering
 		{
 			m_abort = true;
 		}
+
+		bool hasFramebuffer(const std::string& name) const { return hasFramebuffer(rsl::nameHash(name)); }
+		bool hasFramebuffer(rsl::id_type nameHash) const { return m_framebuffers.count(nameHash); }
+
+		framebuffer* addFramebuffer(const std::string& name)
+		{
+			rsl::id_type id = rsl::nameHash(name);
+			if (hasFramebuffer(id))
+			{
+				log::warn("Framebuffer \"{}\" already exists, returning existing framebuffer", name);
+				return m_framebuffers[id].get();
+			}
+
+			auto fbo = m_framebuffers.emplace(id,std::make_unique<framebuffer>()).first->second.get();
+			fbo->initialize();
+			return fbo;
+		}		
+		framebuffer* getFramebuffer(rsl::id_type nameHash) { if (hasFramebuffer(nameHash)) return m_framebuffers[nameHash].get(); return nullptr; }
+		framebuffer* getFramebuffer(const std::string& name) { return getFramebuffer(rsl::nameHash(name)); }
+
 	};
 }

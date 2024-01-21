@@ -117,9 +117,6 @@
     <ClInclude Include="data\model.hpp">
       <Filter>data</Filter>
     </ClInclude>
-    <ClInclude Include="data\renderingtest.hpp">
-      <Filter>data</Filter>
-    </ClInclude>
     <ClInclude Include="data\shadersource.hpp">
       <Filter>data</Filter>
     </ClInclude>
@@ -286,11 +283,14 @@
     <ClInclude Include="systems\renderer.hpp">
       <Filter>systems</Filter>
     </ClInclude>
-    <ClInclude Include="systems\rendertestsystem.hpp">
-      <Filter>systems</Filter>
-    </ClInclude>
     <ClInclude Include="cache\shadercache.hpp" />
     <ClInclude Include="data\shaderhandle.hpp" />
+    <ClInclude Include="interface\OpenGL\framebuffer.hpp" />
+    <ClInclude Include="data\texturehandle.hpp" />
+    <ClInclude Include="cache\texturecache.hpp" />
+    <ClInclude Include="data\texturesource.hpp" />
+    <ClInclude Include="interface\definitions\framebuffer.hpp" />
+    <ClInclude Include="interface\iframebuffer.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\include\GL\src\glad.c">
@@ -347,9 +347,7 @@
     <ClCompile Include="systems\renderer.cpp">
       <Filter>systems</Filter>
     </ClCompile>
-    <ClCompile Include="systems\rendertestsystem.cpp">
-      <Filter>systems</Filter>
-    </ClCompile>
     <ClCompile Include="cache\shadercache.cpp" />
+    <ClCompile Include="cache\texturecache.cpp" />
   </ItemGroup>
 </Project>

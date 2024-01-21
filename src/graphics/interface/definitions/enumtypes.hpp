@@ -26,7 +26,8 @@ namespace rythe::rendering
 		DEFAULT = static_cast<int>(internal::UsageType::DEFAULT),
 		IMMUTABLE = static_cast<int>(internal::UsageType::IMMUTABLE),
 		STATICDRAW = static_cast<int>(internal::UsageType::STATICDRAW),
-		STAGING = static_cast<int>(internal::UsageType::STAGING)
+		STAGING = static_cast<int>(internal::UsageType::STAGING),
+		DEPTH_COMPONENT = static_cast<int>(internal::UsageType::DEPTH_COMPONENT)
 	};
 
 	enum class PrimitiveType
@@ -182,5 +183,44 @@ namespace rythe::rendering
 		TEXTURE29 = static_cast<int>(internal::TextureSlot::TEXTURE29),
 		TEXTURE30 = static_cast<int>(internal::TextureSlot::TEXTURE30),
 		TEXTURE31 = static_cast<int>(internal::TextureSlot::TEXTURE31)
+	};
+
+	enum class AttachmentSlot
+	{
+		DEPTH_STENCIL = static_cast<int>(internal::AttachmentSlot::DEPTH_STENCIL),
+		DEPTH = static_cast<int>(internal::AttachmentSlot::DEPTH),
+		STENCIL = static_cast<int>(internal::AttachmentSlot::STENCIL),
+		COLOR0 = static_cast<int>(internal::AttachmentSlot::COLOR0),
+		COLOR1 = static_cast<int>(internal::AttachmentSlot::COLOR1),
+		COLOR2 = static_cast<int>(internal::AttachmentSlot::COLOR2),
+		COLOR3 = static_cast<int>(internal::AttachmentSlot::COLOR3),
+		COLOR4 = static_cast<int>(internal::AttachmentSlot::COLOR4),
+		COLOR5 = static_cast<int>(internal::AttachmentSlot::COLOR5),
+		COLOR6 = static_cast<int>(internal::AttachmentSlot::COLOR6),
+		COLOR7 = static_cast<int>(internal::AttachmentSlot::COLOR7),
+		COLOR8 = static_cast<int>(internal::AttachmentSlot::COLOR8),
+		COLOR9 = static_cast<int>(internal::AttachmentSlot::COLOR9),
+		COLOR10 = static_cast<int>(internal::AttachmentSlot::COLOR10),
+		COLOR11 = static_cast<int>(internal::AttachmentSlot::COLOR11),
+		COLOR12 = static_cast<int>(internal::AttachmentSlot::COLOR12),
+		COLOR13 = static_cast<int>(internal::AttachmentSlot::COLOR13),
+		COLOR14 = static_cast<int>(internal::AttachmentSlot::COLOR14),
+		COLOR15 = static_cast<int>(internal::AttachmentSlot::COLOR15),
+		COLOR16 = static_cast<int>(internal::AttachmentSlot::COLOR16),
+		COLOR17 = static_cast<int>(internal::AttachmentSlot::COLOR17),
+		COLOR18 = static_cast<int>(internal::AttachmentSlot::COLOR18),
+		COLOR19 = static_cast<int>(internal::AttachmentSlot::COLOR19),
+		COLOR20 = static_cast<int>(internal::AttachmentSlot::COLOR20),
+		COLOR21 = static_cast<int>(internal::AttachmentSlot::COLOR21),
+		COLOR22 = static_cast<int>(internal::AttachmentSlot::COLOR22),
+		COLOR23 = static_cast<int>(internal::AttachmentSlot::COLOR23),
+		COLOR24 = static_cast<int>(internal::AttachmentSlot::COLOR24),
+		COLOR25 = static_cast<int>(internal::AttachmentSlot::COLOR25),
+		COLOR26 = static_cast<int>(internal::AttachmentSlot::COLOR26),
+		COLOR27 = static_cast<int>(internal::AttachmentSlot::COLOR27),
+		COLOR28 = static_cast<int>(internal::AttachmentSlot::COLOR28),
+		COLOR29 = static_cast<int>(internal::AttachmentSlot::COLOR29),
+		COLOR30 = static_cast<int>(internal::AttachmentSlot::COLOR30),
+		COLOR31 = static_cast<int>(internal::AttachmentSlot::COLOR31)
 	};
 }

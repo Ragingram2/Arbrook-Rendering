@@ -4,6 +4,8 @@
 #include <rsl/primitives>
 #include <rsl/logging>
 
+#include <tracy/Tracy.hpp>
+
 #include "core/assets/assethandle.hpp"
 #include "graphics/cache/windowprovider.hpp"
 #include "graphics/data/bufferhandle.hpp"
@@ -42,26 +44,31 @@ namespace rythe::rendering::internal
 	public:
 		void initialize(unsigned int numBuffers, shader_handle shader)
 		{
+			ZoneScopedN("[DX11 Inputlayout] initialize()");
 			m_windowHandle = WindowProvider::activeWindow;
 			m_vsBlob = shader->getImpl().VS;
 		}
 
 		void bind()
 		{
+			ZoneScopedN("[DX11 Inputlayout] bind()");
 			m_windowHandle->devcon->IASetInputLayout(m_layout);
 		}
 
 		void setAttributePtr(buffer_handle buf, const std::string& attribName, unsigned int index, FormatType components, unsigned int inputSlot, unsigned int stride, unsigned int offset, InputClass inputClass, unsigned int instancedStep)
 		{
+			ZoneScopedN("[DX11 Inputlayout] setAttributePtr()");
 			m_vertexAttribs.emplace(buf->getName(), vertexattribute{attribName.c_str(), index, components, inputSlot, stride, offset, inputClass, instancedStep});
 		}
 
 		void submitAttributes()
 		{
+			ZoneScopedN("[DX11 Inputlayout] submitAttributes()");
 			if (m_vertexAttribs.size() > 0)
 			{
 				for (auto& [name,attrib] : m_vertexAttribs)
 				{
+					ZoneScopedN("[DX11 Inputlayout][submitAttributes()] iterating over vertex attributes");
 					elementDesc.emplace_back(D3D11_INPUT_ELEMENT_DESC{ attrib.name.c_str(), attrib.index, static_cast<DXGI_FORMAT>(attrib.format), attrib.inputSlot, D3D11_APPEND_ALIGNED_ELEMENT, static_cast<D3D11_INPUT_CLASSIFICATION>(attrib.inputClass),attrib.step });
 				}
 				CHECKERROR(m_windowHandle->dev->CreateInputLayout(elementDesc.data(), elementDesc.size(), m_vsBlob->GetBufferPointer(), m_vsBlob->GetBufferSize(), &m_layout), "Failed creating input layout", m_windowHandle->checkError());
@@ -73,12 +80,14 @@ namespace rythe::rendering::internal
 
 		void clearAttributes()
 		{
+			ZoneScopedN("[DX11 Inputlayout] clearAttributes()");
 			m_vertexAttribs.clear();
 			elementDesc.clear();
 		}
 
 		void release()
 		{
+			ZoneScopedN("[DX11 Inputlayout] release()");
 			if (!m_layout)
 			{
 				return;

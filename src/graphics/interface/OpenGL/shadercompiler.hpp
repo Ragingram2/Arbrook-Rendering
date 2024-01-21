@@ -6,6 +6,8 @@
 #include <rsl/logging>
 #include <rsl/primitives>
 
+#include <tracy/Tracy.hpp>
+
 #include "graphics/data/shadersource.hpp"
 #include "graphics/cache/windowprovider.hpp"
 #include "graphics/interface/config.hpp"
@@ -30,6 +32,7 @@ namespace rythe::rendering::internal
 	public:
 		static void initialize()
 		{
+			ZoneScopedN("[OpenGL ShaderCompiler] initialized()");
 			if (m_initialized) return;
 			m_client = glslang::EShClientVulkan;
 			m_clientVersion = glslang::EShTargetVulkan_1_0;
@@ -47,6 +50,8 @@ namespace rythe::rendering::internal
 
 		static unsigned int compile(ShaderType type, shader_source source)
 		{
+			ZoneScopedN("[OpenGL ShaderCompiler] compile()");
+
 			EShLanguage profile;
 			int shaderIdx = 0;
 			std::string shaderType;
@@ -128,6 +133,7 @@ namespace rythe::rendering::internal
 	private:
 		static std::vector<unsigned int> compileToSpirV(EShLanguage profile, const std::string& shaderType, const std::string& fileName, const std::string& source)
 		{
+			ZoneScopedN("[OpenGL ShaderCompiler] compileToSpirV()");
 			std::vector<unsigned int> spirVBin;
 
 			EShMessages message = (EShMessages)(EShMsgDefault | EShMsgReadHlsl | EShMsgHlslLegalization | EShMsgSpvRules | EShMsgHlslEnable16BitTypes);
@@ -201,6 +207,7 @@ namespace rythe::rendering::internal
 
 		static bool compileToGLSL(std::vector<unsigned int> spirVBin)
 		{
+			ZoneScopedN("[OpenGL ShaderCompiler] compileToGLSL()");
 			spirv_cross::CompilerGLSL glsl(std::move(spirVBin));
 
 			spirv_cross::ShaderResources resources = glsl.get_shader_resources();

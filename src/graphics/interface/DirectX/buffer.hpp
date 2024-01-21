@@ -1,6 +1,8 @@
 #pragma once
 
-#include "core/logging/logging.hpp"
+#include <rsl/logging>
+
+#include <tracy/Tracy.hpp>
 
 #include "graphics/cache/windowprovider.hpp"
 #include "graphics/interface/DirectX/dx11includes.hpp"
@@ -23,6 +25,7 @@ namespace rythe::rendering
 
 namespace rythe::rendering::internal
 {
+	namespace log = rsl::log;
 	struct buffer
 	{
 		friend struct rendering::buffer_handle;
@@ -37,7 +40,6 @@ namespace rythe::rendering::internal
 		unsigned int m_size;
 		unsigned int m_elementSize = 0;
 
-
 		ID3D11Buffer* m_internalBuffer;
 		D3D11_BUFFER_DESC m_bufferDesc;
 
@@ -50,6 +52,7 @@ namespace rythe::rendering::internal
 		template<typename elementType>
 		void initialize(TargetType target, UsageType usage, int size, elementType data[] = nullptr)
 		{
+			ZoneScopedN("[DX11 Buffer] initialize()");
 			m_windowHandle = WindowProvider::activeWindow;
 			m_target = target;
 			m_usage = usage;
@@ -61,18 +64,19 @@ namespace rythe::rendering::internal
 
 		void bind()
 		{
+			ZoneScopedN("[DX11 Buffer] bind()");
 			unsigned int offset = 0;
 			switch (m_target)
 			{
 			case TargetType::VERTEX_BUFFER:
-				m_windowHandle->devcon->IASetVertexBuffers(bindId, 1, &m_internalBuffer, &m_elementSize, &offset);
+				WindowProvider::activeWindow->devcon->IASetVertexBuffers(bindId, 1, &m_internalBuffer, &m_elementSize, &offset);
 				break;
 			case TargetType::INDEX_BUFFER:
-				m_windowHandle->devcon->IASetIndexBuffer(m_internalBuffer, static_cast<DXGI_FORMAT>(FormatType::R32U), offset);
+				WindowProvider::activeWindow->devcon->IASetIndexBuffer(m_internalBuffer, static_cast<DXGI_FORMAT>(FormatType::R32U), offset);
 				break;
 			case TargetType::CONSTANT_BUFFER:
-				m_windowHandle->devcon->VSSetConstantBuffers(bindId, 1, &m_internalBuffer);
-				m_windowHandle->devcon->PSSetConstantBuffers(bindId, 1, &m_internalBuffer);
+				WindowProvider::activeWindow->devcon->VSSetConstantBuffers(bindId, 1, &m_internalBuffer);
+				WindowProvider::activeWindow->devcon->PSSetConstantBuffers(bindId, 1, &m_internalBuffer);
 				break;
 			default:
 				log::error("That type is not supported");
@@ -83,11 +87,7 @@ namespace rythe::rendering::internal
 		template<typename elementType>
 		void bufferData(elementType* data, int size = 0)
 		{
-			//if (m_target == TargetType::INDEX_BUFFER)
-			//{
-			//	log::warn("Index Buffer is not allowed to be written too, returning without writing");
-			//	return;
-			//}
+			ZoneScopedN("[DX11 Buffer] bufferData()");
 
 			if (size < 1)
 			{
@@ -105,13 +105,15 @@ namespace rythe::rendering::internal
 			bind();
 
 			D3D11_MAPPED_SUBRESOURCE resource;
-			CHECKERROR(m_windowHandle->devcon->Map(m_internalBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &resource),"Buffer Failed to be filled", m_windowHandle->checkError() );
+			ZeroMemory(&resource, sizeof(resource));
+			CHECKERROR(WindowProvider::activeWindow->devcon->Map(m_internalBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &resource),"Buffer Failed to be filled", WindowProvider::activeWindow->checkError() );
 			memcpy(resource.pData, data, m_size * sizeof(elementType));
-			m_windowHandle->devcon->Unmap(m_internalBuffer, NULL);
+			WindowProvider::activeWindow->devcon->Unmap(m_internalBuffer, NULL);
 		}
 
 		void release()
 		{
+			ZoneScopedN("[DX11 Buffer] release()");
 			m_internalBuffer->Release();
 		}
 
@@ -119,9 +121,9 @@ namespace rythe::rendering::internal
 		template<typename elementType>
 		void createBuffer(elementType* data)
 		{
+			ZoneScopedN("[DX11 Buffer] createBuffer()");
 			if (m_internalBuffer != nullptr)
 				m_internalBuffer->Release();
-
 			ZeroMemory(&m_bufferDesc, sizeof(m_bufferDesc));
 
 			m_bufferDesc.Usage = static_cast<D3D11_USAGE>(m_usage);
@@ -139,10 +141,12 @@ namespace rythe::rendering::internal
 
 			if (data == nullptr)
 			{
-				CHECKERROR(m_windowHandle->dev->CreateBuffer(&m_bufferDesc, NULL, &m_internalBuffer), "Buffer failed to be created", m_windowHandle->checkError())
+				ZoneScopedN("[DX11 Buffer][createBuffer()] creating the buffer with null data");
+				CHECKERROR(WindowProvider::activeWindow->dev->CreateBuffer(&m_bufferDesc, NULL, &m_internalBuffer), "Buffer failed to be created", WindowProvider::activeWindow->checkError())
 			}
 			else
 			{
+				ZoneScopedN("[DX11 Buffer][createBuffer()] creating the buffer with data");
 				D3D11_SUBRESOURCE_DATA m_initData;
 
 				ZeroMemory(&m_initData, sizeof(m_initData));
@@ -150,7 +154,7 @@ namespace rythe::rendering::internal
 				m_initData.SysMemPitch = 0;
 				m_initData.SysMemSlicePitch = 0;
 
-				CHECKERROR(m_windowHandle->dev->CreateBuffer(&m_bufferDesc, &m_initData, &m_internalBuffer), "Buffer failed to be created", m_windowHandle->checkError())
+				CHECKERROR(WindowProvider::activeWindow->dev->CreateBuffer(&m_bufferDesc, &m_initData, &m_internalBuffer), "Buffer failed to be created", WindowProvider::activeWindow->checkError())
 			}
 		}
 	};

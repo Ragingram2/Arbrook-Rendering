@@ -1,13 +1,12 @@
 #pragma once
-#include "core/modules/module.hpp"
-#include "core/logging/logging.hpp"
+#include <rsl/logging>
 
-#include "graphics/systems/rendertestsystem.hpp"
+#include "core/modules/module.hpp"
 #include "graphics/systems/renderer.hpp"
 
 namespace rythe::rendering
 {
-	namespace log = rythe::core::log;
+	namespace log = rsl::log;
 
 	class RenderModule : public core::Module
 	{

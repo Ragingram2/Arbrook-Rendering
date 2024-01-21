@@ -1,4 +1,6 @@
 #pragma once
+#include <tracy/Tracy.hpp>
+
 #include "core/assets/assethandle.hpp"
 #include "graphics/data/bufferhandle.hpp"
 #include "graphics/data/shaderhandle.hpp"
@@ -17,10 +19,11 @@ namespace rythe::rendering
 
 		void initialize(unsigned int numBuffers, shader_handle shader) { m_impl.initialize(numBuffers, shader); }
 
-		void bind() { m_impl.bind(); }
+		void bind() {  m_impl.bind(); }
 
 		void setAttributePtr(buffer_handle buf, const std::string& attribName, unsigned int index, FormatType components, unsigned int inputSlot, unsigned int stride, unsigned int offset, InputClass inputClass = InputClass::PER_VERTEX, unsigned int instanceStep = 0) 
-		{ m_impl.setAttributePtr(buf, attribName, index, static_cast<internal::FormatType>(components), inputSlot, stride, offset, static_cast<internal::InputClass>(inputClass), instanceStep); }
+		{
+			 m_impl.setAttributePtr(buf, attribName, index, static_cast<internal::FormatType>(components), inputSlot, stride, offset, static_cast<internal::InputClass>(inputClass), instanceStep); }
 
 		void submitAttributes() { m_impl.submitAttributes(); }
 		

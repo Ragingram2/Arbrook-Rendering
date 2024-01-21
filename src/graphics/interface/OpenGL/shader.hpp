@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 
+#include <tracy/Tracy.hpp>
+
 #include "core/math/math.hpp"
 #include "core/logging/logging.hpp"
 #include "graphics/data/shadersource.hpp"
@@ -31,6 +33,7 @@ namespace rythe::rendering::internal
 
 		void initialize(const std::string& name, const shader_source& source)
 		{
+			ZoneScopedN("[OpenGL Shader] initialize()");
 			this->name = name;
 			programId = glCreateProgram();
 
@@ -70,26 +73,40 @@ namespace rythe::rendering::internal
 
 		void bind()
 		{
+			ZoneScopedN("[OpenGL Shader] bind()");
 			glUseProgram(programId);
 
 			for (auto [name, handle] : m_constBuffers)
 			{
+				ZoneScopedN("[OpenGL Shader] [bind()] binding the attached buffers");
 				handle->bind();
 				glBindBufferBase(GL_UNIFORM_BUFFER, handle->m_impl.bindId, handle->getId());
 			}
 		}
 
 		template<typename elementType>
-		void setData(const std::string& bufferName, elementType data[])
+		void setUniform(const std::string& bufferName, elementType data[])
 		{
+			ZoneScopedN("[OpenGL Shader] setUniform()");
 			if (m_constBuffers.count(bufferName) != 0)
 			{
 				m_constBuffers[bufferName]->bufferData<elementType>(data);
+				return;
 			}
+			auto buffer = BufferCache::getBuffer(bufferName);
+			if (buffer == nullptr)
+			{
+				addBuffer(buffer);
+				m_constBuffers[bufferName]->bufferData<elementType>(data);
+				return;
+			}
+
+			log::error("No data was buffered, because the buffer {} was not added or does not exist", bufferName);
 		}
 
 		void addBuffer(buffer_handle handle)
 		{
+			ZoneScopedN(" [OpenGL Shader] addBuffer()");
 			if (static_cast<internal::TargetType>(handle->getTargetType()) != TargetType::CONSTANT_BUFFER)
 			{
 				log::error("Buffer is not a constant buffer, this is not supported");
@@ -104,12 +121,14 @@ namespace rythe::rendering::internal
 
 		void release()
 		{
+			ZoneScopedN("[OpenGL Shader] release()");
 			glDeleteProgram(programId);
 			clearBuffers();
 		}
 
 		void clearBuffers()
 		{
+			ZoneScopedN("[OpenGL Shader] clearBuffers()");
 			m_constBuffers.clear();
 		}
 	};

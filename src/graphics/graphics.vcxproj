@@ -198,6 +198,7 @@
     <ClInclude Include="cache\materialcache.hpp" />
     <ClInclude Include="cache\modelcache.hpp" />
     <ClInclude Include="cache\shadercache.hpp" />
+    <ClInclude Include="cache\texturecache.hpp" />
     <ClInclude Include="cache\windowprovider.hpp" />
     <ClInclude Include="components\camera.hpp" />
     <ClInclude Include="components\components.hpp" />
@@ -209,13 +210,15 @@
     <ClInclude Include="data\material.hpp" />
     <ClInclude Include="data\mesh.hpp" />
     <ClInclude Include="data\model.hpp" />
-    <ClInclude Include="data\renderingtest.hpp" />
     <ClInclude Include="data\shaderhandle.hpp" />
     <ClInclude Include="data\shadersource.hpp" />
+    <ClInclude Include="data\texturehandle.hpp" />
     <ClInclude Include="data\textureparameters.hpp" />
+    <ClInclude Include="data\texturesource.hpp" />
     <ClInclude Include="data\vertex.hpp" />
     <ClInclude Include="data\vertexattribute.hpp" />
     <ClInclude Include="data\windowhandle.hpp" />
+    <ClInclude Include="interface\definitions\framebuffer.hpp" />
     <ClInclude Include="interface\DirectX\buffer.hpp" />
     <ClInclude Include="interface\DirectX\dx11includes.hpp" />
     <ClInclude Include="interface\DirectX\enumtypes.hpp" />
@@ -226,8 +229,10 @@
     <ClInclude Include="interface\DirectX\shaderincluder.hpp" />
     <ClInclude Include="interface\DirectX\texture.hpp" />
     <ClInclude Include="interface\DirectX\window.hpp" />
+    <ClInclude Include="interface\iframebuffer.hpp" />
     <ClInclude Include="interface\OpenGL\buffer.hpp" />
     <ClInclude Include="interface\OpenGL\enumtypes.hpp" />
+    <ClInclude Include="interface\OpenGL\framebuffer.hpp" />
     <ClInclude Include="interface\OpenGL\glslangincludes.hpp" />
     <ClInclude Include="interface\OpenGL\inputlayout.hpp" />
     <ClInclude Include="interface\OpenGL\oglincludes.hpp" />
@@ -267,7 +272,6 @@
     <ClInclude Include="pipeline\stages\submitstage.hpp" />
     <ClInclude Include="rendering.hpp" />
     <ClInclude Include="systems\renderer.hpp" />
-    <ClInclude Include="systems\rendertestsystem.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\include\GL\src\glad.c" />
@@ -292,10 +296,10 @@
     <ClCompile Include="cache\materialcache.cpp" />
     <ClCompile Include="cache\modelcache.cpp" />
     <ClCompile Include="cache\shadercache.cpp" />
+    <ClCompile Include="cache\texturecache.cpp" />
     <ClCompile Include="pipeline\base\graphicsstage.cpp" />
     <ClCompile Include="pipeline\base\pipeline.cpp" />
     <ClCompile Include="systems\renderer.cpp" />
-    <ClCompile Include="systems\rendertestsystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\core\src\core\core.vcxproj">

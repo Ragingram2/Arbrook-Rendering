@@ -19,6 +19,7 @@
 #define Window_HPP_PATH "graphics/interface/OpenGL/window.hpp"
 #define EnumTypes_HPP_PATH "graphics/interface/OpenGL/enumtypes.hpp"
 #define ShaderCompiler_HPP_PATH "graphics/interface/OpenGL/shadercompiler.hpp"
+#define Framebuffer_HPP_PATH "graphics/interface/OpenGL/framebuffer.hpp"
 #endif
 
 #ifdef RenderingAPI_DX11
@@ -32,6 +33,7 @@
 #define Window_HPP_PATH "graphics/interface/DirectX/window.hpp"
 #define EnumTypes_HPP_PATH "graphics/interface/DirectX/enumtypes.hpp"
 #define ShaderCompiler_HPP_PATH "graphics/interface/DirectX/shadercompiler.hpp"
+#define Framebuffer_HPP_PATH "graphics/interface/DirectX/framebuffer.hpp"
 #endif
 
 

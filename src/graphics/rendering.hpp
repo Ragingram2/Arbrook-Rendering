@@ -7,6 +7,8 @@
 #include "graphics/data/model.hpp"
 #include "graphics/data/material.hpp"
 #include "graphics/data/vertex.hpp"
+#include "graphics/data/texturesource.hpp"
+#include "graphics/data/shadersource.hpp"
 #include "graphics/systems/renderer.hpp"
 
 namespace rythe

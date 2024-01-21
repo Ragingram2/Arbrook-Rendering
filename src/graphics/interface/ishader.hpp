@@ -1,5 +1,8 @@
 #pragma once
 #include <string>
+
+#include <tracy/Tracy.hpp>
+
 #include "core/assets/assethandle.hpp"
 #include "graphics/interface/definitions/enumtypes.hpp"
 
@@ -27,10 +30,10 @@ namespace rythe::rendering
 	private:
 		APIType m_impl;
 	public:
-		void bind() { m_impl.bind(); }
+		void bind() {m_impl.bind(); }
 		void addBuffer(buffer_handle handle) { m_impl.addBuffer(handle); }
 		template<typename elementType>
-		void setData(const std::string& bufferName, elementType data[]) { m_impl.setData(bufferName, data); }
+		void setUniform(const std::string& bufferName, elementType data[]) {m_impl.setUniform(bufferName, data); }
 		void release() { m_impl.release(); }
 		void clearBuffers() { m_impl.clearBuffers(); }
 

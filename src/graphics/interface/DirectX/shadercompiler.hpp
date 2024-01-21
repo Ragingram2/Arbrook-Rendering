@@ -32,6 +32,7 @@ namespace rythe::rendering::internal
 	public:
 		static void initialize()
 		{
+			ZoneScopedN("[DX11 Shadercompiler] initialize()");
 			if (m_initialized) return;
 
 			m_windowHandle = WindowProvider::activeWindow;
@@ -40,6 +41,7 @@ namespace rythe::rendering::internal
 
 		static ID3DBlob* compile(ShaderType type, shader_source source)
 		{
+			ZoneScopedN("[DX11 Shadercompiler] compile()");
 			std::string profile = m_profiles[static_cast<int>(type)];
 			std::string file{ std::format("{}-{}", source.fileName, profile) };
 

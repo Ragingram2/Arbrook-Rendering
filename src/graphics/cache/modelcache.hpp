@@ -8,6 +8,8 @@
 
 #include <rsl/utilities>
 
+#include <tracy/Tracy.hpp>
+
 #include "core/assets/assets.hpp"
 #include "graphics/data/model.hpp"
 #include "graphics/data/mesh.hpp"
@@ -23,7 +25,7 @@ namespace rythe::rendering
 		static std::unordered_map<rsl::id_type, std::unique_ptr<model>> m_models;
 		static std::unordered_map<rsl::id_type, std::string> m_names;
 	public:
-		static ast::asset_handle<model> createModel(const std::string& name, ast::asset_handle<mesh> handle);
+		static ast::asset_handle<model> createModel(const std::string& name, ast::asset_handle<mesh> meshHandle, ast::asset_handle<material> matHandle);
 		static ast::asset_handle<model> getModel(const std::string& name);
 		static ast::asset_handle<model> getModel(rsl::id_type nameHash);
 		static void deleteModel(const std::string& name);

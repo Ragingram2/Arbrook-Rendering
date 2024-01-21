@@ -5,6 +5,8 @@
 
 #include <rsl/math>
 
+#include <tracy/Tracy.hpp>
+
 namespace rythe::rendering
 {
 	namespace internal
@@ -21,7 +23,7 @@ namespace rythe::rendering
 
 		void initialize(math::ivec2 res, const std::string& name, GLFWwindow* window = nullptr) { m_imple.initialize(res, name, window); }
 
-		GLFWwindow* getGlfwWindow() { return m_impl.getGlfwWindow(); }
+		GLFWwindow* getGlfwWindow() {  return m_impl.getGlfwWindow(); }
 
 		void swapBuffers() { m_impl.swapBuffers(); }
 
@@ -35,6 +37,6 @@ namespace rythe::rendering
 
 		void makeCurrent() { m_impl.makeCurrent(); }
 		
-		math::ivec2 getResolution() { return m_impl.getResolution(); }
+		math::ivec2 getResolution() const {  return m_impl.getResolution(); }
 	};
 }

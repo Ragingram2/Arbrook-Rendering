@@ -28,7 +28,8 @@ namespace rythe::core::assets
 		rendering::WrapMode wrapModeS = rendering::WrapMode::REPEAT;
 		rendering::WrapMode wrapModeT = rendering::WrapMode::REPEAT;
 		rendering::WrapMode wrapModeR = rendering::WrapMode::REPEAT;
-		rendering::FilterMode filterMode = rendering::FilterMode::LINEAR;
+		rendering::FilterMode minFilterMode = rendering::FilterMode::LINEAR;
+		rendering::FilterMode magFilterMode = rendering::FilterMode::LINEAR;
 		rendering::FormatType format = rendering::FormatType::RGB;
 		rendering::UsageType usage = rendering::UsageType::DEFAULT;
 		int mipLevels = 1;
@@ -44,10 +45,11 @@ namespace rythe::rendering
 		.wrapModeS = WrapMode::REPEAT,
 		.wrapModeT = WrapMode::REPEAT,
 		.wrapModeR = WrapMode::REPEAT,
-		.filterMode = FilterMode::LINEAR,
+		.minFilterMode = FilterMode::LINEAR,
+		.magFilterMode = FilterMode::LINEAR,
 		.format = FormatType::RGBA,
-		.usage = UsageType::IMMUTABLE,
+		.usage = UsageType::DEFAULT,
 		.mipLevels = 1,
-		.generateMipMaps = false
+		.generateMipMaps = false,
 	};
 }

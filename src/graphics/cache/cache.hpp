@@ -3,6 +3,7 @@
 #include "buffercache.hpp"
 #include "materialcache.hpp"
 #include "shadercache.hpp"
+#include "texturecache.hpp"
 
 #include "importers/meshimporter.hpp"
 #include "importers/shaderimporter.hpp"

@@ -27,7 +27,13 @@ namespace rythe::rendering
 		APIType m_impl;
 	public:
 		void bind(TextureSlot textureSlot = TextureSlot::TEXTURE0) { m_impl.bind(static_cast<internal::TextureSlot>(textureSlot)); }
-		void loadData(const std::string& filepath) { m_impl.loadData(filepath); }
+		void unbind() { m_impl.unbind(); }
+		void loadData(unsigned char* textureData) { m_impl.loadData(textureData); }
+
+		void setMipCount(int mipCount) { m_impl.setMipCount(mipCount); }
+		void setWrapMode(int axis, WrapMode mode) { m_impl.setWrapMode(axis, static_cast<internal::WrapMode>(mode)); }
+		void setMinFilterMode(FilterMode mode) { m_impl.setMinFilterMode(static_cast<internal::FilterMode>(mode)); }
+		void setMagFilterMode(FilterMode mode) { m_impl.setMagFilterMode(static_cast<internal::FilterMode>(mode)); }
 
 		unsigned int getId() { return m_impl.id; }
 		const std::string& getName() { return m_impl.name; }

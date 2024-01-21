@@ -3,6 +3,8 @@
 
 #include <rsl/logging>
 
+#include <tracy/Tracy.hpp>
+
 #include "graphics/data/bufferhandle.hpp"
 #include "graphics/data/shadersource.hpp"
 #include "graphics/cache/windowprovider.hpp"
@@ -57,9 +59,10 @@ namespace rythe::rendering::internal
 
 		void initialize(const std::string& name, const shader_source& source)
 		{
+			ZoneScopedN("[DX11 Shader] initialize()");
 			m_windowHandle = WindowProvider::activeWindow;
 			ShaderCompiler::initialize();
-			VS = ShaderCompiler::compile(ShaderType::VERTEX,source);
+			VS = ShaderCompiler::compile(ShaderType::VERTEX, source);
 			PS = ShaderCompiler::compile(ShaderType::FRAGMENT, source);
 
 			m_windowHandle->dev->CreateVertexShader(VS->GetBufferPointer(), VS->GetBufferSize(), NULL, &m_VS);
@@ -68,17 +71,20 @@ namespace rythe::rendering::internal
 
 		void bind()
 		{
+			ZoneScopedN("[DX11 Shader] bind()");
 			m_windowHandle->devcon->VSSetShader(m_VS, 0, 0);
 			m_windowHandle->devcon->PSSetShader(m_PS, 0, 0);
 
 			for (auto& [name, handle] : m_constBuffers)
 			{
+				ZoneScopedN("[DX11 Shader][bind()] binding attached buffers");
 				handle->bind();
 			}
 		}
 
 		void addBuffer(buffer_handle handle)
 		{
+			ZoneScopedN("[DX11 Shader] addBuffer()");
 			if (static_cast<internal::TargetType>(handle->getTargetType()) != TargetType::CONSTANT_BUFFER)
 			{
 				log::error("Buffer is not a constant buffer, this is not supported");
@@ -90,26 +96,27 @@ namespace rythe::rendering::internal
 		}
 
 		template<typename elementType>
-		void setData(const std::string& bufferName, elementType data[])
+		void setUniform(const std::string& bufferName, elementType data[])
 		{
-			bool dataSet = false;
+			ZoneScopedN("[DX11 Shader] setUniform()");
 			if (m_constBuffers.count(bufferName) != 0)
 			{
 				m_constBuffers[bufferName]->bufferData(data);
-				dataSet = true;
+				return;
 			}
 
-			if (!dataSet)
-				log::error("No data was buffered, because the buffer {} was not added or does not exist", bufferName);
+			log::error("No data was buffered, because the buffer {} was not added or does not exist", bufferName);
 		}
 
 		void release()
 		{
+			ZoneScopedN("[DX11 Shader] release()");
 			clearBuffers();
 		}
 
 		void clearBuffers()
 		{
+			ZoneScopedN("[DX11 Shader] clearBuffers()");
 			m_constBuffers.clear();
 		}
 	};

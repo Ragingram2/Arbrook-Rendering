@@ -6,9 +6,13 @@
 #include <rsl/logging>
 #include <rsl/math>
 
+#include <tracy/Tracy.hpp>
+
+#include "graphics/cache/texturecache.hpp"
 #include "graphics/interface/OpenGL/oglincludes.hpp"
 #include "graphics/interface/OpenGL/enumtypes.hpp"
 #include "graphics/cache/windowprovider.hpp"
+#include "graphics/interface/OpenGL/framebuffer.hpp"
 
 namespace rythe::rendering::internal
 {
@@ -42,17 +46,23 @@ namespace rythe::rendering::internal
 		DepthStencilInfo m_depthStencilInfo;
 		window_handle m_windowHandle;
 	public:
+
 		void setWindow(window_handle handle)
 		{
+			ZoneScopedN("[OpenGL RenderInterface] setWindow()");
 			m_windowHandle = handle;
 			m_windowHandle->makeCurrent();
 		}
 
 		void initialize(math::ivec2 res, const std::string& name, GLFWwindow* window = nullptr)
 		{
+			ZoneScopedN("[OpenGL RenderInterface] initialize()");
 			log::info("Initializing OpenGL");
 			if (!window && WindowProvider::get(name) == nullptr)
+			{
 				m_windowHandle = WindowProvider::addWindow(name);
+				WindowProvider::setActive(name);
+			}
 			else if (WindowProvider::get(name) != nullptr)
 			{
 				m_windowHandle = WindowProvider::get(name);
@@ -78,6 +88,8 @@ namespace rythe::rendering::internal
 				return;
 			}
 
+			
+
 #ifdef _DEBUG
 			glEnable(GL_DEBUG_OUTPUT);
 			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -98,77 +110,91 @@ namespace rythe::rendering::internal
 
 		GLFWwindow* getGlfwWindow()
 		{
+			ZoneScopedN("[OpenGL RenderInterface] getGlfwWindow()");
 			return m_windowHandle->getGlfwWindow();
 		}
 
 		window_handle getWindowHandle()
 		{
+			ZoneScopedN("[OpenGL RenderInterface] getWindowHandle()");
 			return m_windowHandle;
 		}
 
 		void makeCurrent()
 		{
-
+			ZoneScopedN("[OpenGL RenderInterface] makeCurrent()");
 			m_windowHandle->makeCurrent();
 		}
 
 		void setSwapInterval(int interval)
 		{
+			ZoneScopedN("[OpenGL RenderInterface] setSwapInterval()");
 			m_windowHandle->setSwapInterval(interval);
 		}
 
 		bool shouldWindowClose()
 		{
+			ZoneScopedN("[OpenGL RenderInterface] shouldWindowClose()");
 			return m_windowHandle->shouldClose();
 		}
 
 		void setWindowTitle(const std::string& name)
 		{
+			ZoneScopedN("[OpenGL RenderInterface] setWindowTitle()");
 			m_windowHandle->setWindowTitle(name);
 		}
 
 		void pollEvents()
 		{
+			ZoneScopedN("[OpenGL RenderInterface] pollEvents()");
 			m_windowHandle->pollEvents();
 		}
 
 		void swapBuffers()
 		{
+			ZoneScopedN("[OpenGL RenderInterface] swapBuffers()");
 			glfwSwapBuffers(m_windowHandle->getGlfwWindow());
 		}
 
 		void drawArrays(PrimitiveType mode, unsigned int startVertex, unsigned int vertexCount)
 		{
+			ZoneScopedN("[OpenGL RenderInterface] drawArrays()");
 			glDrawArrays(static_cast<GLenum>(mode), startVertex, vertexCount);
 		}
 
 		void drawArraysInstanced(PrimitiveType mode, unsigned int vertexCount, unsigned int instanceCount, unsigned int startVertex, unsigned int startInstance)
 		{
+			ZoneScopedN("[OpenGL RenderInterface] drawArraysInstanced()");
 			glDrawArraysInstanced(static_cast<GLenum>(mode), startVertex, vertexCount, instanceCount);
 		}
 
 		void drawIndexed(PrimitiveType mode, unsigned int indexCount, unsigned int startIndex, unsigned int baseVertex)
 		{
+			ZoneScopedN("[OpenGL RenderInterface] drawIndexed()");
 			glDrawElementsBaseVertex(static_cast<GLenum>(mode), indexCount, static_cast<GLenum>(DataType::UINT), reinterpret_cast<void*>(sizeof(unsigned int) * startIndex), static_cast<GLint>(baseVertex));
 		}
 
 		void drawIndexedInstanced(PrimitiveType mode, unsigned int indexCount, unsigned int instanceCount, unsigned int startIndex, unsigned int baseVertex, unsigned int startInstance)
 		{
+			ZoneScopedN("[OpenGL RenderInterface] drawIndexedInstanced()");
 			glDrawElementsInstanced(static_cast<GLenum>(mode), indexCount, static_cast<GLenum>(DataType::UINT), reinterpret_cast<void*>(sizeof(unsigned int) * startIndex), instanceCount);
 		}
 
 		void clear(internal::ClearBit flags)
 		{
+			ZoneScopedN("[OpenGL RenderInterface] clear()");
 			glClear(static_cast<int>(flags));
 		}
 
 		void setClearColor(math::vec4 color)
 		{
+			ZoneScopedN("[OpenGL RenderInterface] setClearColor()");
 			glClearColor(color.r, color.g, color.b, color.a);
 		}
 
 		void setViewport(float numViewPorts = 1, float leftX = 0, float leftY = 0, float width = 0, float height = 0, float minDepth = 0, float maxDepth = 1)
 		{
+			ZoneScopedN("[OpenGL RenderInterface] setViewport()");
 			if (width <= 0)
 				width = m_windowHandle->getResolution().x;
 
@@ -181,6 +207,7 @@ namespace rythe::rendering::internal
 
 		void cullFace(CullMode mode = CullMode::NONE)
 		{
+			ZoneScopedN("[OpenGL RenderInterface] cullFace()");
 			switch (mode)
 			{
 			case CullMode::FRONT:
@@ -200,36 +227,43 @@ namespace rythe::rendering::internal
 
 		void setWindOrder(WindOrder order)
 		{
+			ZoneScopedN("[OpenGL RenderInterface] setWindOrder()");
 			glFrontFace(static_cast<GLenum>(order));
 		}
 
 		void depthTest(bool enable)
 		{
+			ZoneScopedN("[OpenGL RenderInterface] depthTest()");
 			m_depthStencilInfo.DepthTest = enable;
 		}
 
 		void depthWrite(bool enable)
 		{
+			ZoneScopedN("[OpenGL RenderInterface] depthWrite()");
 			m_depthStencilInfo.DepthWrite = enable;
 		}
 
 		void setStencilMask(int mask)
 		{
+			ZoneScopedN("[OpenGL RenderInterface] setStencilMask()");
 			m_depthStencilInfo.StencilWriteMask = mask;
 		}
 
 		void setDepthFunction(DepthFuncs function)
 		{
+			ZoneScopedN("[OpenGL RenderInterface] setDepthFunction()");
 			m_depthStencilInfo.DepthFunc = function;
 		}
 
 		void stencilTest(bool enable)
 		{
+			ZoneScopedN("[OpenGL RenderInterface] stencilTest()");
 			m_depthStencilInfo.StencilTest = enable;
 		}
 
 		void setStencilOp(Face face, StencilOp fail, StencilOp  zfail, StencilOp  zpass)
 		{
+			ZoneScopedN("[OpenGL RenderInterface] setStencilOp()");
 			auto& stencilInfo = m_depthStencilInfo.stencils[face];
 			stencilInfo.StencilOpFail = fail;
 			stencilInfo.StencilOpDepthFail = zfail;
@@ -238,6 +272,7 @@ namespace rythe::rendering::internal
 
 		void setStencilFunction(Face face, DepthFuncs func, unsigned int ref, unsigned int mask)
 		{
+			ZoneScopedN("[OpenGL RenderInterface] setStencilFunction()");
 			m_depthStencilInfo.StencilReadMask = mask;
 			m_depthStencilInfo.ref = ref;
 			m_depthStencilInfo.stencils[face].StencilFunc = func;
@@ -245,6 +280,7 @@ namespace rythe::rendering::internal
 
 		void updateDepthStencil()
 		{
+			ZoneScopedN("[OpenGL RenderInterface] updateDepthStencil()");
 			if (m_depthStencilInfo.DepthTest)
 				glEnable(GL_DEPTH_TEST);
 			else
@@ -268,6 +304,7 @@ namespace rythe::rendering::internal
 
 		void checkError()
 		{
+			ZoneScopedN("[OpenGL RenderInterface] checkError()");
 			m_windowHandle->checkError();
 		}
 
@@ -345,7 +382,7 @@ namespace rythe::rendering::internal
 		{
 		case GL_DEBUG_SEVERITY_HIGH:
 			log::error("[{}-{}] {}: {}", s, t, id, message);
-			//__debugbreak();
+			__debugbreak();
 			break;
 		case GL_DEBUG_SEVERITY_MEDIUM:
 			log::warn("[{}-{}] {}: {}", s, t, id, message);

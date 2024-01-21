@@ -1,14 +1,12 @@
 #pragma once
 #include <string>
 
-
 #include <rsl/logging>
+
+#include <tracy/Tracy.hpp>
 
 #include "graphics/data/textureparameters.hpp"
 #include "graphics/interface/OpenGL/oglincludes.hpp"
-
-#include <stb/stb_image.h>
-#define STB_IMAGE_IMPLEMENTATION
 
 namespace rythe::rendering::internal
 {
@@ -18,13 +16,11 @@ namespace rythe::rendering::internal
 	private:
 		GLenum m_texType;
 		GLenum m_usageType;
-		int mipCount = 0;
 	public:
 		int channels;
 		math::ivec2 resolution;
 		unsigned int id = 0;
 		std::string name;
-		unsigned char* data;
 		texture_parameters params;
 		texture() = default;
 		texture(unsigned int id, std::string name) : id(id), name(name) { }
@@ -32,64 +28,128 @@ namespace rythe::rendering::internal
 		{
 			name = other->name;
 			id = other->id;
-			data = other->data;
 			params = other->params;
 		}
 
 		void initialize(TargetType _texType, texture_parameters _params)
 		{
+			ZoneScopedN("[OpenGL Texture] initialize()");
 			params = _params;
 			m_texType = static_cast<GLenum>(_texType);
 			m_usageType = static_cast<GLenum>(params.usage);
 
 			glGenTextures(1, &id);
 			bind();
-			glTexParameteri(m_texType, GL_TEXTURE_WRAP_R, static_cast<GLint>(params.wrapModeR));
-			glTexParameteri(m_texType, GL_TEXTURE_WRAP_S, static_cast<GLint>(params.wrapModeS));
-			glTexParameteri(m_texType, GL_TEXTURE_WRAP_T, static_cast<GLint>(params.wrapModeT));
-			glTexParameteri(m_texType, GL_TEXTURE_MIN_FILTER, static_cast<GLint>(params.filterMode));
-			glTexParameteri(m_texType, GL_TEXTURE_MAG_FILTER, static_cast<GLint>(params.filterMode));
-
-			mipCount = params.generateMipMaps ? params.mipLevels : 1;
-			glTexParameteri(m_texType, GL_TEXTURE_MAX_LEVEL, mipCount);
+			setWrapMode(0, static_cast<WrapMode>(params.wrapModeS));
+			setWrapMode(1, static_cast<WrapMode>(params.wrapModeT));
+			setWrapMode(2, static_cast<WrapMode>(params.wrapModeR));
+			setMinFilterMode(static_cast<FilterMode>(params.minFilterMode));
+			setMagFilterMode(static_cast<FilterMode>(params.magFilterMode));
+			setMipCount(params.mipLevels);
 		}
 
 		void bind(TextureSlot textureSlot = TextureSlot::TEXTURE0)
 		{
+			ZoneScopedN("[OpenGL Texture] bind()");
 			glActiveTexture(static_cast<GLenum>(textureSlot));
 			glBindTexture(m_texType, id);
 		}
 
-		void loadData(const std::string& filepath, bool flipVertical = true)
+		void unbind()
 		{
-			stbi_set_flip_vertically_on_load(flipVertical);
-			data = stbi_load(filepath.c_str(), &resolution.x, &resolution.y, &channels, 0);
-			if (!data)
-				log::error("Image failed to load");
+			ZoneScopedN("[OpenGL Texture] unbind()");
+			glBindTexture(m_texType, 0);
+		}
+
+		void setMipCount(int mipCount)
+		{
+			if (!params.generateMipMaps)
+			{
+				return;
+			}
+			params.mipLevels = mipCount = mipCount >= 0 ? mipCount : 1;
+			glTexParameteri(m_texType, GL_TEXTURE_MAX_LEVEL, mipCount);
+		}
+
+		void setWrapMode(int axis, WrapMode mode)
+		{
+			switch (axis)
+			{
+			case 0:
+				glTexParameteri(m_texType, GL_TEXTURE_WRAP_S, static_cast<GLint>(mode));
+				break;
+			case 1:
+				glTexParameteri(m_texType, GL_TEXTURE_WRAP_T, static_cast<GLint>(mode));
+				break;
+			case 2:
+				glTexParameteri(m_texType, GL_TEXTURE_WRAP_R, static_cast<GLint>(mode));
+				break;
+			}
+		}
+
+		void setMinFilterMode(FilterMode mode)
+		{
+			params.minFilterMode = static_cast<rendering::FilterMode>(mode);
+			glTexParameteri(m_texType, GL_TEXTURE_MIN_FILTER, static_cast<GLint>(mode));
+		}
+
+		void setMagFilterMode(FilterMode mode)
+		{
+			params.magFilterMode = static_cast<rendering::FilterMode>(mode);
+			switch (mode)
+			{
+			case FilterMode::NEAREST:
+			case FilterMode::LINEAR:
+				glTexParameteri(m_texType, GL_TEXTURE_MAG_FILTER, static_cast<GLint>(mode));
+				break;
+			case FilterMode::NEAREST_MIPMAP_NEAREST:
+			case FilterMode::NEAREST_MIPMAP_LINEAR:
+			case FilterMode::LINEAR_MIPMAP_LINEAR:
+			case FilterMode::LINEAR_MIPMAP_NEAREST:
+				log::error("Only filter modes \"NEAREST\" and  \"LINEAR\" are supported for the \"MAG_FILTER\" parameter");
+				break;
+			}
+		}
+
+		void loadData(unsigned char* textureData)
+		{
+			ZoneScopedN("[OpenGL Texture] loadData()");
+
+			GLenum internalFormat = NULL;
+
+			switch (channels)
+			{
+			case 4:
+				internalFormat = GL_RGBA;
+				break;
+			case 3:
+				internalFormat = GL_RGB;
+				break;
+			case 2:
+				internalFormat = GL_RG;
+				break;
+			case 1:
+				internalFormat = GL_RED;
+				break;
+			}
 
 			switch (m_usageType)
 			{
 			case static_cast<GLenum>(0):
 
-				glTexStorage2D(m_texType, static_cast<GLint>(mipCount), static_cast<GLint>(params.format), resolution.x, resolution.y);
-				if (channels == 4)
-					glTexSubImage2D(m_texType, 0, 0, 0, resolution.x, resolution.y, GL_RGBA, GL_UNSIGNED_BYTE, data);
-				else if( channels == 3)
-					glTexSubImage2D(m_texType, 0, 0, 0, resolution.x, resolution.y, GL_RGB, GL_UNSIGNED_BYTE, data);
-				else if(channels == 2)
-					glTexSubImage2D(m_texType, 0, 0, 0, resolution.x, resolution.y, GL_RG, GL_UNSIGNED_BYTE, data);
-				else if(channels == 1)
-					glTexSubImage2D(m_texType, 0, 0, 0, resolution.x, resolution.y, GL_RED, GL_UNSIGNED_BYTE, data);
+				glTexStorage2D(m_texType, static_cast<GLint>(params.mipLevels), static_cast<GLint>(params.format), resolution.x, resolution.y);
+				glTexSubImage2D(m_texType, 0, 0, 0, resolution.x, resolution.y, internalFormat, GL_UNSIGNED_BYTE, textureData);
+			case GL_DEPTH_COMPONENT:
+				if (textureData == nullptr)
+					glTexImage2D(m_texType, 0, static_cast<GLint>(params.format), resolution.x, resolution.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+				else
+					glTexImage2D(m_texType, 0, static_cast<GLint>(params.format), resolution.x, resolution.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, textureData);
 				break;
 			case GL_DYNAMIC_DRAW:
-				if (channels == 4)
-					glTexImage2D(m_texType, 0, static_cast<GLint>(params.format), resolution.x, resolution.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-				else if (channels == 3)
-					glTexImage2D(m_texType, 0, static_cast<GLint>(params.format), resolution.x, resolution.y, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-				else if (channels == 2)
-					glTexImage2D(m_texType, 0, static_cast<GLint>(params.format), resolution.x, resolution.y, 0, GL_RG, GL_UNSIGNED_BYTE, data);
-				else if (channels == 1)
-					glTexImage2D(m_texType, 0, static_cast<GLint>(params.format), resolution.x, resolution.y, 0, GL_RED, GL_UNSIGNED_BYTE, data);
+				if (textureData == nullptr)
+					glTexImage2D(m_texType, 0, static_cast<GLint>(params.format), resolution.x, resolution.y, 0, internalFormat, GL_UNSIGNED_BYTE, NULL);
+				else
+					glTexImage2D(m_texType, 0, static_cast<GLint>(params.format), resolution.x, resolution.y, 0, internalFormat, GL_UNSIGNED_BYTE, textureData);
 				break;
 			default:
 				break;
@@ -100,7 +160,6 @@ namespace rythe::rendering::internal
 				glGenerateMipmap(m_texType);
 			}
 
-			stbi_image_free(data);
 		}
 	};
 }

@@ -4,7 +4,7 @@ namespace rythe::rendering
 {
 	std::unordered_map<std::string, std::unique_ptr<buffer>> BufferCache::m_buffers;
 
-	buffer_handle BufferCache::createIndexBuffer(const std::string& name, UsageType usage, std::vector<unsigned int> data)
+	buffer_handle BufferCache::createIndexBuffer(const std::string& name, UsageType usage, const std::vector<unsigned int>& data)
 	{
 		return { createBuffer(name,TargetType::INDEX_BUFFER,usage,data) };
 	}

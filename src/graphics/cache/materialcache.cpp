@@ -20,7 +20,7 @@ namespace rythe::rendering
 		}
 
 		std::unique_ptr<material> mat = std::make_unique<material>();
-		mat->shader = shader; ;
+		mat->shader = shader;
 		mat->name = name;
 		m_materials.emplace(id, std::move(mat));
 		m_names.emplace(id, name);
@@ -50,6 +50,7 @@ namespace rythe::rendering
 		{
 			return { id, m_materials[id].get() };
 		}
+		log::error("Material \"{}\" does not exist", name);
 		return { 0, nullptr };
 	}
 	void MaterialCache::deleteMaterial(const std::string& name)
@@ -77,19 +78,18 @@ namespace rythe::rendering
 	std::vector<std::string> MaterialCache::getMaterialNames()
 	{
 		std::vector<std::string> names;
-		for (auto& [id, handle] : m_materials)
+		for (auto& [id, name] : m_names)
 		{
-			names.push_back(handle->name);
+			names.push_back(name);
 		}
 		return names;
-
 	}
 	std::vector<const char*> MaterialCache::getMaterialNamesC()
 	{
 		std::vector<const char*> names;
-		for (auto& [id, handle] : m_materials)
+		for (auto& [id, name] : m_names)
 		{
-			names.push_back(handle->name.c_str());
+			names.push_back(name.c_str());
 		}
 		return names;
 	}

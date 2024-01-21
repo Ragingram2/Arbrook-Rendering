@@ -32,28 +32,34 @@ namespace rythe::rendering::internal
 
 		void initialize(unsigned int numBuffers, shader_handle shader)
 		{
+			ZoneScopedN("[OpenGL Inputlayout] initialize()");
 			glGenVertexArrays(1, &id);
 		}
 
 		void bind()
 		{
+			ZoneScopedN("[OpenGL Inputlayout] bind()");
 			glBindVertexArray(id);
 		}
 
 		void setAttributePtr(buffer_handle buf, const std::string& attribName, unsigned int index, FormatType components, unsigned int inputSlot, unsigned int stride, unsigned int offset, InputClass inputClass, unsigned int instancedStep)
 		{
+			ZoneScopedN("[OpenGL Inputlayout] setAttributePtr()");
 			m_vertexAttribs[buf->getId()].emplace_back(vertexattribute{ attribName.c_str(), index, components, inputSlot, stride, offset, inputClass, instancedStep });
 		}
 
 		void submitAttributes()
 		{
+			ZoneScopedN("[OpenGL Inputlayout] submitAttributes()");
 			bind();
 			if (m_vertexAttribs.size() > 0)
 			{
 				for (auto& [bufId, attribs] : m_vertexAttribs)
 				{
+					ZoneScopedN("[OpenGL Inputlayout][submitAttributes()] iterating over buffers attributes");
 					for (auto& attrib : attribs)
 					{
+						ZoneScopedN("[OpenGL Inputlayout][submitAttributes()] iterating over attributes");
 						glBindBuffer(GL_ARRAY_BUFFER, bufId);
 						switch (attrib.format)
 						{
@@ -95,11 +101,13 @@ namespace rythe::rendering::internal
 
 		void clearAttributes()
 		{
+			ZoneScopedN("[OpenGL Inputlayout] clearAttributes()");
 			m_vertexAttribs.clear();
 		}
 
 		void release()
 		{
+			ZoneScopedN("[OpenGL Inputlayout] release()");
 			glDeleteVertexArrays(1, &id);
 			clearAttributes();
 		}

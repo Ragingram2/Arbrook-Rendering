@@ -6,6 +6,6 @@ namespace rythe::rendering
 {
 	struct skybox_renderer
 	{
-		ast::asset_handle<texture> skyboxTex;
+		texture_handle skyboxTex;
 	};
 }
