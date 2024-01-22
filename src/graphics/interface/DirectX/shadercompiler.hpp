@@ -70,7 +70,7 @@ namespace rythe::rendering::internal
 
 			ID3DBlob* shaderBlob;
 			log::info("[{}] Compiling Shader", file);
-			CHECKERROR(D3DCompile(ppShaderBlob->GetBufferPointer(), ppShaderBlob->GetBufferSize(), sourceName.c_str(), nullptr, m_includer, "main", profile.c_str(), flags, 0, &shaderBlob, &errors), "Shader failed to compile", m_windowHandle->checkError());
+			CHECKERROR(D3DCompile(ppShaderBlob->GetBufferPointer(), ppShaderBlob->GetBufferSize(), sourceName.c_str(), nullptr, m_includer, "main", profile.c_str(), flags, 0, &shaderBlob, &errors), std::format("Shader failed to compile:\n{}",static_cast<char*>(errors->GetBufferPointer())), m_windowHandle->checkError(););
 
 
 			if (errors && errors->GetBufferSize())

@@ -222,6 +222,7 @@
     <ClInclude Include="interface\DirectX\buffer.hpp" />
     <ClInclude Include="interface\DirectX\dx11includes.hpp" />
     <ClInclude Include="interface\DirectX\enumtypes.hpp" />
+    <ClInclude Include="interface\DirectX\framebuffer.hpp" />
     <ClInclude Include="interface\DirectX\inputlayout.hpp" />
     <ClInclude Include="interface\DirectX\renderinterface.hpp" />
     <ClInclude Include="interface\DirectX\shader.hpp" />

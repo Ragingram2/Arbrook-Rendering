@@ -61,8 +61,7 @@ namespace rythe::rendering
 			auto name = filePath.stem().string();
 			stbi_set_flip_vertically_on_load(settings.flipVertical);
 			data->filePath = filePath.string();
-			auto stbiData = stbi_load(filePath.string().c_str(), &data->resolution.x, &data->resolution.y, &data->channels, 0);
-			data->data = std::move(stbiData);
+			data->data = std::move(stbi_load(filePath.string().c_str(), &data->resolution.x, &data->resolution.y, &data->channels, 0));
 			if (!data)
 				log::error("Image \"{}\" failed to load", filePath.string());
 			return { id, data };

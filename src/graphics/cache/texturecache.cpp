@@ -6,6 +6,29 @@ namespace rythe::rendering
 	std::unordered_map<rsl::id_type, std::unique_ptr<texture>> TextureCache::m_textures;
 	std::unordered_map<rsl::id_type, std::string> TextureCache::m_names;
 
+	texture_handle TextureCache::createTexture(const std::string& name, TargetType targetType, ast::asset_handle<texture_source> textureData, math::ivec2 overrideResolution, texture_parameters params)
+	{
+		rsl::id_type id = rsl::nameHash(name);
+		if (m_textures.count(id))
+		{
+			log::warn("Texture \"{}\" already exists, returning existing handle", name);
+			return { m_textures[id].get() };
+		}
+
+		auto& tex = m_textures.emplace(id, std::make_unique<texture>()).first->second;
+		tex->m_impl.channels = textureData != nullptr ? textureData->channels : 4;
+		tex->m_impl.resolution = overrideResolution;
+		tex->m_impl.initialize(static_cast<internal::TargetType>(targetType), params);
+		tex->loadData(textureData != nullptr ? textureData->data : nullptr);
+		m_names.emplace(id, name);
+		return { tex.get() };
+	}
+
+	texture_handle TextureCache::createTexture(const std::string& name, TargetType targetType, ast::asset_handle<texture_source> textureData, texture_parameters params)
+	{
+		return createTexture(name, targetType, textureData, textureData->resolution, params);
+	}
+
 	texture_handle TextureCache::createTexture2D(const std::string& name, ast::asset_handle<texture_source> textureData, math::ivec2 overrideResolution, texture_parameters params)
 	{
 		rsl::id_type id = rsl::nameHash(name);

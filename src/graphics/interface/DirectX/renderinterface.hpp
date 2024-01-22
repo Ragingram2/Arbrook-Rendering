@@ -4,16 +4,18 @@
 #include <memory>
 #include <stdio.h>
 
+#include <rsl/logging>
+#include <rsl/math>
+
 #include <GLFW/glfw3.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
-#include "core/math/math.hpp"
-#include "core/logging/logging.hpp"
 #include "graphics/cache/windowprovider.hpp"
 #include "graphics/data/shadersource.hpp"
 #include "graphics/interface/DirectX/dx11includes.hpp"
 #include "graphics/interface/definitions/window.hpp"
+#include "graphics/interface/definitions/framebuffer.hpp"
 #include "graphics/interface/config.hpp"
 #include Shader_HPP_PATH
 #include Buffer_HPP_PATH
@@ -28,14 +30,11 @@ namespace rythe::rendering::internal
 		ID3D11DepthStencilState* m_depthStencilState = nullptr;
 		D3D11_VIEWPORT m_viewport;
 		DXGI_SWAP_CHAIN_DESC m_swapChainDesc;
-		D3D11_TEXTURE2D_DESC m_depthTexDesc;
 		D3D11_RASTERIZER_DESC m_rasterizerDesc;
 		D3D11_DEPTH_STENCIL_DESC m_depthStencilDesc;
-		D3D11_DEPTH_STENCIL_VIEW_DESC m_depthStencilViewDesc;
 		float m_colorData[4];
 		window_handle m_windowHandle;
 	public:
-
 		void setWindow(window_handle handle)
 		{
 			ZoneScopedN("[DX11 Renderinterface] setWindow()");
@@ -72,6 +71,7 @@ namespace rythe::rendering::internal
 			m_swapChainDesc.SampleDesc.Count = 1;
 			m_swapChainDesc.Windowed = TRUE;
 			m_swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+			m_swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
 
 			UINT creationFlags = D3D11_CREATE_DEVICE_DEBUG;
 
@@ -94,15 +94,20 @@ namespace rythe::rendering::internal
 			CHECKERROR(hr, "Retrieving the info queue failed", checkError());
 #endif
 
+			ID3D11RenderTargetView* renderTargetView;
+			//getting the default color attachment
 			ID3D11Texture2D* m_backBuffer;
 			hr = m_windowHandle->swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&m_backBuffer);
 			CHECKERROR(hr, "Retrieving the backbuffer failed", checkError());
 
-			hr = m_windowHandle->dev->CreateRenderTargetView(m_backBuffer, NULL, &m_windowHandle->renderTargetView);
+			//assigning the default color attachment
+			hr = m_windowHandle->dev->CreateRenderTargetView(m_backBuffer, NULL, &renderTargetView);
 			CHECKERROR(hr, "Creating a render target view failed", checkError());
 
 			m_backBuffer->Release();
 
+			D3D11_TEXTURE2D_DESC m_depthTexDesc;
+			//creating a texture for depth attachment
 			ZeroMemory(&m_depthTexDesc, sizeof(D3D11_TEXTURE2D_DESC));
 
 			m_depthTexDesc.Width = res.x;
@@ -110,14 +115,15 @@ namespace rythe::rendering::internal
 			m_depthTexDesc.MipLevels = 1;
 			m_depthTexDesc.ArraySize = 1;
 			m_depthTexDesc.Format = static_cast<DXGI_FORMAT>(FormatType::D24_S8);
-			m_depthTexDesc.SampleDesc.Count = m_swapChainDesc.SampleDesc.Count;
-			m_depthTexDesc.SampleDesc.Quality = m_swapChainDesc.SampleDesc.Quality;
+			m_depthTexDesc.SampleDesc = m_swapChainDesc.SampleDesc;
 			m_depthTexDesc.Usage = D3D11_USAGE_DEFAULT;
 			m_depthTexDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 			m_depthTexDesc.CPUAccessFlags = 0;
 			m_depthTexDesc.MiscFlags = 0;
 
-			hr = m_windowHandle->dev->CreateTexture2D(&m_depthTexDesc, NULL, &m_windowHandle->depthStencilBuffer);
+			ID3D11Texture2D* depthStencilBuffer;
+
+			hr = m_windowHandle->dev->CreateTexture2D(&m_depthTexDesc, NULL, &depthStencilBuffer);
 			CHECKERROR(hr, "Creating the depth texture failed", checkError());
 
 			ZeroMemory(&m_depthStencilDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
@@ -125,15 +131,20 @@ namespace rythe::rendering::internal
 			setDepthFunction(DepthFuncs::LESS);
 			updateDepthStencil();
 
+
+			ID3D11DepthStencilView* depthStencilView;
+			D3D11_DEPTH_STENCIL_VIEW_DESC m_depthStencilViewDesc;
 			ZeroMemory(&m_depthStencilViewDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
 
 			m_depthStencilViewDesc.Format = m_depthTexDesc.Format;
 			m_depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
 
-			hr = m_windowHandle->dev->CreateDepthStencilView(m_windowHandle->depthStencilBuffer, &m_depthStencilViewDesc, &m_windowHandle->depthStencilView);
+			//assigning texture to depth attachment
+			hr = m_windowHandle->dev->CreateDepthStencilView(depthStencilBuffer, &m_depthStencilViewDesc, &depthStencilView);
 			CHECKERROR(hr, "Creating the depth stencil view failed", checkError());
 
-			m_windowHandle->devcon->OMSetRenderTargets(1, &m_windowHandle->renderTargetView, m_windowHandle->depthStencilView);
+			//binding attachments
+			m_windowHandle->devcon->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 
 			ZeroMemory(&m_rasterizerDesc, sizeof(D3D11_RASTERIZER_DESC));
 
@@ -163,7 +174,6 @@ namespace rythe::rendering::internal
 			log::debug("Something Called Close");
 			m_windowHandle->swapchain->SetFullscreenState(FALSE, NULL);
 			m_windowHandle->swapchain->Release();
-			m_windowHandle->renderTargetView->Release();
 			m_windowHandle->dev->Release();
 			m_windowHandle->devcon->Release();
 		}
@@ -213,7 +223,8 @@ namespace rythe::rendering::internal
 		void swapBuffers()
 		{
 			ZoneScopedN("[DX11 Renderinterface] swapBuffers()");
-			m_windowHandle->swapchain->Present(0, 0);
+			m_windowHandle->swapBuffers();
+			m_windowHandle->swapchain->Present(0, 4);
 		}
 
 		void drawArrays(PrimitiveType mode, unsigned int startVertex, unsigned int vertexCount)
@@ -247,10 +258,14 @@ namespace rythe::rendering::internal
 		void clear(internal::ClearBit flags)
 		{
 			ZoneScopedN("[DX11 Renderinterface] clear()");
+			ID3D11RenderTargetView* views = nullptr;
+			ID3D11DepthStencilView* depthStencilView = nullptr;
+			m_windowHandle->devcon->OMGetRenderTargets(1, &views, &depthStencilView);
+
 			if (flags == internal::ClearBit::COLOR_DEPTH_STENCIL || flags == internal::ClearBit::DEPTH_STENCIL || flags == internal::ClearBit::DEPTH || flags == internal::ClearBit::STENCIL)
-				m_windowHandle->devcon->ClearDepthStencilView(m_windowHandle->depthStencilView, static_cast<D3D11_CLEAR_FLAG>(flags), 1.f, 0);
-			if (flags == internal::ClearBit::COLOR || flags == internal::ClearBit::COLOR_DEPTH || flags == internal::ClearBit::COLOR_DEPTH_STENCIL)
-				m_windowHandle->devcon->ClearRenderTargetView(m_windowHandle->renderTargetView, m_colorData);
+				m_windowHandle->devcon->ClearDepthStencilView(depthStencilView, static_cast<D3D11_CLEAR_FLAG>(flags), 1.f, 0);
+			if ((flags == internal::ClearBit::COLOR || flags == internal::ClearBit::COLOR_DEPTH || flags == internal::ClearBit::COLOR_DEPTH_STENCIL) && views != nullptr)
+				m_windowHandle->devcon->ClearRenderTargetView(views, m_colorData);
 		}
 
 		void setClearColor(math::vec4 color)
@@ -390,7 +405,7 @@ namespace rythe::rendering::internal
 				m_depthStencilDesc.BackFace.StencilFunc = static_cast<D3D11_COMPARISON_FUNC>(func);
 				break;
 			default:
-					break;
+				break;
 			}
 		}
 

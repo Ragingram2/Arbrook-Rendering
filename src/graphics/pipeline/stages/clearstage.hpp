@@ -1,6 +1,7 @@
 #pragma once
 #include <rsl/math>
 
+#include "graphics/cache/texturecache.hpp"
 #include "graphics/pipeline/base/graphicsstage.hpp"
 #include "graphics/components/components.hpp"
 #include "core/components/transform.hpp"
@@ -25,14 +26,17 @@ namespace rythe::rendering
 			fbo->initialize();
 			fbo->bind();
 
-			texture_handle colorHandle = TextureCache::createTexture2D("colorAttachment", { 0, nullptr }, math::ivec2(Screen_Width, Screen_Height));
+			texture_handle colorHandle = TextureCache::createTexture("colorAttachment", TargetType::RENDER_TARGET,{ 0, nullptr }, math::ivec2(Screen_Width, Screen_Height), texture_parameters
+				{
+					.usage = rendering::UsageType::DEFAULT
+				});
 
 			colorHandle->bind();
 			colorHandle->setMinFilterMode(rendering::FilterMode::LINEAR);
 			colorHandle->setMagFilterMode(rendering::FilterMode::LINEAR);
 			colorHandle->unbind();
 
-			texture_handle depthHandle = TextureCache::createTexture2D("depthAttachment", { 0, nullptr }, math::ivec2(Screen_Width, Screen_Height), texture_parameters
+			texture_handle depthHandle = TextureCache::createTexture("depthAttachment", TargetType::DEPTH_STENCIL, { 0, nullptr }, math::ivec2(Screen_Width, Screen_Height), texture_parameters
 				{
 					.format = rendering::FormatType::D24_S8,
 					.usage = rendering::UsageType::DEPTH_COMPONENT

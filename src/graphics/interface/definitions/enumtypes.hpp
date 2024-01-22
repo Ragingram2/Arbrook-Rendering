@@ -18,7 +18,9 @@ namespace rythe::rendering
 		VERTEX_BUFFER = static_cast<int>(internal::TargetType::VERTEX_BUFFER),
 		INDEX_BUFFER = static_cast<int>(internal::TargetType::INDEX_BUFFER),
 		CONSTANT_BUFFER = static_cast<int>(internal::TargetType::CONSTANT_BUFFER),
-		TEXTURE2D = static_cast<int>(internal::TargetType::TEXTURE2D)
+		TEXTURE2D = static_cast<int>(internal::TargetType::TEXTURE2D),
+		DEPTH_STENCIL = static_cast<int>(internal::TargetType::DEPTH_STENCIL),
+		RENDER_TARGET = static_cast<int>(internal::TargetType::RENDER_TARGET)
 	};
 
 	enum class UsageType
@@ -65,11 +67,6 @@ namespace rythe::rendering
 		R = static_cast<int>(internal::FormatType::R),
 		BGRA = static_cast<int>(internal::FormatType::BGRA)
 	};
-
-	//enum class InternalFormatType
-	//{
-
-	//};
 
 	enum class WrapMode
 	{
@@ -188,8 +185,6 @@ namespace rythe::rendering
 	enum class AttachmentSlot
 	{
 		DEPTH_STENCIL = static_cast<int>(internal::AttachmentSlot::DEPTH_STENCIL),
-		DEPTH = static_cast<int>(internal::AttachmentSlot::DEPTH),
-		STENCIL = static_cast<int>(internal::AttachmentSlot::STENCIL),
 		COLOR0 = static_cast<int>(internal::AttachmentSlot::COLOR0),
 		COLOR1 = static_cast<int>(internal::AttachmentSlot::COLOR1),
 		COLOR2 = static_cast<int>(internal::AttachmentSlot::COLOR2),

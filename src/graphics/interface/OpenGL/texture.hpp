@@ -136,9 +136,9 @@ namespace rythe::rendering::internal
 			switch (m_usageType)
 			{
 			case static_cast<GLenum>(0):
-
 				glTexStorage2D(m_texType, static_cast<GLint>(params.mipLevels), static_cast<GLint>(params.format), resolution.x, resolution.y);
 				glTexSubImage2D(m_texType, 0, 0, 0, resolution.x, resolution.y, internalFormat, GL_UNSIGNED_BYTE, textureData);
+				break;
 			case GL_DEPTH_COMPONENT:
 				if (textureData == nullptr)
 					glTexImage2D(m_texType, 0, static_cast<GLint>(params.format), resolution.x, resolution.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);

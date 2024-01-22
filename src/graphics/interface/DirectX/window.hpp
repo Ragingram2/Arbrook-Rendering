@@ -30,9 +30,9 @@ namespace rythe::rendering::internal
 		IDXGISwapChain* swapchain = nullptr;             // the pointer to the swap chain interface
 		ID3D11Device* dev = nullptr;                     // the pointer to our Direct3D device interface
 		ID3D11DeviceContext* devcon = nullptr;           // the pointer to our Direct3D device context
-		ID3D11RenderTargetView* renderTargetView = nullptr;    // global declaration
-		ID3D11DepthStencilView* depthStencilView = nullptr;
-		ID3D11Texture2D* depthStencilBuffer = nullptr;
+		//ID3D11RenderTargetView* renderTargetView = nullptr;    // global declaration
+		//ID3D11DepthStencilView* depthStencilView = nullptr;
+		//ID3D11Texture2D* depthStencilBuffer = nullptr;
 		ID3D11InfoQueue* infoQueue = nullptr;
 	public:
 		window() = default;
@@ -45,12 +45,11 @@ namespace rythe::rendering::internal
 			swapchain = hwnd.swapchain;
 			dev = hwnd.dev;
 			devcon = hwnd.devcon;
-			renderTargetView = hwnd.renderTargetView;
-			depthStencilView = hwnd.depthStencilView;
-			depthStencilBuffer = hwnd.depthStencilBuffer;
+			//renderTargetView = hwnd.renderTargetView;
+			//depthStencilView = hwnd.depthStencilView;
+			//depthStencilBuffer = hwnd.depthStencilBuffer;
 			infoQueue = hwnd.infoQueue;
 		}
-		window(math::ivec2 res, const std::string& name) : m_resolution(res), m_windowName(name) { }
 		window operator=(const window& wind)
 		{
 			m_glfwWindow = wind.m_glfwWindow;
@@ -61,9 +60,9 @@ namespace rythe::rendering::internal
 			swapchain = wind.swapchain;
 			dev = wind.dev;
 			devcon = wind.devcon;
-			renderTargetView = wind.renderTargetView;
-			depthStencilView = wind.depthStencilView;
-			depthStencilBuffer = wind.depthStencilBuffer;
+			//renderTargetView = wind.renderTargetView;
+			//depthStencilView = wind.depthStencilView;
+			//depthStencilBuffer = wind.depthStencilBuffer;
 			infoQueue = wind.infoQueue;
 			return *this;
 		}
@@ -78,9 +77,9 @@ namespace rythe::rendering::internal
 			swapchain = wind.swapchain;
 			dev = wind.dev;
 			devcon = wind.devcon;
-			renderTargetView = wind.renderTargetView;
-			depthStencilView = wind.depthStencilView;
-			depthStencilBuffer = wind.depthStencilBuffer;
+			//renderTargetView = wind.renderTargetView;
+			//depthStencilView = wind.depthStencilView;
+			//depthStencilBuffer = wind.depthStencilBuffer;
 			infoQueue = wind.infoQueue;
 			return *this;
 		}

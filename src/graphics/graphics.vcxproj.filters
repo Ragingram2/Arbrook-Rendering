@@ -291,6 +291,7 @@
     <ClInclude Include="data\texturesource.hpp" />
     <ClInclude Include="interface\definitions\framebuffer.hpp" />
     <ClInclude Include="interface\iframebuffer.hpp" />
+    <ClInclude Include="interface\DirectX\framebuffer.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\include\GL\src\glad.c">

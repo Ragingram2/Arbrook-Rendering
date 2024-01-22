@@ -10,9 +10,11 @@
 
 namespace rythe::rendering::internal
 {
+	struct framebuffer;
 	//this should behave more like buffers
 	struct texture
 	{
+		friend struct framebuffer;
 	private:
 		ID3D11Texture2D* m_texture;
 		ID3D11ShaderResourceView* m_shaderResource = nullptr;
@@ -57,17 +59,13 @@ namespace rythe::rendering::internal
 
 		void unbind()
 		{
-			ZoneScopedN("[OpenGL Texture] unbind()");
-			glBindTexture(m_texType, 0);
+			ZoneScopedN("[DirectX Texture] unbind()");
+
 		}
 
 		void setMipCount(int mipCount)
 		{
-			if (!params.generateMipMaps)
-			{
-				return;
-			}
-			params.mipLevels = mipCount;
+			params.mipLevels = mipCount = mipCount >= 0 ? mipCount : 1;
 			m_texDesc.MipLevels = mipCount;
 		}
 
@@ -110,7 +108,7 @@ namespace rythe::rendering::internal
 			m_sampDesc.MinLOD = 0;
 			m_sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-			CHECKERROR(m_windowHandle->dev->CreateSamplerState(&m_sampDesc, &m_texSamplerState),"Texture sampler failed creation", m_windowHandle->checkError());
+			CHECKERROR(m_windowHandle->dev->CreateSamplerState(&m_sampDesc, &m_texSamplerState), "Texture sampler failed creation", m_windowHandle->checkError());
 
 			ZeroMemory(&m_texDesc, sizeof(m_texDesc));
 			m_texDesc.Width = resolution.x;
@@ -123,12 +121,22 @@ namespace rythe::rendering::internal
 			m_texDesc.Usage = m_usageType;
 			m_texDesc.BindFlags = m_texType;
 
-			D3D11_SUBRESOURCE_DATA subData;
-			subData.pSysMem = textureData;
-			subData.SysMemPitch = m_texDesc.Width * channels;
 
-			CHECKERROR(m_windowHandle->dev->CreateTexture2D(&m_texDesc, &subData, &m_texture), "Texture creation Failed", m_windowHandle->checkError());
-			CHECKERROR(m_windowHandle->dev->CreateShaderResourceView(m_texture, nullptr, &m_shaderResource),"Failed to create the ShaderResourceView", m_windowHandle->checkError());
+			if (textureData != nullptr)
+			{
+				D3D11_SUBRESOURCE_DATA subData;
+				subData.pSysMem = textureData;
+				subData.SysMemPitch = m_texDesc.Width * channels;
+
+				CHECKERROR(m_windowHandle->dev->CreateTexture2D(&m_texDesc, &subData, &m_texture), "Texture creation Failed", m_windowHandle->checkError());
+			}
+			else
+			{
+				CHECKERROR(m_windowHandle->dev->CreateTexture2D(&m_texDesc, NULL, &m_texture), "Texture creation Failed", m_windowHandle->checkError());
+			}
+
+			if (m_texType == D3D11_BIND_SHADER_RESOURCE)
+				CHECKERROR(m_windowHandle->dev->CreateShaderResourceView(m_texture, nullptr, &m_shaderResource), "Failed to create the ShaderResourceView", m_windowHandle->checkError());
 		}
 	};
 }

@@ -9,9 +9,14 @@ namespace rythe::rendering
 	class TextureCache;
 	template<typename APIType>
 	struct Itexture;
+
+	template<typename APIType>
+	struct Iframebuffer;
+
 	namespace internal
 	{
 		struct texture;
+		struct framebuffer;
 	}
 }
 
@@ -23,6 +28,8 @@ namespace rythe::rendering
 		friend class TextureCache;
 		friend class TextureImporter;
 		friend struct Itexture<internal::texture>;
+		friend struct internal::framebuffer;
+		friend struct Iframebuffer<internal::framebuffer>;
 	private:
 		APIType m_impl;
 	public:

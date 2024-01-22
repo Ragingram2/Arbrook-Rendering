@@ -21,12 +21,13 @@ namespace rythe::rendering
 			skyboxMat = MaterialCache::loadMaterialFromFile("skybox", "resources/shaders/skybox.shader");
 			cubeHandle = ModelCache::getModel("cube");
 			cameraBuffer = BufferCache::getBuffer("CameraBuffer");
-			initializeSkyboxModel(cubeHandle, skyboxMat);
-
+			skyboxMat->shader->addBuffer(cameraBuffer);
 			for (auto& ent : m_filter)
 			{
 				skyboxMat->diffuse = ent.getComponent<skybox_renderer>().skyboxTex;
 			}
+
+			initializeSkyboxModel(cubeHandle, skyboxMat);
 		}
 
 		virtual void render(core::transform camTransf, camera& cam) override
@@ -71,10 +72,13 @@ namespace rythe::rendering
 
 			model->vertexBuffer = BufferCache::createVertexBuffer<math::vec4>(std::format("{}-Vertex Buffer", meshHandle->name), 0, UsageType::STATICDRAW, meshHandle->vertices);
 			model->layout.setAttributePtr(model->vertexBuffer, "POSITION", 0, FormatType::RGBA32F, 0, sizeof(math::vec4), 0);
-
 			model->indexBuffer = BufferCache::createIndexBuffer(std::format("{}-Index Buffer", meshHandle->name), UsageType::STATICDRAW, meshHandle->indices);
-			model->uvBuffer = BufferCache::createVertexBuffer<math::vec2>(std::format("{}-UV Buffer", meshHandle->name), 1, UsageType::STATICDRAW, meshHandle->texCoords);
-			layout.setAttributePtr(model->uvBuffer, "TEXCOORD", 0, FormatType::RG32F, 1, sizeof(math::vec2), 0);
+
+			model->normalBuffer = BufferCache::createVertexBuffer<math::vec3>(std::format("{}-Normal Buffer", meshHandle->name), 1, UsageType::STATICDRAW, meshHandle->normals);
+			layout.setAttributePtr(model->normalBuffer, "NORMAL", 0, FormatType::RGB32F, 1, sizeof(math::vec3), 0);
+
+			model->uvBuffer = BufferCache::createVertexBuffer<math::vec2>(std::format("{}-UV Buffer", meshHandle->name), 2, UsageType::STATICDRAW, meshHandle->texCoords);
+			layout.setAttributePtr(model->uvBuffer, "TEXCOORD", 0, FormatType::RG32F, 2, sizeof(math::vec2), 0);
 			layout.submitAttributes();
 		}
 	};

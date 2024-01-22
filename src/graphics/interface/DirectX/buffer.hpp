@@ -36,7 +36,6 @@ namespace rythe::rendering::internal
 		unsigned int id = 0;
 		std::string name;
 	private:
-		//unsigned int m_offsets;
 		unsigned int m_size;
 		unsigned int m_elementSize = 0;
 

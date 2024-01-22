@@ -18,7 +18,9 @@ namespace rythe::rendering::internal
 		VERTEX_BUFFER = D3D11_BIND_VERTEX_BUFFER,
 		INDEX_BUFFER = D3D11_BIND_INDEX_BUFFER,
 		CONSTANT_BUFFER = D3D11_BIND_CONSTANT_BUFFER,
-		TEXTURE2D = D3D11_BIND_SHADER_RESOURCE
+		TEXTURE2D = D3D11_BIND_SHADER_RESOURCE,
+		DEPTH_STENCIL = D3D11_BIND_DEPTH_STENCIL,
+		RENDER_TARGET = D3D11_BIND_RENDER_TARGET
 	};
 
 	enum class UsageType
@@ -26,7 +28,8 @@ namespace rythe::rendering::internal
 		DEFAULT = D3D11_USAGE_DEFAULT,
 		IMMUTABLE = D3D11_USAGE_IMMUTABLE,
 		STATICDRAW = D3D11_USAGE_DYNAMIC,
-		STAGING = D3D11_USAGE_STAGING
+		STAGING = D3D11_USAGE_STAGING,
+		DEPTH_COMPONENT = 0
 	};
 
 	enum class PrimitiveType
@@ -49,7 +52,7 @@ namespace rythe::rendering::internal
 		FLOAT = sizeof(float)
 	};
 
-	enum class FormatType 
+	enum class FormatType
 	{
 		D24_S8 = DXGI_FORMAT_D24_UNORM_S8_UINT,
 		RGBA32F = DXGI_FORMAT_R32G32B32A32_FLOAT,
@@ -176,5 +179,42 @@ namespace rythe::rendering::internal
 		TEXTURE29 = 29,
 		TEXTURE30 = 30,
 		TEXTURE31 = 31
+	};
+
+	enum class AttachmentSlot
+	{
+		DEPTH_STENCIL = 0,
+		COLOR0 = 1,
+		COLOR1 = 2,
+		COLOR2 = 3,
+		COLOR3 = 4,
+		COLOR4 = 5,
+		COLOR5 = 6,
+		COLOR6 = 7,
+		COLOR7 = 8,
+		COLOR8 = 9,
+		COLOR9 = 10,
+		COLOR10 = 11,
+		COLOR11 = 12,
+		COLOR12 = 13,
+		COLOR13 = 14,
+		COLOR14 = 15,
+		COLOR15 = 16,
+		COLOR16 = 17,
+		COLOR17 = 18,
+		COLOR18 = 19,
+		COLOR19 = 20,
+		COLOR20 = 21,
+		COLOR21 = 22,
+		COLOR22 = 23,
+		COLOR23 = 24,
+		COLOR24 = 25,
+		COLOR25 = 26,
+		COLOR26 = 27,
+		COLOR27 = 28,
+		COLOR28 = 29,
+		COLOR29 = 30,
+		COLOR30 = 31,
+		COLOR31 = 32
 	};
 }
