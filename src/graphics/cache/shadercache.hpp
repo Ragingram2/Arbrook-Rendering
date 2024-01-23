@@ -21,11 +21,13 @@ namespace rythe::rendering
 
 	public:
 		static shader_handle createShader(const std::string& name, ast::asset_handle<shader_source> shaderSource);
-		static void compileShaders(std::vector<ast::asset_handle<shader_source>> assets);
+		static void createShaders(std::vector<ast::asset_handle<shader_source>> assets);
+		static void compileShaders();
 		static shader_handle getShader(const std::string& name);
 		static shader_handle getShader(rsl::id_type nameHash);
 		static void deleteShader(const std::string& name);
 		static void deleteShader(rsl::id_type nameHash);
+		static void deleteShaders();
 		static std::vector<shader_handle> getShaders();
 		static std::vector<std::string> getShaderNames();
 		static std::vector<const char*> getShaderNamesC();

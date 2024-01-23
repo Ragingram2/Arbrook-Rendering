@@ -20,11 +20,20 @@ namespace rythe::rendering
 		return { shad };
 	}
 
-	void ShaderCache::compileShaders(std::vector<ast::asset_handle<shader_source>> assets)
+	void ShaderCache::createShaders(std::vector<ast::asset_handle<shader_source>> assets)
 	{
 		for (auto& source : assets)
 		{
 			createShader(source->fileName, source);
+		}
+	}
+
+	void ShaderCache::compileShaders()
+	{
+		for (auto& [id, shad] : m_shaders)
+		{
+			auto source = ast::AssetCache<shader_source>::getAsset(m_names[id]);
+			shad->m_impl.initialize(m_names[id], source);
 		}
 	}
 
@@ -55,6 +64,14 @@ namespace rythe::rendering
 			m_shaders[nameHash]->release();
 			m_shaders.erase(nameHash);
 			m_names.erase(nameHash);
+		}
+	}
+
+	void ShaderCache::deleteShaders()
+	{
+		for (auto& [id, handle] : m_shaders)
+		{
+			deleteShader(id);
 		}
 	}
 
