@@ -106,6 +106,12 @@ namespace rythe::rendering::internal
 		void release()
 		{
 			clearBuffers();
+			bind();
+			m_VS->Release();
+			m_PS->Release();
+			m_CS->Release();
+			m_GS->Release();
+			m_HS->Release();
 		}
 
 		void clearBuffers()

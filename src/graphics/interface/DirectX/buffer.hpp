@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/logging/logging.hpp"
+#include <rsl/logging>
 
 #include "graphics/cache/windowprovider.hpp"
 #include "graphics/interface/DirectX/dx11includes.hpp"
@@ -23,6 +23,7 @@ namespace rythe::rendering
 
 namespace rythe::rendering::internal
 {
+	namespace log = rsl::log;
 	struct buffer
 	{
 		friend struct rendering::buffer_handle;
@@ -65,14 +66,14 @@ namespace rythe::rendering::internal
 			switch (m_target)
 			{
 			case TargetType::VERTEX_BUFFER:
-				m_windowHandle->devcon->IASetVertexBuffers(bindId, 1, &m_internalBuffer, &m_elementSize, &offset);
+				WindowProvider::activeWindow->devcon->IASetVertexBuffers(bindId, 1, &m_internalBuffer, &m_elementSize, &offset);
 				break;
 			case TargetType::INDEX_BUFFER:
-				m_windowHandle->devcon->IASetIndexBuffer(m_internalBuffer, static_cast<DXGI_FORMAT>(FormatType::R32U), offset);
+				WindowProvider::activeWindow->devcon->IASetIndexBuffer(m_internalBuffer, static_cast<DXGI_FORMAT>(FormatType::R32U), offset);
 				break;
 			case TargetType::CONSTANT_BUFFER:
-				m_windowHandle->devcon->VSSetConstantBuffers(bindId, 1, &m_internalBuffer);
-				m_windowHandle->devcon->PSSetConstantBuffers(bindId, 1, &m_internalBuffer);
+				WindowProvider::activeWindow->devcon->VSSetConstantBuffers(bindId, 1, &m_internalBuffer);
+				WindowProvider::activeWindow->devcon->PSSetConstantBuffers(bindId, 1, &m_internalBuffer);
 				break;
 			default:
 				log::error("That type is not supported");
@@ -97,30 +98,30 @@ namespace rythe::rendering::internal
 			{
 				m_size = size;
 				m_elementSize = sizeof(elementType);
-				bind();
 				createBuffer(data);
 				return;
 			}
-
 			bind();
-
 			D3D11_MAPPED_SUBRESOURCE resource;
-			CHECKERROR(m_windowHandle->devcon->Map(m_internalBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &resource),"Buffer Failed to be filled", m_windowHandle->checkError() );
+			CHECKERROR(WindowProvider::activeWindow->devcon->Map(m_internalBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &resource), "Buffer Failed to be filled", WindowProvider::activeWindow->checkError());
 			memcpy(resource.pData, data, m_size * sizeof(elementType));
-			m_windowHandle->devcon->Unmap(m_internalBuffer, NULL);
+			WindowProvider::activeWindow->devcon->Unmap(m_internalBuffer, NULL);
 		}
 
 		void release()
 		{
-			m_internalBuffer->Release();
+			 if (m_internalBuffer != nullptr)
+			 {
+				 bind();
+				 m_internalBuffer->Release();
+			 }
 		}
 
 	private:
 		template<typename elementType>
 		void createBuffer(elementType* data)
 		{
-			if (m_internalBuffer != nullptr)
-				m_internalBuffer->Release();
+			release();
 
 			ZeroMemory(&m_bufferDesc, sizeof(m_bufferDesc));
 
@@ -139,7 +140,7 @@ namespace rythe::rendering::internal
 
 			if (data == nullptr)
 			{
-				CHECKERROR(m_windowHandle->dev->CreateBuffer(&m_bufferDesc, NULL, &m_internalBuffer), "Buffer failed to be created", m_windowHandle->checkError())
+				CHECKERROR(WindowProvider::activeWindow->dev->CreateBuffer(&m_bufferDesc, NULL, &m_internalBuffer), "Buffer failed to be created", WindowProvider::activeWindow->checkError())
 			}
 			else
 			{
@@ -150,7 +151,7 @@ namespace rythe::rendering::internal
 				m_initData.SysMemPitch = 0;
 				m_initData.SysMemSlicePitch = 0;
 
-				CHECKERROR(m_windowHandle->dev->CreateBuffer(&m_bufferDesc, &m_initData, &m_internalBuffer), "Buffer failed to be created", m_windowHandle->checkError())
+				CHECKERROR(WindowProvider::activeWindow->dev->CreateBuffer(&m_bufferDesc, &m_initData, &m_internalBuffer), "Buffer failed to be created", WindowProvider::activeWindow->checkError())
 			}
 		}
 	};
