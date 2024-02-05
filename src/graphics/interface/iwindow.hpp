@@ -5,7 +5,7 @@
 
 #include <rsl/math>
 
-#include <tracy/Tracy.hpp>
+#include "core/utils/profiler.hpp"
 
 namespace rythe::rendering
 {

@@ -2,7 +2,7 @@
 #include <memory>
 #include <string>
 
-#include <tracy/Tracy.hpp>
+#include "core/utils/profiler.hpp"
 
 #include "graphics/data/windowhandle.hpp"
 #include "graphics/interface/definitions/enumtypes.hpp"

@@ -1,6 +1,6 @@
 #pragma once
 #include <rsl/math>
-#include <tracy/Tracy.hpp>
+#include "core/utils/profiler.hpp"
 //#include "core/components/property.hpp"
 #include "core/components/transform.hpp"
 #include "core/ecs/component_family.hpp"

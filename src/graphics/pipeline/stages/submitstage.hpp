@@ -36,7 +36,10 @@ namespace rythe::rendering
 
 		virtual void render(core::transform camTransf, camera& cam) override
 		{
+			fbo->getAttachment(AttachmentSlot::COLOR0)->unbind(COLOR_SLOT);
+			fbo->getAttachment(AttachmentSlot::DEPTH_STENCIL)->unbind(DEPTH_STENCIL_SLOT);
 			fbo->unbind();
+			RI->checkError();
 			RI->depthTest(false);
 			RI->cullFace(CullMode::NONE);
 			RI->updateDepthStencil();
@@ -44,13 +47,17 @@ namespace rythe::rendering
 			RI->setClearColor(1.0f, 0.0f, 1.0f, 1.0f);
 			RI->clear(ClearBit::COLOR);
 
-			screenQuad->bind();
+			fbo->getAttachment(AttachmentSlot::DEPTH_STENCIL)->bind(DEPTH_STENCIL_SLOT);
+			fbo->getAttachment(AttachmentSlot::COLOR0)->bind(COLOR_SLOT);
 			screenShader->bind();
+			screenQuad->bind();
 
-			fbo->getAttachment(AttachmentSlot::COLOR0)->bind();
 			RI->drawIndexed(PrimitiveType::TRIANGLESLIST, screenQuad->meshHandle->indexCount, 0, 0);
+
+			fbo->getAttachment(AttachmentSlot::DEPTH_STENCIL)->unbind(DEPTH_STENCIL_SLOT);
+			fbo->getAttachment(AttachmentSlot::COLOR0)->unbind(COLOR_SLOT);
 		}
 
-		virtual rsl::priority_type priority() override { return SUBMIT_PRIORITY; }
+		virtual rsl::priority_type priority() const override { return SUBMIT_PRIORITY; }
 	};
 }

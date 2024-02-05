@@ -3,7 +3,7 @@
 
 #include <rsl/logging>
 
-#include <tracy/Tracy.hpp>
+#include "core/utils/profiler.hpp"
 
 #include "graphics/data/bufferhandle.hpp"
 #include "graphics/data/shadersource.hpp"
@@ -81,6 +81,19 @@ namespace rythe::rendering::internal
 				handle->bind();
 			}
 		}
+
+		//void unbind()
+		//{
+		//	ZoneScopedN("[DX11 Shader] unbind()");
+		//	m_windowHandle->devcon->VSSetShader(nullptr, 0, 0);
+		//	m_windowHandle->devcon->PSSetShader(nullptr, 0, 0);
+
+		//	for (auto& [name, handle] : m_constBuffers)
+		//	{
+		//		ZoneScopedN("[DX11 Shader][unbind()] unbinding attached buffers");
+		//		handle->unbind();
+		//	}
+		//}
 
 		void addBuffer(buffer_handle handle)
 		{

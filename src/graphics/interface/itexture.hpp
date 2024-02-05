@@ -33,8 +33,8 @@ namespace rythe::rendering
 	private:
 		APIType m_impl;
 	public:
-		void bind(TextureSlot textureSlot = TextureSlot::TEXTURE0) { m_impl.bind(static_cast<internal::TextureSlot>(textureSlot)); }
-		void unbind() { m_impl.unbind(); }
+		void bind(TextureSlot textureSlot) { m_impl.bind(static_cast<internal::TextureSlot>(textureSlot)); }
+		void unbind(TextureSlot textureSlot) { m_impl.unbind(static_cast<internal::TextureSlot>(textureSlot)); }
 		void loadData(unsigned char* textureData) { m_impl.loadData(textureData); }
 
 		void setMipCount(int mipCount) { m_impl.setMipCount(mipCount); }

@@ -15,12 +15,12 @@ namespace rythe::rendering
 	{
 		std::string name;
 		material_data data;
-		texture_handle diffuse;
-		texture_handle specular;
+		texture_handle texture0;
+		texture_handle texture1;
 		shader_handle shader;
 
 		material() = default;
-		material(const material& mat) : diffuse(mat.diffuse), specular(mat.specular), shader(mat.shader) {}
+		material(const material& mat) : texture0(mat.texture0), texture1(mat.texture1), shader(mat.shader) {}
 
 		void bind()
 		{
@@ -28,13 +28,29 @@ namespace rythe::rendering
 				shader->bind();
 			else
 				log::warn("[Material] Shader handle is null, cannot bind");
-			if (diffuse != nullptr)
+			if (texture0 != nullptr)
 			{
-				diffuse->bind(TextureSlot::TEXTURE0);
+				texture0->bind(TEXTURE0_SLOT);
 			}
-			if (specular != nullptr)
+			if (texture1 != nullptr)
 			{
-				specular->bind(TextureSlot::TEXTURE1);
+				texture1->bind(TEXTURE1_SLOT);
+			}
+		}
+
+		void unbind()
+		{
+			//if (shader != nullptr)
+			//	shader->unbind();
+			//else
+			//	log::warn("[Material] Shader handle is null, cannot bind");
+			if (texture0 != nullptr)
+			{
+				texture0->unbind(TEXTURE0_SLOT);
+			}
+			if (texture1 != nullptr)
+			{
+				texture1->unbind(TEXTURE1_SLOT);
 			}
 		}
 	};

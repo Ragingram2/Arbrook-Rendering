@@ -1,5 +1,5 @@
 #pragma once
-#include <tracy/Tracy.hpp>
+#include "core/utils/profiler.hpp"
 
 #include <rsl/primitives>
 #include <rsl/utilities>

@@ -4,7 +4,7 @@
 
 #include <rsl/primitives>
 
-#include <tracy/Tracy.hpp>
+#include "core/utils/profiler.hpp"
 
 #include "graphics/interface/definitions/enumtypes.hpp"
 
@@ -35,6 +35,7 @@ namespace rythe::rendering
 		template<typename elementType>
 		void initialize(TargetType target, UsageType usage, int size, elementType* data = nullptr) { m_impl.template initialize<elementType>(static_cast<internal::TargetType>(target), static_cast<internal::UsageType>(usage), size, data); }
 		void bind() { m_impl.bind(); }
+		void unbind() { m_impl.unbind(); }
 		template<typename elementType>
 		void bufferData(elementType* data, int size = 1) { m_impl.bufferData(data, size); }
 		void release() { m_impl.release(); }

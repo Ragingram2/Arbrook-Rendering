@@ -3,13 +3,22 @@
 
 #include <rsl/logging>
 
-#include <tracy/Tracy.hpp>
+#include "core/utils/profiler.hpp"
 
 #include "graphics/data/textureparameters.hpp"
 #include "graphics/interface/OpenGL/oglincludes.hpp"
 
 namespace rythe::rendering::internal
 {
+	inline std::unordered_map<TextureSlot, std::pair<const char*, int>> textureSlotNames = {
+	{TextureSlot::TEXTURE0,std::make_pair("Depth_Stencil",0)},
+	{TextureSlot::TEXTURE1,std::make_pair("Color0",1)},
+	{TextureSlot::TEXTURE2,std::make_pair("Texture0",2)},
+	{TextureSlot::TEXTURE3,std::make_pair("Texture1",3)},
+	{TextureSlot::TEXTURE4,std::make_pair("Texture2",4)},
+	{TextureSlot::TEXTURE5,std::make_pair("Texture3",5)}
+	};
+
 	namespace log = rsl::log;
 	struct texture
 	{
@@ -22,6 +31,7 @@ namespace rythe::rendering::internal
 		unsigned int id = 0;
 		std::string name;
 		texture_parameters params;
+		TextureSlot slot = TextureSlot::TEXTURE0;
 		texture() = default;
 		texture(unsigned int id, std::string name) : id(id), name(name) { }
 		texture(texture* other)
@@ -39,7 +49,7 @@ namespace rythe::rendering::internal
 			m_usageType = static_cast<GLenum>(params.usage);
 
 			glGenTextures(1, &id);
-			bind();
+			bind(slot);
 			setWrapMode(0, static_cast<WrapMode>(params.wrapModeS));
 			setWrapMode(1, static_cast<WrapMode>(params.wrapModeT));
 			setWrapMode(2, static_cast<WrapMode>(params.wrapModeR));
@@ -48,14 +58,29 @@ namespace rythe::rendering::internal
 			setMipCount(params.mipLevels);
 		}
 
-		void bind(TextureSlot textureSlot = TextureSlot::TEXTURE0)
+		void bind(TextureSlot textureSlot)
 		{
 			ZoneScopedN("[OpenGL Texture] bind()");
+			slot = textureSlot;
 			glActiveTexture(static_cast<GLenum>(textureSlot));
 			glBindTexture(m_texType, id);
+
+
+			GLint shaderId;
+			glGetIntegerv(GL_CURRENT_PROGRAM, &shaderId);
+
+			if (shaderId != 0)
+			{
+				auto pair = textureSlotNames[textureSlot];
+				glUniform1i(glGetUniformLocation(shaderId, pair.first), pair.second);
+			}
+			else
+			{
+				log::warn("Attempting to bind a texture to a texture slot without a bound shader");
+			}
 		}
 
-		void unbind()
+		void unbind(TextureSlot textureSlot)
 		{
 			ZoneScopedN("[OpenGL Texture] unbind()");
 			glBindTexture(m_texType, 0);

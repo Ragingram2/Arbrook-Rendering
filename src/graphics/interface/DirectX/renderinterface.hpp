@@ -224,7 +224,7 @@ namespace rythe::rendering::internal
 		{
 			ZoneScopedN("[DX11 Renderinterface] swapBuffers()");
 			m_windowHandle->swapBuffers();
-			m_windowHandle->swapchain->Present(0, 4);
+			m_windowHandle->swapchain->Present(0, 0);
 		}
 
 		void drawArrays(PrimitiveType mode, unsigned int startVertex, unsigned int vertexCount)

@@ -292,6 +292,7 @@
     <ClInclude Include="interface\definitions\framebuffer.hpp" />
     <ClInclude Include="interface\iframebuffer.hpp" />
     <ClInclude Include="interface\DirectX\framebuffer.hpp" />
+    <ClInclude Include="pipeline\stages\postprocessingstage.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\include\GL\src\glad.c">

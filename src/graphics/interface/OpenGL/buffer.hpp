@@ -5,7 +5,7 @@
 #include <rsl/primitives>
 #include <rsl/logging>
 
-#include <tracy/Tracy.hpp>
+#include "core/utils/profiler.hpp"
 
 #include "graphics/interface/OpenGL/oglincludes.hpp"
 #include "graphics/interface/config.hpp"
@@ -56,6 +56,12 @@ namespace rythe::rendering::internal
 		{
 			ZoneScopedN("[OpenGL Buffer] bind()");
 			glBindBuffer(static_cast<GLenum>(m_target), id);
+		}
+
+		void unbind()
+		{
+			ZoneScopedN("[OpenGL Buffer] unbind()");
+			glBindBuffer(static_cast<GLenum>(m_target), 0);
 		}
 
 		template<typename elementType>

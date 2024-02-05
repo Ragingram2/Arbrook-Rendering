@@ -20,7 +20,6 @@ namespace rythe::rendering
 		rsl::uint m_lastIdx = 0;
 		buffer_handle lightBuffer;
 		light_buffer lightDataStruct;
-		framebuffer* fbo;
 		virtual void setup(core::transform camTransf, camera& cam) override
 		{
 			lightBuffer = BufferCache::createConstantBuffer<light_buffer>("LightBuffer", SV_LIGHTS, UsageType::STATICDRAW);
@@ -58,7 +57,7 @@ namespace rythe::rendering
 			}
 		}
 
-		virtual rsl::priority_type priority() override { return LIGHT_PRIORITY; }
+		virtual rsl::priority_type priority() const override { return LIGHT_PRIORITY; }
 
 	};
 

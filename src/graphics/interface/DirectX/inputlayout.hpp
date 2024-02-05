@@ -4,7 +4,7 @@
 #include <rsl/primitives>
 #include <rsl/logging>
 
-#include <tracy/Tracy.hpp>
+#include "core/utils/profiler.hpp"
 
 #include "core/assets/assethandle.hpp"
 #include "graphics/cache/windowprovider.hpp"

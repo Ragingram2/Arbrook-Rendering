@@ -8,7 +8,7 @@
 
 #include <rsl/utilities>
 
-#include <tracy/Tracy.hpp>
+#include "core/utils/profiler.hpp"
 
 #include "core/assets/assets.hpp"
 #include "graphics/data/model.hpp"

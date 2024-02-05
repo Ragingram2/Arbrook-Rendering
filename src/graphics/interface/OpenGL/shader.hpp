@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-#include <tracy/Tracy.hpp>
+#include "core/utils/profiler.hpp"
 
 #include "core/math/math.hpp"
 #include "core/logging/logging.hpp"
@@ -56,7 +56,7 @@ namespace rythe::rendering::internal
 				std::vector<GLchar> infoLog(maxLength);
 				glGetProgramInfoLog(programId, maxLength, &maxLength, &infoLog[0]);
 
-				log::error("Shader Linkage failed: {}",infoLog.data());
+				log::error("Shader Linkage failed: {}", infoLog.data());
 
 				glDeleteProgram(programId);
 
@@ -81,6 +81,19 @@ namespace rythe::rendering::internal
 				ZoneScopedN("[OpenGL Shader] [bind()] binding the attached buffers");
 				handle->bind();
 				glBindBufferBase(GL_UNIFORM_BUFFER, handle->m_impl.bindId, handle->getId());
+			}
+		}
+
+		void unbind()
+		{
+			ZoneScopedN("[OpenGL Shader] unbind()");
+			glUseProgram(0);
+
+			for (auto [name, handle] : m_constBuffers)
+			{
+				ZoneScopedN("[OpenGL Shader] [unbind()] unbinding the attached buffers");
+				handle->unbind();
+				glBindBufferBase(GL_UNIFORM_BUFFER, handle->m_impl.bindId, 0);
 			}
 		}
 

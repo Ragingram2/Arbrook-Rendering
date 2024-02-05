@@ -54,10 +54,6 @@ namespace rythe::rendering
 		virtual void render(core::transform camTransf, camera& cam) override
 		{
 			ZoneScopedN("[Renderer] GUI Stage");
-			//RI->depthTest(true);
-			//RI->cullFace(CullMode::BACK);
-			//RI->updateDepthStencil();
-			//RI->clear(ClearBit::COLOR_DEPTH);
 #if RenderingAPI == RenderingAPI_OGL
 			ImGui_ImplOpenGL3_NewFrame();
 #elif RenderingAPI == RenderingAPI_DX11
@@ -80,7 +76,7 @@ namespace rythe::rendering
 			RI->swapBuffers();
 		}
 
-		virtual rsl::priority_type priority() override { return UI_PRIORITY; }
+		virtual rsl::priority_type priority() const override { return UI_PRIORITY; }
 
 		template <class T, void(T::* Func)()>
 		static void addGuiRender(T* ptr)

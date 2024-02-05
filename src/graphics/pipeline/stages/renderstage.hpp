@@ -95,13 +95,15 @@ namespace rythe::rendering
 					}
 				else
 					RI->drawArrays(PrimitiveType::TRIANGLESLIST, 0, mesh->vertices.size());
+
+				material->unbind();
 			}
 			m_onRender(camTransf, cam);
 
 			RI->checkError();
 		}
 
-		virtual rsl::priority_type priority() override { return OPAQUE_PRIORITY; }
+		virtual rsl::priority_type priority() const override { return OPAQUE_PRIORITY; }
 
 		template <class T, void(T::* Func)(core::transform, camera)>
 		static void addRender(T* ptr)

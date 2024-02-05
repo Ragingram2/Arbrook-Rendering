@@ -26,15 +26,15 @@ namespace rythe::rendering
 			fbo->initialize();
 			fbo->bind();
 
-			texture_handle colorHandle = TextureCache::createTexture("colorAttachment", TargetType::RENDER_TARGET,{ 0, nullptr }, math::ivec2(Screen_Width, Screen_Height), texture_parameters
+			texture_handle colorHandle = TextureCache::createTexture("colorAttachment", TargetType::RENDER_TARGET, { 0, nullptr }, math::ivec2(Screen_Width, Screen_Height), texture_parameters
 				{
 					.usage = rendering::UsageType::DEFAULT
 				});
 
-			colorHandle->bind();
+			colorHandle->bind(COLOR_SLOT);
 			colorHandle->setMinFilterMode(rendering::FilterMode::LINEAR);
 			colorHandle->setMagFilterMode(rendering::FilterMode::LINEAR);
-			colorHandle->unbind();
+			colorHandle->unbind(COLOR_SLOT);
 
 			texture_handle depthHandle = TextureCache::createTexture("depthAttachment", TargetType::DEPTH_STENCIL, { 0, nullptr }, math::ivec2(Screen_Width, Screen_Height), texture_parameters
 				{
@@ -42,8 +42,8 @@ namespace rythe::rendering
 					.usage = rendering::UsageType::DEPTH_COMPONENT
 				});
 
-			fbo->attach(AttachmentSlot::COLOR0, colorHandle);
 			fbo->attach(AttachmentSlot::DEPTH_STENCIL, depthHandle);
+			fbo->attach(AttachmentSlot::COLOR0, colorHandle);
 			fbo->unbind();
 		}
 
@@ -51,6 +51,10 @@ namespace rythe::rendering
 		{
 			ZoneScopedN("[Renderer] Clear Stage");
 			fbo->bind();
+			fbo->getAttachment(AttachmentSlot::DEPTH_STENCIL)->bind(DEPTH_STENCIL_SLOT);
+			RI->checkError();
+			fbo->getAttachment(AttachmentSlot::COLOR0)->bind(COLOR_SLOT);
+			RI->checkError();
 			RI->depthTest(true);
 			RI->cullFace(CullMode::BACK);
 			RI->updateDepthStencil();
@@ -59,6 +63,6 @@ namespace rythe::rendering
 			RI->clear(ClearBit::COLOR_DEPTH);
 		}
 
-		virtual rsl::priority_type priority() override { return CLEAR_PRIORITY; }
+		virtual rsl::priority_type priority() const override { return CLEAR_PRIORITY; }
 	};
 }

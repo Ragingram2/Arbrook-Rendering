@@ -16,6 +16,7 @@ namespace rythe::rendering
 		}
 
 		auto& tex = m_textures.emplace(id, std::make_unique<texture>()).first->second;
+		tex->m_impl.name = name;
 		tex->m_impl.channels = textureData != nullptr ? textureData->channels : 4;
 		tex->m_impl.resolution = overrideResolution;
 		tex->m_impl.initialize(static_cast<internal::TargetType>(targetType), params);
@@ -39,6 +40,7 @@ namespace rythe::rendering
 		}
 
 		auto& tex = m_textures.emplace(id, std::make_unique<texture>()).first->second;
+		tex->m_impl.name = name;
 		tex->m_impl.channels = textureData != nullptr ? textureData->channels : 4;
 		tex->m_impl.resolution = overrideResolution;
 		tex->m_impl.initialize(internal::TargetType::TEXTURE2D, params);

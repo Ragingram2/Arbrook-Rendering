@@ -24,7 +24,7 @@ namespace rythe::rendering
 			skyboxMat->shader->addBuffer(cameraBuffer);
 			for (auto& ent : m_filter)
 			{
-				skyboxMat->diffuse = ent.getComponent<skybox_renderer>().skyboxTex;
+				skyboxMat->texture0 = ent.getComponent<skybox_renderer>().skyboxTex;
 			}
 
 			initializeSkyboxModel(cubeHandle, skyboxMat);
@@ -52,13 +52,14 @@ namespace rythe::rendering
 			{
 				RI->drawIndexed(PrimitiveType::TRIANGLESLIST, submesh.count, submesh.indexOffset, submesh.vertexOffset);
 			}
+			skyboxMat->unbind();
 
 			RI->setDepthFunction(DepthFuncs::LESS);
 			RI->updateDepthStencil();
 			RI->cullFace(CullMode::BACK);
 		}
 
-		virtual rsl::priority_type priority() override { return SKYBOX_PRIORITY; }
+		virtual rsl::priority_type priority() const override { return SKYBOX_PRIORITY; }
 
 		void initializeSkyboxModel(ast::asset_handle<model> model, ast::asset_handle<material> mat)
 		{

@@ -10,7 +10,7 @@
 
 #include <rsl/logging>
 
-#include <tracy/Tracy.hpp>
+#include "core/utils/profiler.hpp"
 
 #include "core/math/math.hpp"
 #include "graphics/interface/DirectX/dx11includes.hpp"

@@ -268,6 +268,7 @@
     <ClInclude Include="pipeline\stages\clearstage.hpp" />
     <ClInclude Include="pipeline\stages\guistage.hpp" />
     <ClInclude Include="pipeline\stages\lightrenderstage.hpp" />
+    <ClInclude Include="pipeline\stages\postprocessingstage.hpp" />
     <ClInclude Include="pipeline\stages\renderstage.hpp" />
     <ClInclude Include="pipeline\stages\slyboxstage.hpp" />
     <ClInclude Include="pipeline\stages\submitstage.hpp" />

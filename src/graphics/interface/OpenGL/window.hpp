@@ -9,7 +9,7 @@
 #include <rsl/logging>
 #include <rsl/math>
 
-#include <tracy/Tracy.hpp>
+#include "core/utils/profiler.hpp"
 
 #include "graphics/interface/OpenGL/oglincludes.hpp"
 
