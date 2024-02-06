@@ -39,7 +39,6 @@ namespace rythe::rendering
 			fbo->getAttachment(AttachmentSlot::COLOR0)->unbind(COLOR_SLOT);
 			fbo->getAttachment(AttachmentSlot::DEPTH_STENCIL)->unbind(DEPTH_STENCIL_SLOT);
 			fbo->unbind();
-			RI->checkError();
 			RI->depthTest(false);
 			RI->cullFace(CullMode::NONE);
 			RI->updateDepthStencil();

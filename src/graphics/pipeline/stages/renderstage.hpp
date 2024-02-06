@@ -27,7 +27,6 @@ namespace rythe::rendering
 		std::vector<shader_handle> m_shaders;
 		virtual void setup(core::transform camTransf, camera& cam) override
 		{
-			cam.calculate_projection();
 			cameraBuffer = BufferCache::getBuffer("CameraBuffer");
 			materialBuffer = BufferCache::getBuffer("MaterialBuffer");
 			lightBuffer = BufferCache::getBuffer("LightBuffer");
@@ -58,8 +57,7 @@ namespace rythe::rendering
 		virtual void render(core::transform camTransf, camera& cam) override
 		{
 			ZoneScopedN("[Renderer] Render Stage");
-			cam.calculate_view(&camTransf);
-			camera_data data[] = { camera_data{.viewPosition = camTransf.position, .projection = cam.projection, .view = cam.view, .model = math::mat4(1.0f)} };
+			camera_data data[] = { camera_data{.viewPosition = camTransf.position, .projection = cam.projection, .view = cam.view, .model = math::mat4(1.0f)}};
 			for (auto& ent : m_filter)
 			{
 				auto& renderer = ent.getComponent<mesh_renderer>();

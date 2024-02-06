@@ -12,8 +12,6 @@
 #include "graphics/pipeline/base/graphicsstage.hpp"
 #include "graphics/components/camera.hpp"
 
-
-
 namespace rythe::rendering
 {
 	class Renderer;
@@ -26,6 +24,7 @@ namespace rythe::rendering
 	private:
 		virtual void setup() =0;
 	protected:
+		static std::unordered_map<rsl::id_type, rsl::priority_type> m_stageIds;
 		static std::map<rsl::priority_type, std::unique_ptr<graphics_stage_base>> m_stages;
 
 	public:
@@ -64,14 +63,23 @@ namespace rythe::rendering
 		{
 			auto ptr = new Type();
 			m_stages.emplace(ptr->priority(), std::unique_ptr<graphics_stage_base>(ptr));
+			m_stageIds.emplace(rsl::typeHash<Type>(), ptr->priority());
 		}
 
-		static void attachStage(std::unique_ptr<graphics_stage_base>&& stage)
+		template<typename Stage>
+		static Stage* getStage()
 		{
-			m_stages.emplace(stage->priority(), std::forward<std::unique_ptr<graphics_stage_base>&&>(stage));
+			auto id = rsl::typeHash<Stage>();
+			if (m_stageIds.count(id))
+			{
+				return reinterpret_cast<Stage*>(m_stages[m_stageIds[id]].get());
+			}
+			return nullptr;
 		}
 	};
 
 	template<typename Self>
 	std::map<rsl::priority_type, std::unique_ptr<graphics_stage_base>> Pipeline<Self>::m_stages;
+	template<typename Self>
+	std::unordered_map<rsl::id_type, rsl::priority_type> Pipeline<Self>::m_stageIds;
 }

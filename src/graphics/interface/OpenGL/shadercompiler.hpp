@@ -219,7 +219,6 @@ namespace rythe::rendering::internal
 
 			glsl.build_combined_image_samplers();
 
-			int i = 0;
 			const char* textures[6] =
 			{
 				"Depth_Stencil",

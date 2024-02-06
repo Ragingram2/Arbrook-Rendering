@@ -18,6 +18,7 @@ namespace rythe::rendering
 		math::vec4 color = math::vec4(0.0f);
 		float range = 0.0f;
 		float intensity = 0.0f;
+		math::mat4 lightSpaceMatrix = math::mat4();
 	};
 
 	struct light

@@ -1,7 +1,6 @@
 #pragma once
 #include <rsl/math>
 #include "core/utils/profiler.hpp"
-//#include "core/components/property.hpp"
 #include "core/components/transform.hpp"
 #include "core/ecs/component_family.hpp"
 #include "graphics/interface/definitions/definitions.hpp"

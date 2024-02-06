@@ -218,7 +218,6 @@
     <ClInclude Include="data\vertex.hpp" />
     <ClInclude Include="data\vertexattribute.hpp" />
     <ClInclude Include="data\windowhandle.hpp" />
-    <ClInclude Include="interface\definitions\framebuffer.hpp" />
     <ClInclude Include="interface\DirectX\buffer.hpp" />
     <ClInclude Include="interface\DirectX\dx11includes.hpp" />
     <ClInclude Include="interface\DirectX\enumtypes.hpp" />
@@ -230,7 +229,6 @@
     <ClInclude Include="interface\DirectX\shaderincluder.hpp" />
     <ClInclude Include="interface\DirectX\texture.hpp" />
     <ClInclude Include="interface\DirectX\window.hpp" />
-    <ClInclude Include="interface\iframebuffer.hpp" />
     <ClInclude Include="interface\OpenGL\buffer.hpp" />
     <ClInclude Include="interface\OpenGL\enumtypes.hpp" />
     <ClInclude Include="interface\OpenGL\framebuffer.hpp" />
@@ -246,12 +244,14 @@
     <ClInclude Include="interface\definitions\buffer.hpp" />
     <ClInclude Include="interface\definitions\definitions.hpp" />
     <ClInclude Include="interface\definitions\enumtypes.hpp" />
+    <ClInclude Include="interface\definitions\framebuffer.hpp" />
     <ClInclude Include="interface\definitions\inputlayout.hpp" />
     <ClInclude Include="interface\definitions\renderinterface.hpp" />
     <ClInclude Include="interface\definitions\shader.hpp" />
     <ClInclude Include="interface\definitions\texture.hpp" />
     <ClInclude Include="interface\definitions\window.hpp" />
     <ClInclude Include="interface\ibuffer.hpp" />
+    <ClInclude Include="interface\iframebuffer.hpp" />
     <ClInclude Include="interface\iinputlayout.hpp" />
     <ClInclude Include="interface\irenderinterface.hpp" />
     <ClInclude Include="interface\ishader.hpp" />
@@ -265,6 +265,9 @@
     <ClInclude Include="pipeline\base\pipelineprovider.hpp" />
     <ClInclude Include="pipeline\base\pipelineprovider.inl" />
     <ClInclude Include="pipeline\defaultpipeline.hpp" />
+    <ClInclude Include="pipeline\postprocessingfx\fx\testfx.hpp" />
+    <ClInclude Include="pipeline\postprocessingfx\postprocessingeffect.hpp" />
+    <ClInclude Include="pipeline\postprocessingfx\postprocessingeffectbase.hpp" />
     <ClInclude Include="pipeline\stages\clearstage.hpp" />
     <ClInclude Include="pipeline\stages\guistage.hpp" />
     <ClInclude Include="pipeline\stages\lightrenderstage.hpp" />
@@ -300,7 +303,6 @@
     <ClCompile Include="cache\shadercache.cpp" />
     <ClCompile Include="cache\texturecache.cpp" />
     <ClCompile Include="pipeline\base\graphicsstage.cpp" />
-    <ClCompile Include="pipeline\base\pipeline.cpp" />
     <ClCompile Include="systems\renderer.cpp" />
   </ItemGroup>
   <ItemGroup>

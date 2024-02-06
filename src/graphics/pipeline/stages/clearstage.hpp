@@ -52,9 +52,7 @@ namespace rythe::rendering
 			ZoneScopedN("[Renderer] Clear Stage");
 			fbo->bind();
 			fbo->getAttachment(AttachmentSlot::DEPTH_STENCIL)->bind(DEPTH_STENCIL_SLOT);
-			RI->checkError();
 			fbo->getAttachment(AttachmentSlot::COLOR0)->bind(COLOR_SLOT);
-			RI->checkError();
 			RI->depthTest(true);
 			RI->cullFace(CullMode::BACK);
 			RI->updateDepthStencil();

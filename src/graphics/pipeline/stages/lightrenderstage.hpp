@@ -10,6 +10,19 @@
 #define MAX_LIGHT_COUNT 9
 namespace rythe::rendering
 {
+
+	inline math::mat4 ortho(float left, float right, float bottom, float top, float near_plane, float far_plane)
+	{
+		math::mat4 result(1.0f);
+		result[0][0] = 2.0f / (right - left);
+		result[1][1] = 2.0f / (top - bottom);
+		result[2][2] = -1.0f / (far_plane - near_plane);
+		result[3][0] = -(right + left) / (right - left);
+		result[3][1] = -(top + bottom) / (top - bottom);
+		result[3][2] = -near_plane / (far_plane - near_plane);
+		return result;
+	}
+
 	struct light_buffer
 	{
 		light_data data[MAX_LIGHT_COUNT];
@@ -27,11 +40,19 @@ namespace rythe::rendering
 
 		virtual void render(core::transform camTransf, camera& cam) override
 		{
+			float near_plane = 1.0f;
+			float far_plane = 7.5f;
+			math::mat4 lightProjection = ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+
 			ZoneScopedN("[Renderer] Light Stage");
 			for (auto& ent : m_filter)
 			{
 				auto& transf = ent.getComponent<core::transform>();
 				auto& lightComp = ent.getComponent<light>();
+				math::mat4 lightView = math::lookAt(transf.position, math::vec3::zero, math::vec3::up);
+				math::mat4 lightSpaceMatrix = lightProjection * lightView;
+
+				lightComp.data.lightSpaceMatrix = lightSpaceMatrix;
 				switch (lightComp.type)
 				{
 				case LightType::DIRECTIONAL:

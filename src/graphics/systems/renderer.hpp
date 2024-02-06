@@ -62,7 +62,8 @@ namespace rythe::rendering
 			auto& transf = camEnt.getComponent<core::transform>();
 			auto& cam = camEnt.getComponent<camera>();
 			cam.calculate_projection();
-			pipeline->render(transf, getCamera());
+			cam.calculate_view(&transf);
+			pipeline->render(transf, cam);
 		}
 
 		void shutdown()

@@ -49,6 +49,12 @@
     <Filter Include="pipeline\base">
       <UniqueIdentifier>{A5604439-1121-C06F-DA5B-09ED46DB044C}</UniqueIdentifier>
     </Filter>
+    <Filter Include="pipeline\postprocessingfx">
+      <UniqueIdentifier>{CBFD3AC3-37C0-6E4D-8070-FDD9EC71472B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pipeline\postprocessingfx\fx">
+      <UniqueIdentifier>{7803263C-64BE-15E8-0D76-8E32F90F6078}</UniqueIdentifier>
+    </Filter>
     <Filter Include="pipeline\stages">
       <UniqueIdentifier>{51D9D4C4-BD64-4289-C675-C57D32809E89}</UniqueIdentifier>
     </Filter>
@@ -84,6 +90,12 @@
     <ClInclude Include="cache\modelcache.hpp">
       <Filter>cache</Filter>
     </ClInclude>
+    <ClInclude Include="cache\shadercache.hpp">
+      <Filter>cache</Filter>
+    </ClInclude>
+    <ClInclude Include="cache\texturecache.hpp">
+      <Filter>cache</Filter>
+    </ClInclude>
     <ClInclude Include="cache\windowprovider.hpp">
       <Filter>cache</Filter>
     </ClInclude>
@@ -117,10 +129,19 @@
     <ClInclude Include="data\model.hpp">
       <Filter>data</Filter>
     </ClInclude>
+    <ClInclude Include="data\shaderhandle.hpp">
+      <Filter>data</Filter>
+    </ClInclude>
     <ClInclude Include="data\shadersource.hpp">
       <Filter>data</Filter>
     </ClInclude>
+    <ClInclude Include="data\texturehandle.hpp">
+      <Filter>data</Filter>
+    </ClInclude>
     <ClInclude Include="data\textureparameters.hpp">
+      <Filter>data</Filter>
+    </ClInclude>
+    <ClInclude Include="data\texturesource.hpp">
       <Filter>data</Filter>
     </ClInclude>
     <ClInclude Include="data\vertex.hpp">
@@ -139,6 +160,9 @@
       <Filter>interface\DirectX</Filter>
     </ClInclude>
     <ClInclude Include="interface\DirectX\enumtypes.hpp">
+      <Filter>interface\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\DirectX\framebuffer.hpp">
       <Filter>interface\DirectX</Filter>
     </ClInclude>
     <ClInclude Include="interface\DirectX\inputlayout.hpp">
@@ -166,6 +190,9 @@
       <Filter>interface\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="interface\OpenGL\enumtypes.hpp">
+      <Filter>interface\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\OpenGL\framebuffer.hpp">
       <Filter>interface\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="interface\OpenGL\glslangincludes.hpp">
@@ -204,6 +231,9 @@
     <ClInclude Include="interface\definitions\enumtypes.hpp">
       <Filter>interface\definitions</Filter>
     </ClInclude>
+    <ClInclude Include="interface\definitions\framebuffer.hpp">
+      <Filter>interface\definitions</Filter>
+    </ClInclude>
     <ClInclude Include="interface\definitions\inputlayout.hpp">
       <Filter>interface\definitions</Filter>
     </ClInclude>
@@ -220,6 +250,9 @@
       <Filter>interface\definitions</Filter>
     </ClInclude>
     <ClInclude Include="interface\ibuffer.hpp">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\iframebuffer.hpp">
       <Filter>interface</Filter>
     </ClInclude>
     <ClInclude Include="interface\iinputlayout.hpp">
@@ -261,6 +294,15 @@
     <ClInclude Include="pipeline\defaultpipeline.hpp">
       <Filter>pipeline</Filter>
     </ClInclude>
+    <ClInclude Include="pipeline\postprocessingfx\fx\testfx.hpp">
+      <Filter>pipeline\postprocessingfx\fx</Filter>
+    </ClInclude>
+    <ClInclude Include="pipeline\postprocessingfx\postprocessingeffect.hpp">
+      <Filter>pipeline\postprocessingfx</Filter>
+    </ClInclude>
+    <ClInclude Include="pipeline\postprocessingfx\postprocessingeffectbase.hpp">
+      <Filter>pipeline\postprocessingfx</Filter>
+    </ClInclude>
     <ClInclude Include="pipeline\stages\clearstage.hpp">
       <Filter>pipeline\stages</Filter>
     </ClInclude>
@@ -268,6 +310,9 @@
       <Filter>pipeline\stages</Filter>
     </ClInclude>
     <ClInclude Include="pipeline\stages\lightrenderstage.hpp">
+      <Filter>pipeline\stages</Filter>
+    </ClInclude>
+    <ClInclude Include="pipeline\stages\postprocessingstage.hpp">
       <Filter>pipeline\stages</Filter>
     </ClInclude>
     <ClInclude Include="pipeline\stages\renderstage.hpp">
@@ -283,16 +328,6 @@
     <ClInclude Include="systems\renderer.hpp">
       <Filter>systems</Filter>
     </ClInclude>
-    <ClInclude Include="cache\shadercache.hpp" />
-    <ClInclude Include="data\shaderhandle.hpp" />
-    <ClInclude Include="interface\OpenGL\framebuffer.hpp" />
-    <ClInclude Include="data\texturehandle.hpp" />
-    <ClInclude Include="cache\texturecache.hpp" />
-    <ClInclude Include="data\texturesource.hpp" />
-    <ClInclude Include="interface\definitions\framebuffer.hpp" />
-    <ClInclude Include="interface\iframebuffer.hpp" />
-    <ClInclude Include="interface\DirectX\framebuffer.hpp" />
-    <ClInclude Include="pipeline\stages\postprocessingstage.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\include\GL\src\glad.c">
@@ -340,16 +375,17 @@
     <ClCompile Include="cache\modelcache.cpp">
       <Filter>cache</Filter>
     </ClCompile>
-    <ClCompile Include="pipeline\base\graphicsstage.cpp">
-      <Filter>pipeline\base</Filter>
+    <ClCompile Include="cache\shadercache.cpp">
+      <Filter>cache</Filter>
     </ClCompile>
-    <ClCompile Include="pipeline\base\pipeline.cpp">
+    <ClCompile Include="cache\texturecache.cpp">
+      <Filter>cache</Filter>
+    </ClCompile>
+    <ClCompile Include="pipeline\base\graphicsstage.cpp">
       <Filter>pipeline\base</Filter>
     </ClCompile>
     <ClCompile Include="systems\renderer.cpp">
       <Filter>systems</Filter>
     </ClCompile>
-    <ClCompile Include="cache\shadercache.cpp" />
-    <ClCompile Include="cache\texturecache.cpp" />
   </ItemGroup>
 </Project>

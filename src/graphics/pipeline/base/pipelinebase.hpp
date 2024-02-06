@@ -1,4 +1,8 @@
 #pragma once
+#include <unordered_map>
+#include <string>
+
+#include <rsl/primitives>
 #include <rsl/utilities>
 #include <rsl/math>
 
@@ -15,7 +19,7 @@ namespace rythe::rendering
 	public:
 		RenderInterface RI;//This should be the only real version
 		std::unordered_map<rsl::id_type, std::unique_ptr<framebuffer>> m_framebuffers;
-		std::unordered_map < rsl::id_type, std::string> m_names;
+		std::unordered_map<rsl::id_type, std::string> m_names;
 
 		virtual void init() =0;
 		virtual void render(core::transform camTransf, camera& cam) =0;

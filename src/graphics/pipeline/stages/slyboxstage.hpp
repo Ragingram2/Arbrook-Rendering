@@ -17,11 +17,11 @@ namespace rythe::rendering
 		ast::asset_handle<model> cubeHandle;
 		virtual void setup(core::transform camTransf, camera& cam) override
 		{
-			cam.calculate_projection();
 			skyboxMat = MaterialCache::loadMaterialFromFile("skybox", "resources/shaders/skybox.shader");
 			cubeHandle = ModelCache::getModel("cube");
 			cameraBuffer = BufferCache::getBuffer("CameraBuffer");
 			skyboxMat->shader->addBuffer(cameraBuffer);
+
 			for (auto& ent : m_filter)
 			{
 				skyboxMat->texture0 = ent.getComponent<skybox_renderer>().skyboxTex;
@@ -36,7 +36,6 @@ namespace rythe::rendering
 			if (m_filter.size() < 1)
 				return;
 
-			cam.calculate_view(&camTransf);
 			camera_data data{ .viewPosition = camTransf.position,.projection = cam.projection,.view = cam.view, .model = math::mat4(1.0f) };
 
 			RI->depthTest(true);
