@@ -32,14 +32,12 @@ namespace rythe::rendering
 
 		virtual void render(core::transform camTransf, camera& cam) override
 		{
-			ZoneScopedN("[Renderer] Skybox Stage");
+			ZoneScopedN("[Renderer] [Skybox Stage] Render");
 			if (m_filter.size() < 1)
 				return;
 
 			camera_data data{ .viewPosition = camTransf.position,.projection = cam.projection,.view = cam.view, .model = math::mat4(1.0f) };
 
-			RI->depthTest(true);
-			RI->depthWrite(true);
 			RI->setDepthFunction(DepthFuncs::LESS_EQUAL);
 			RI->updateDepthStencil();
 			RI->cullFace(CullMode::FRONT);
@@ -52,7 +50,6 @@ namespace rythe::rendering
 				RI->drawIndexed(PrimitiveType::TRIANGLESLIST, submesh.count, submesh.indexOffset, submesh.vertexOffset);
 			}
 			skyboxMat->unbind();
-
 			RI->setDepthFunction(DepthFuncs::LESS);
 			RI->updateDepthStencil();
 			RI->cullFace(CullMode::BACK);

@@ -11,6 +11,7 @@ namespace rythe::rendering
 	{
 		bool dirty = true;
 		bool instanced = false;
+		bool castShadows = true;
 		ast::asset_handle<material> material;
 		ast::asset_handle<model> model;
 	};

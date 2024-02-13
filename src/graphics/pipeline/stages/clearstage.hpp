@@ -12,19 +12,43 @@ namespace rythe::rendering
 {
 	struct clear_stage : public graphics_stage<clear_stage, core::transform>
 	{
-		framebuffer* fbo;
+		framebuffer* mainFBO;
+		texture_handle colorHandle;
+		texture_handle mainDepthHandle;
+		framebuffer* depthFBO;
+		texture_handle depthHandle;
 		virtual void setup(core::transform camTransf, camera& cam) override
 		{
 			RI->makeCurrent();
 			BufferCache::createConstantBuffer<camera_data>("CameraBuffer", SV_CAMERA, UsageType::STATICDRAW);
 			BufferCache::createConstantBuffer<material_data>("MaterialBuffer", SV_MATERIALS, UsageType::STATICDRAW);
 			RI->setSwapInterval(0);
-			RI->setViewport(1, 0, 0, Screen_Width, Screen_Height, 0, 1);
+			RI->setViewport(1, 0, 0, Screen_Width, Screen_Height);
 			RI->setWindOrder(WindOrder::CCW);
 
-			fbo = addFramebuffer("RenderBuffer");
-			fbo->initialize();
-			fbo->bind();
+			{
+				depthFBO = addFramebuffer("DepthBuffer");
+				depthFBO->initialize();
+				depthFBO->bind();
+
+				depthHandle = TextureCache::createTexture("depthAttachment", TargetType::DEPTH_STENCIL, { 0, nullptr }, math::ivec2(Screen_Width, Screen_Height), texture_parameters
+					{
+						.format = rendering::FormatType::D24_S8,
+						.usage = rendering::UsageType::DEPTH_COMPONENT,
+						.minFilterMode = rendering::FilterMode::NEAREST,
+						.magFilterMode = rendering::FilterMode::NEAREST,
+						.wrapModeS = rendering::WrapMode::CLAMP_TO_BORDER,
+						.wrapModeT = rendering::WrapMode::CLAMP_TO_BORDER,
+						.borderColor = math::vec4(1.0f)
+					});
+
+				depthFBO->attach(AttachmentSlot::DEPTH_STENCIL, depthHandle, false, false);
+				depthFBO->unbind();
+			}
+
+			mainFBO = addFramebuffer("MainBuffer");
+			mainFBO->initialize();
+			mainFBO->bind();
 
 			texture_handle colorHandle = TextureCache::createTexture("colorAttachment", TargetType::RENDER_TARGET, { 0, nullptr }, math::ivec2(Screen_Width, Screen_Height), texture_parameters
 				{
@@ -36,26 +60,31 @@ namespace rythe::rendering
 			colorHandle->setMagFilterMode(rendering::FilterMode::LINEAR);
 			colorHandle->unbind(COLOR_SLOT);
 
-			texture_handle depthHandle = TextureCache::createTexture("depthAttachment", TargetType::DEPTH_STENCIL, { 0, nullptr }, math::ivec2(Screen_Width, Screen_Height), texture_parameters
+			mainDepthHandle = TextureCache::createTexture("main-depthAttachment", TargetType::DEPTH_STENCIL, { 0, nullptr }, math::ivec2(Screen_Width, Screen_Height), texture_parameters
 				{
 					.format = rendering::FormatType::D24_S8,
-					.usage = rendering::UsageType::DEPTH_COMPONENT
+					.usage = rendering::UsageType::DEPTH_COMPONENT,
+					.minFilterMode = rendering::FilterMode::NEAREST,
+					.magFilterMode = rendering::FilterMode::NEAREST,
+					.wrapModeS = rendering::WrapMode::REPEAT,
+					.wrapModeT = rendering::WrapMode::REPEAT
 				});
 
-			fbo->attach(AttachmentSlot::DEPTH_STENCIL, depthHandle);
-			fbo->attach(AttachmentSlot::COLOR0, colorHandle);
-			fbo->unbind();
+			mainFBO->attach(AttachmentSlot::COLOR0, colorHandle, true, true);
+			mainFBO->attach(AttachmentSlot::DEPTH_STENCIL, mainDepthHandle, true, true);
+			mainFBO->unbind();
 		}
 
 		virtual void render(core::transform camTransf, camera& cam) override
 		{
-			ZoneScopedN("[Renderer] Clear Stage");
-			fbo->bind();
-			fbo->getAttachment(AttachmentSlot::DEPTH_STENCIL)->bind(DEPTH_STENCIL_SLOT);
-			fbo->getAttachment(AttachmentSlot::COLOR0)->bind(COLOR_SLOT);
+			ZoneScopedN("[Renderer] [Clear Stage] Render");
+
+			mainFBO->bind();
 			RI->depthTest(true);
-			RI->cullFace(CullMode::BACK);
+			RI->depthWrite(true);
+			RI->setDepthFunction(DepthFuncs::LESS);
 			RI->updateDepthStencil();
+			RI->cullFace(CullMode::BACK);
 
 			RI->setClearColor(0x64 / 255.0f, 0x95 / 255.0f, 0xED / 255.0f, 1.0f);
 			RI->clear(ClearBit::COLOR_DEPTH);

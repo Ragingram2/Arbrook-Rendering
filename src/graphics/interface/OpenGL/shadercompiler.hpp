@@ -152,12 +152,12 @@ namespace rythe::rendering::internal
 
 			_shader->setStrings(&source_c, 1);
 			_shader->setEntryPoint("main");
-			//_shader->setAutoMapBindings(true);
-			//_shader->setAutoMapLocations(true);
+			_shader->setAutoMapBindings(true);
+			_shader->setAutoMapLocations(true);
 			//_shader->setTextureSamplerTransformMode(EShTextureSamplerTransformMode::EShTexSampTransKeep);
 			_shader->setCompileOnly();
 
-			//_shader->setFlattenUniformArrays(true);
+			_shader->setFlattenUniformArrays(true);
 			_shader->setHlslIoMapping(true);
 			_shader->setDxPositionW(true);
 

@@ -30,6 +30,7 @@ namespace rythe::core::assets
 		rendering::WrapMode wrapModeR = rendering::WrapMode::REPEAT;
 		rendering::FilterMode minFilterMode = rendering::FilterMode::LINEAR;
 		rendering::FilterMode magFilterMode = rendering::FilterMode::LINEAR;
+		math::vec4 borderColor = math::vec4(0.0f);
 		rendering::FormatType format = rendering::FormatType::RGB;
 		rendering::UsageType usage = rendering::UsageType::DEFAULT;
 		int mipLevels = 1;
@@ -48,6 +49,7 @@ namespace rythe::rendering
 		.wrapModeR = WrapMode::REPEAT,
 		.minFilterMode = FilterMode::LINEAR,
 		.magFilterMode = FilterMode::LINEAR,
+		.borderColor = math::vec4(0.0f),
 		.format = FormatType::RGBA,
 		.usage = UsageType::IMMUTABLE,
 		.mipLevels = 1,

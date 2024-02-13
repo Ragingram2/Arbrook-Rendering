@@ -41,21 +41,19 @@ namespace rythe::rendering
 		virtual void render(core::transform camTransf, camera& cam) override
 		{
 			float near_plane = 1.0f;
-			float far_plane = 7.5f;
+			float far_plane = 15.0f;
 			math::mat4 lightProjection = ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
 
-			ZoneScopedN("[Renderer] Light Stage");
+			ZoneScopedN("[Renderer] [Light Stage] Render");
 			for (auto& ent : m_filter)
 			{
 				auto& transf = ent.getComponent<core::transform>();
 				auto& lightComp = ent.getComponent<light>();
-				math::mat4 lightView = math::lookAt(transf.position, math::vec3::zero, math::vec3::up);
-				math::mat4 lightSpaceMatrix = lightProjection * lightView;
-
-				lightComp.data.lightSpaceMatrix = lightSpaceMatrix;
 				switch (lightComp.type)
 				{
 				case LightType::DIRECTIONAL:
+					lightComp.data.lightProjection = lightProjection;
+					lightComp.data.lightView = math::lookAt(math::vec3::zero, -transf.forward(), transf.up());
 					lightComp.data.direction = transf.forward();
 					lightDataStruct.data[0] = lightComp.data;
 					break;

@@ -50,6 +50,7 @@ namespace rythe::rendering::internal
 
 			glGenTextures(1, &id);
 			bind(slot);
+			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, params.borderColor.data);
 			setWrapMode(0, static_cast<WrapMode>(params.wrapModeS));
 			setWrapMode(1, static_cast<WrapMode>(params.wrapModeT));
 			setWrapMode(2, static_cast<WrapMode>(params.wrapModeR));
@@ -75,9 +76,7 @@ namespace rythe::rendering::internal
 				glUniform1i(glGetUniformLocation(shaderId, pair.first), pair.second);
 			}
 			else
-			{
 				log::warn("Attempting to bind a texture to a texture slot without a bound shader");
-			}
 		}
 
 		void unbind(TextureSlot textureSlot)

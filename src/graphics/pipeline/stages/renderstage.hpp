@@ -25,8 +25,11 @@ namespace rythe::rendering
 		buffer_handle materialBuffer;
 		buffer_handle lightBuffer;
 		std::vector<shader_handle> m_shaders;
+
+		texture_handle depthTexture;
 		virtual void setup(core::transform camTransf, camera& cam) override
 		{
+			depthTexture = getFramebuffer("DepthBuffer")->getAttachment(AttachmentSlot::DEPTH_STENCIL);
 			cameraBuffer = BufferCache::getBuffer("CameraBuffer");
 			materialBuffer = BufferCache::getBuffer("MaterialBuffer");
 			lightBuffer = BufferCache::getBuffer("LightBuffer");
@@ -56,8 +59,9 @@ namespace rythe::rendering
 
 		virtual void render(core::transform camTransf, camera& cam) override
 		{
-			ZoneScopedN("[Renderer] Render Stage");
-			camera_data data[] = { camera_data{.viewPosition = camTransf.position, .projection = cam.projection, .view = cam.view, .model = math::mat4(1.0f)}};
+			ZoneScopedN("[Renderer] [Render Stage] Render");
+			camera_data data[] = { camera_data{.viewPosition = camTransf.position, .projection = cam.projection, .view = cam.view, .model = math::mat4(1.0f)} };
+
 			for (auto& ent : m_filter)
 			{
 				auto& renderer = ent.getComponent<mesh_renderer>();
@@ -84,6 +88,7 @@ namespace rythe::rendering
 				cameraBuffer->bufferData(data, 1);
 				materialBuffer->bufferData(&material->data, 1);
 				material->bind();
+				depthTexture->bind(DEPTH_STENCIL_SLOT);
 				model->bind();
 				if (model->indexBuffer != nullptr)
 					for (unsigned int i = 0; i < mesh->meshes.size(); i++)
@@ -94,20 +99,13 @@ namespace rythe::rendering
 				else
 					RI->drawArrays(PrimitiveType::TRIANGLESLIST, 0, mesh->vertices.size());
 
+				depthTexture->unbind(DEPTH_STENCIL_SLOT);
 				material->unbind();
 			}
 			m_onRender(camTransf, cam);
-
-			RI->checkError();
 		}
 
 		virtual rsl::priority_type priority() const override { return OPAQUE_PRIORITY; }
-
-		template <class T, void(T::* Func)(core::transform, camera)>
-		static void addRender(T* ptr)
-		{
-			m_onRender.push_back<T, Func>(*ptr);
-		}
 
 		void initializeModel(ast::asset_handle<model> model, ast::asset_handle<material> mat, ast::asset_handle<mesh> mesh, bool instanced = false)
 		{
@@ -124,17 +122,12 @@ namespace rythe::rendering
 
 			model->indexBuffer = BufferCache::createIndexBuffer(std::format("{}-Index Buffer", meshHandle->name), UsageType::STATICDRAW, meshHandle->indices);
 
-			if (meshHandle->normals.size() > 0)
-			{
-				model->normalBuffer = BufferCache::createVertexBuffer<math::vec3>(std::format("{}-Normal Buffer", meshHandle->name), 1, UsageType::STATICDRAW, meshHandle->normals);
-				layout.setAttributePtr(model->normalBuffer, "NORMAL", 0, FormatType::RGB32F, 1, sizeof(math::vec3), 0);
-			}
+			model->normalBuffer = BufferCache::createVertexBuffer<math::vec3>(std::format("{}-Normal Buffer", meshHandle->name), 1, UsageType::STATICDRAW, meshHandle->normals);
+			layout.setAttributePtr(model->normalBuffer, "NORMAL", 0, FormatType::RGB32F, 1, sizeof(math::vec3), 0);
 
-			if (meshHandle->texCoords.size() > 0)
-			{
-				model->uvBuffer = BufferCache::createVertexBuffer<math::vec2>(std::format("{}-UV Buffer", meshHandle->name), 2, UsageType::STATICDRAW, meshHandle->texCoords);
-				layout.setAttributePtr(model->uvBuffer, "TEXCOORD", 0, FormatType::RG32F, 2, sizeof(math::vec2), 0);
-			}
+			model->uvBuffer = BufferCache::createVertexBuffer<math::vec2>(std::format("{}-UV Buffer", meshHandle->name), 2, UsageType::STATICDRAW, meshHandle->texCoords);
+			layout.setAttributePtr(model->uvBuffer, "TEXCOORD", 0, FormatType::RG32F, 2, sizeof(math::vec2), 0);
+
 
 			if (instanced)
 			{
@@ -146,6 +139,13 @@ namespace rythe::rendering
 			}
 			layout.submitAttributes();
 		}
+
+		template <class T, void(T::* Func)(core::transform, camera)>
+		static void addRender(T* ptr)
+		{
+			m_onRender.push_back<T, Func>(*ptr);
+		}
+
 	};
 
 	inline rsl::multicast_delegate<renderFunc> render_stage::m_onRender;

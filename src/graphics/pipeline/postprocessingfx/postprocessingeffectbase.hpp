@@ -8,6 +8,7 @@
 
 #include "core/components/components.hpp"
 #include "graphics/components/camera.hpp"
+#include "graphics/pipeline/base/pipelinebase.hpp"
 
 namespace rythe::rendering
 {
@@ -19,15 +20,15 @@ namespace rythe::rendering
 	public:
 		static std::map<rsl::priority_type, rsl::delegate<renderPassFunc>> renderPasses;
 	protected:
-		virtual void setup() = 0;
+		virtual void setup(PipelineBase*, RenderInterface*) = 0;
 		virtual rsl::priority_type priority() const { return 0; }
 	public:
-		virtual void render(framebuffer*, RenderInterface*, core::transform, camera&) = 0;
+		virtual void render(PipelineBase*, RenderInterface*, core::transform, camera&) = 0;
 		virtual ~post_processing_effect_base() = default;
-		void init()
+		void init(PipelineBase* pipeline, RenderInterface* RI)
 		{
 			m_initialized = true;
-			setup();
+			setup(pipeline, RI);
 		}
 		bool isInitialized() { return m_initialized; }
 	};

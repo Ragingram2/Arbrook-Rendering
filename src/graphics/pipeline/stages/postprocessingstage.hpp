@@ -23,24 +23,24 @@ namespace rythe::rendering
 			{
 				if (!ppfx->isInitialized())
 				{
-					ppfx->init();
+					ppfx->init(pipeline, RI);
 				}
 			}
 		}
 
 		virtual void render(core::transform camTransf, camera& cam) override
 		{
-			ZoneScopedN("[Renderer] Post Processing Stage");
+			ZoneScopedN("[Renderer] [Post Processing Stage] Render");
 
 			for (auto& [priority, ppfx] : ppfxs)
 			{
 				if (!ppfx->isInitialized())
 				{
-					ppfx->init();
+					ppfx->init(pipeline, RI);
 					continue;
 				}
 
-				ppfx->render(getFramebuffer("RenderBuffer"), RI, camTransf, cam);
+				ppfx->render(pipeline, RI, camTransf, cam);
 			}
 		}
 
