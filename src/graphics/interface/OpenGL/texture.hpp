@@ -11,12 +11,12 @@
 namespace rythe::rendering::internal
 {
 	inline std::unordered_map<TextureSlot, std::pair<const char*, int>> textureSlotNames = {
-	{TextureSlot::TEXTURE0,std::make_pair("Depth_Stencil",0)},
-	{TextureSlot::TEXTURE1,std::make_pair("Color0",1)},
-	{TextureSlot::TEXTURE2,std::make_pair("Texture0",2)},
-	{TextureSlot::TEXTURE3,std::make_pair("Texture1",3)},
-	{TextureSlot::TEXTURE4,std::make_pair("Texture2",4)},
-	{TextureSlot::TEXTURE5,std::make_pair("Texture3",5)}
+	{TextureSlot::TEXTURE0,std::make_pair("Texture0",0)},
+	{TextureSlot::TEXTURE1,std::make_pair("Texture1",1)},
+	{TextureSlot::TEXTURE2,std::make_pair("Texture2",2)},
+	{TextureSlot::TEXTURE3,std::make_pair("Texture3",3)},
+	{TextureSlot::TEXTURE4,std::make_pair("Texture4",4)},
+	{TextureSlot::TEXTURE5,std::make_pair("Texture5",5)}
 	};
 
 	namespace log = rsl::log;
@@ -50,7 +50,7 @@ namespace rythe::rendering::internal
 
 			glGenTextures(1, &id);
 			bind(slot);
-			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, params.borderColor.data);
+			glTexParameterfv(m_texType, GL_TEXTURE_BORDER_COLOR, params.borderColor.data);
 			setWrapMode(0, static_cast<WrapMode>(params.wrapModeS));
 			setWrapMode(1, static_cast<WrapMode>(params.wrapModeT));
 			setWrapMode(2, static_cast<WrapMode>(params.wrapModeR));
@@ -135,6 +135,47 @@ namespace rythe::rendering::internal
 			}
 		}
 
+		void loadDataArray(unsigned char** textureData, int size)
+		{
+			ZoneScopedN("[OpenGL Texture] loadData()");
+
+			GLenum internalFormat = NULL;
+
+			switch (channels)
+			{
+			case 4:
+				internalFormat = GL_RGBA;
+				break;
+			case 3:
+				internalFormat = GL_RGB;
+				break;
+			case 2:
+				internalFormat = GL_RG;
+				break;
+			case 1:
+				internalFormat = GL_RED;
+				break;
+			}
+
+			if (m_texType == GL_TEXTURE_CUBE_MAP)
+			{
+				for (unsigned int i = 0; i < 6; i++)
+					createTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, internalFormat, textureData[i]);
+			}
+			else
+			{
+				for (unsigned int i = 0; i < size; i++)
+					createTexture(m_texType, internalFormat, textureData[i]);
+			}
+
+
+			if (params.generateMipMaps)
+			{
+				glGenerateMipmap(m_texType);
+			}
+
+		}
+
 		void loadData(unsigned char* textureData)
 		{
 			ZoneScopedN("[OpenGL Texture] loadData()");
@@ -157,31 +198,45 @@ namespace rythe::rendering::internal
 				break;
 			}
 
-			switch (m_usageType)
+			if (m_texType == GL_TEXTURE_CUBE_MAP)
 			{
-			case static_cast<GLenum>(0):
-				glTexStorage2D(m_texType, static_cast<GLint>(params.mipLevels), static_cast<GLint>(params.format), resolution.x, resolution.y);
-				glTexSubImage2D(m_texType, 0, 0, 0, resolution.x, resolution.y, internalFormat, GL_UNSIGNED_BYTE, textureData);
-				break;
-			case GL_DEPTH_COMPONENT:
-				if (textureData == nullptr)
-					glTexImage2D(m_texType, 0, static_cast<GLint>(params.format), resolution.x, resolution.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-				else
-					glTexImage2D(m_texType, 0, static_cast<GLint>(params.format), resolution.x, resolution.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, textureData);
-				break;
-			case GL_DYNAMIC_DRAW:
-				if (textureData == nullptr)
-					glTexImage2D(m_texType, 0, static_cast<GLint>(params.format), resolution.x, resolution.y, 0, internalFormat, GL_UNSIGNED_BYTE, NULL);
-				else
-					glTexImage2D(m_texType, 0, static_cast<GLint>(params.format), resolution.x, resolution.y, 0, internalFormat, GL_UNSIGNED_BYTE, textureData);
-				break;
-			default:
-				break;
+				for (unsigned int i = 0; i < 6; i++)
+					createTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, internalFormat, textureData);
 			}
+			else
+				createTexture(m_texType, internalFormat, textureData);
+
 
 			if (params.generateMipMaps)
 			{
 				glGenerateMipmap(m_texType);
+			}
+
+		}
+	private:
+
+		void createTexture(GLenum texType, GLenum internalFormat, unsigned char* textureData)
+		{
+			switch (m_usageType)
+			{
+			case static_cast<GLenum>(0):
+				glTexStorage2D(texType, static_cast<GLint>(params.mipLevels), static_cast<GLint>(params.format), resolution.x, resolution.y);
+				glTexSubImage2D(texType, 0, 0, 0, resolution.x, resolution.y, internalFormat, GL_UNSIGNED_BYTE, textureData);
+				break;
+			case GL_DEPTH_COMPONENT:
+				if (textureData == nullptr)
+					glTexImage2D(texType, 0, static_cast<GLint>(params.format), resolution.x, resolution.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+				else
+					glTexImage2D(texType, 0, static_cast<GLint>(params.format), resolution.x, resolution.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, textureData);
+				break;
+			case GL_DYNAMIC_DRAW:
+				if (textureData == nullptr)
+					glTexImage2D(texType, 0, static_cast<GLint>(params.format), resolution.x, resolution.y, 0, internalFormat, GL_UNSIGNED_BYTE, NULL);
+				else
+					glTexImage2D(texType, 0, static_cast<GLint>(params.format), resolution.x, resolution.y, 0, internalFormat, GL_UNSIGNED_BYTE, textureData);
+				break;
+			default:
+				break;
 			}
 
 		}

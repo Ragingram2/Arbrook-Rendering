@@ -20,11 +20,11 @@ namespace rythe::rendering
 			skyboxMat = MaterialCache::loadMaterialFromFile("skybox", "resources/shaders/skybox.shader");
 			cubeHandle = ModelCache::getModel("cube");
 			cameraBuffer = BufferCache::getBuffer("CameraBuffer");
-			skyboxMat->shader->addBuffer(cameraBuffer);
+			skyboxMat->getShader()->addBuffer(cameraBuffer);
 
 			for (auto& ent : m_filter)
 			{
-				skyboxMat->texture0 = ent.getComponent<skybox_renderer>().skyboxTex;
+				skyboxMat->addTexture(TextureSlot::TEXTURE0, ent.getComponent<skybox_renderer>().skyboxTex);
 			}
 
 			initializeSkyboxModel(cubeHandle, skyboxMat);
@@ -64,7 +64,7 @@ namespace rythe::rendering
 			auto& layout = model->layout;
 
 			layout.release();
-			layout.initialize(1, matHandle->shader);
+			layout.initialize(1, matHandle->getShader());
 			layout.bind();
 
 			model->vertexBuffer = BufferCache::createVertexBuffer<math::vec4>(std::format("{}-Vertex Buffer", meshHandle->name), 0, UsageType::STATICDRAW, meshHandle->vertices);

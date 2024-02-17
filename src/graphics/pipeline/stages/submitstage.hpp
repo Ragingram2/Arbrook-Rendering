@@ -38,7 +38,7 @@ namespace rythe::rendering
 		virtual void render(core::transform camTransf, camera& cam) override
 		{
 			auto colorTexture = mainFBO->getAttachment(AttachmentSlot::COLOR0);
-			colorTexture->unbind(COLOR_SLOT);
+			colorTexture->unbind(TextureSlot::TEXTURE0);
 			mainFBO->unbind();
 			RI->depthTest(false);
 			RI->cullFace(CullMode::NONE);
@@ -47,13 +47,13 @@ namespace rythe::rendering
 			RI->setClearColor(1.0f, 0.0f, 1.0f, 1.0f);
 			RI->clear(ClearBit::COLOR);
 
-			colorTexture->bind(COLOR_SLOT);
 			screenShader->bind();
+			colorTexture->bind(TextureSlot::TEXTURE0);
 			screenQuad->bind();
 
 			RI->drawIndexed(PrimitiveType::TRIANGLESLIST, screenQuad->meshHandle->indexCount, 0, 0);
 
-			colorTexture->unbind(COLOR_SLOT);
+			colorTexture->unbind(TextureSlot::TEXTURE0);
 		}
 
 		virtual rsl::priority_type priority() const override { return SUBMIT_PRIORITY; }

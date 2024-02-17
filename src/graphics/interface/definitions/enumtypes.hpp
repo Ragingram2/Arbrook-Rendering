@@ -20,7 +20,8 @@ namespace rythe::rendering
 		CONSTANT_BUFFER = static_cast<int>(internal::TargetType::CONSTANT_BUFFER),
 		TEXTURE2D = static_cast<int>(internal::TargetType::TEXTURE2D),
 		DEPTH_STENCIL = static_cast<int>(internal::TargetType::DEPTH_STENCIL),
-		RENDER_TARGET = static_cast<int>(internal::TargetType::RENDER_TARGET)
+		RENDER_TARGET = static_cast<int>(internal::TargetType::RENDER_TARGET),
+		CUBEMAP = static_cast<int>(internal::TargetType::CUBEMAP)
 	};
 
 	enum class UsageType

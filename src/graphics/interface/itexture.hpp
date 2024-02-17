@@ -35,6 +35,7 @@ namespace rythe::rendering
 	public:
 		void bind(TextureSlot textureSlot) { m_impl.bind(static_cast<internal::TextureSlot>(textureSlot)); }
 		void unbind(TextureSlot textureSlot) { m_impl.unbind(static_cast<internal::TextureSlot>(textureSlot)); }
+		void loadDataArray(unsigned char** textureDataArray) { m_impl.loadDataArray(textureDataArray); }
 		void loadData(unsigned char* textureData) { m_impl.loadData(textureData); }
 
 		void setMipCount(int mipCount) { m_impl.setMipCount(mipCount); }

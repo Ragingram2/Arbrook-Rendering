@@ -42,6 +42,12 @@ namespace rythe::rendering::internal
 			glBindVertexArray(id);
 		}
 
+		void unbind()
+		{
+			ZoneScopedN("[OpenGL Inputlayout] unbind()");
+			glBindVertexArray(0);
+		}
+
 		void setAttributePtr(buffer_handle buf, const std::string& attribName, unsigned int index, FormatType components, unsigned int inputSlot, unsigned int stride, unsigned int offset, InputClass inputClass, unsigned int instancedStep)
 		{
 			ZoneScopedN("[OpenGL Inputlayout] setAttributePtr()");

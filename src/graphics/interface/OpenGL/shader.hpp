@@ -19,7 +19,7 @@ namespace rythe::rendering::internal
 	public:
 		unsigned int programId;
 		std::string name;
-
+		bool compiled = false;
 	private:
 		std::unordered_map<std::string, buffer_handle> m_constBuffers;
 	public:
@@ -39,10 +39,17 @@ namespace rythe::rendering::internal
 
 			ShaderCompiler::initialize();
 			unsigned int vs = ShaderCompiler::compile(ShaderType::VERTEX, source);
+			unsigned int gs = ShaderCompiler::compile(ShaderType::GEOMETRY, source);
 			unsigned int fs = ShaderCompiler::compile(ShaderType::FRAGMENT, source);
 
-			glAttachShader(programId, vs);
-			glAttachShader(programId, fs);
+
+			if (vs != 0)
+				glAttachShader(programId, vs);
+			if (gs != 0)
+				glAttachShader(programId, gs);
+			if (fs != 0)
+				glAttachShader(programId, fs);
+
 			glLinkProgram(programId);
 			glValidateProgram(programId);
 
@@ -61,12 +68,16 @@ namespace rythe::rendering::internal
 				glDeleteProgram(programId);
 
 				glDeleteShader(vs);
+				glDeleteShader(gs);
 				glDeleteShader(fs);
-
+				compiled = false;
 				return;
 			}
 
+			compiled = true;
+
 			glDeleteShader(vs);
+			glDeleteShader(gs);
 			glDeleteShader(fs);
 
 		}

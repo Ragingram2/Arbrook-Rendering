@@ -24,26 +24,34 @@ namespace rythe::rendering
 		buffer_handle cameraBuffer;
 		buffer_handle materialBuffer;
 		buffer_handle lightBuffer;
+		buffer_handle lightInfoBuffer;
 		std::vector<shader_handle> m_shaders;
 
 		texture_handle depthTexture;
+		texture_handle depthCube;
 		virtual void setup(core::transform camTransf, camera& cam) override
 		{
 			depthTexture = getFramebuffer("DepthBuffer")->getAttachment(AttachmentSlot::DEPTH_STENCIL);
+			depthCube = getFramebuffer("DepthCubeBuffer")->getAttachment(AttachmentSlot::DEPTH_STENCIL);
+
 			cameraBuffer = BufferCache::getBuffer("CameraBuffer");
 			materialBuffer = BufferCache::getBuffer("MaterialBuffer");
 			lightBuffer = BufferCache::getBuffer("LightBuffer");
+			lightInfoBuffer = BufferCache::getBuffer("LightInfo");
 
 			for (auto& ent : m_filter)
 			{
 				auto& renderer = ent.getComponent<mesh_renderer>();
 				ast::asset_handle<material> mat = renderer.material;
 
+				renderer.material->addTexture(TextureSlot::TEXTURE1, depthTexture);
+				renderer.material->addTexture(TextureSlot::TEXTURE2, depthCube);
+
 				initializeModel(renderer.model, mat, renderer.model->meshHandle, renderer.instanced);
 				renderer.dirty = false;
-				auto pos = std::find(m_shaders.begin(), m_shaders.end(), mat->shader);
+				auto pos = std::find(m_shaders.begin(), m_shaders.end(), mat->getShader());
 				if (pos == m_shaders.end())
-					m_shaders.push_back(mat->shader);
+					m_shaders.push_back(mat->getShader());
 			}
 
 			for (auto handle : m_shaders)
@@ -54,6 +62,8 @@ namespace rythe::rendering
 					handle->addBuffer(cameraBuffer);
 				if (materialBuffer != nullptr)
 					handle->addBuffer(materialBuffer);
+				if (lightInfoBuffer != nullptr)
+					handle->addBuffer(lightInfoBuffer);
 			}
 		}
 
@@ -66,7 +76,7 @@ namespace rythe::rendering
 			{
 				auto& renderer = ent.getComponent<mesh_renderer>();
 				ast::asset_handle<material> material = renderer.material;
-				shader_handle shader = renderer.material->shader;
+				shader_handle shader = renderer.material->getShader();
 				ast::asset_handle<model> model = renderer.model;
 				ast::asset_handle<mesh> mesh = renderer.model->meshHandle;
 				if (renderer.dirty)
@@ -81,6 +91,7 @@ namespace rythe::rendering
 						shader->addBuffer(lightBuffer);
 						shader->addBuffer(cameraBuffer);
 						shader->addBuffer(materialBuffer);
+						shader->addBuffer(lightInfoBuffer);
 					}
 				}
 				auto& transf = ent.getComponent<core::transform>();
@@ -88,7 +99,6 @@ namespace rythe::rendering
 				cameraBuffer->bufferData(data, 1);
 				materialBuffer->bufferData(&material->data, 1);
 				material->bind();
-				depthTexture->bind(DEPTH_STENCIL_SLOT);
 				model->bind();
 				if (model->indexBuffer != nullptr)
 					for (unsigned int i = 0; i < mesh->meshes.size(); i++)
@@ -99,7 +109,6 @@ namespace rythe::rendering
 				else
 					RI->drawArrays(PrimitiveType::TRIANGLESLIST, 0, mesh->vertices.size());
 
-				depthTexture->unbind(DEPTH_STENCIL_SLOT);
 				material->unbind();
 			}
 			m_onRender(camTransf, cam);
@@ -114,7 +123,7 @@ namespace rythe::rendering
 			auto& layout = model->layout;
 
 			layout.release();
-			layout.initialize(1, matHandle->shader);
+			layout.initialize(1, matHandle->getShader());
 			layout.bind();
 
 			model->vertexBuffer = BufferCache::createVertexBuffer<math::vec4>(std::format("{}-Vertex Buffer", meshHandle->name), 0, UsageType::STATICDRAW, meshHandle->vertices);

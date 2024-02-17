@@ -5,9 +5,8 @@
 
 #include "core/events/defaults/component_event.hpp"
 #include "graphics/pipeline/base/graphicsstage.hpp"
-#include "graphics/interface/definitions/framebuffer.hpp"
+#include "graphics/interface/definitions/definitions.hpp"
 
-#define MAX_LIGHT_COUNT 9
 namespace rythe::rendering
 {
 
@@ -25,7 +24,8 @@ namespace rythe::rendering
 
 	struct light_buffer
 	{
-		light_data data[MAX_LIGHT_COUNT];
+		point_light_data point_data[MAX_POINT_LIGHT_COUNT];
+		dir_light_data dir_data[1];
 	};
 
 	struct light_render_stage : public graphics_stage<light_render_stage, light>
@@ -33,39 +33,56 @@ namespace rythe::rendering
 		rsl::uint m_lastIdx = 0;
 		buffer_handle lightBuffer;
 		light_buffer lightDataStruct;
+
+		math::mat4 lightProjection;
+		math::mat4 shadowProjection;
+		std::vector<math::mat4> shadowTransforms;
+
+		float near_plane = 1.0f;
+		float far_plane = 50.0f;
+
 		virtual void setup(core::transform camTransf, camera& cam) override
 		{
 			lightBuffer = BufferCache::createConstantBuffer<light_buffer>("LightBuffer", SV_LIGHTS, UsageType::STATICDRAW);
+
+			lightProjection = ortho(-20.0f, 20.0f, -20.0f, 20.0f, near_plane, far_plane);
+
+			shadowProjection = math::perspective(math::radians(90.0f), Shadow_Width / Shadow_Height, near_plane, far_plane);
 		}
 
 		virtual void render(core::transform camTransf, camera& cam) override
 		{
-			float near_plane = 1.0f;
-			float far_plane = 15.0f;
-			math::mat4 lightProjection = ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
 
 			ZoneScopedN("[Renderer] [Light Stage] Render");
 			for (auto& ent : m_filter)
 			{
 				auto& transf = ent.getComponent<core::transform>();
 				auto& lightComp = ent.getComponent<light>();
+
 				switch (lightComp.type)
 				{
 				case LightType::DIRECTIONAL:
-					lightComp.data.lightProjection = lightProjection;
-					lightComp.data.lightView = math::lookAt(math::vec3::zero, -transf.forward(), transf.up());
-					lightComp.data.direction = transf.forward();
-					lightDataStruct.data[0] = lightComp.data;
+					lightComp.dir_data.lightProjection = lightProjection;
+					lightComp.dir_data.lightView = math::lookAt(math::vec3::zero, -transf.forward(), transf.up());
+					lightComp.dir_data.direction = transf.forward();
+					lightDataStruct.dir_data[0] = lightComp.dir_data;
 					break;
 				case LightType::POINT:
-					lightComp.data.position = transf.position;
-					if (lightComp.index == 0)
+					if (m_lastIdx >= MAX_POINT_LIGHT_COUNT) return;
+					lightComp.point_data.position = transf.position;
+					lightComp.point_data.farPlane = far_plane;
+					lightComp.point_data.shadowProjection = shadowProjection;
+					buildShadowCube(lightComp.point_data.shadowTransforms, transf.position);
+					if (lightComp.index < 0)
+					{
 						lightComp.index = m_lastIdx++;
-					if (lightComp.index < MAX_LIGHT_COUNT)
-						lightDataStruct.data[lightComp.index] = lightComp.data;
+						lightInfo.count++;
+					}
+					if (lightComp.index < MAX_POINT_LIGHT_COUNT)
+						lightDataStruct.point_data[lightComp.index] = lightComp.point_data;
 					break;
 				case LightType::SPOT:
-					lightComp.data.position = transf.position;
+					//lightComp.data.position = transf.position;
 					break;
 				}
 			}
@@ -78,6 +95,15 @@ namespace rythe::rendering
 
 		virtual rsl::priority_type priority() const override { return LIGHT_PRIORITY; }
 
+		void buildShadowCube(math::mat4* transfArray, math::vec3 lightPos)
+		{
+			transfArray[0] = math::lookAt(lightPos, lightPos + math::vec3::left, math::vec3::up);
+			transfArray[1] = math::lookAt(lightPos, lightPos + math::vec3::right, math::vec3::up);
+			transfArray[2] = math::lookAt(lightPos, lightPos + math::vec3::up, math::vec3::forward);
+			transfArray[3] = math::lookAt(lightPos, lightPos + math::vec3::down, math::vec3::backward);
+			transfArray[4] = math::lookAt(lightPos, lightPos + math::vec3::backward, math::vec3::up);
+			transfArray[5] = math::lookAt(lightPos, lightPos + math::vec3::forward, math::vec3::up);
+		}
 	};
 
 }

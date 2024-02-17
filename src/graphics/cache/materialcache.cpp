@@ -20,7 +20,7 @@ namespace rythe::rendering
 		}
 
 		std::unique_ptr<material> mat = std::make_unique<material>();
-		mat->shader = shader;
+		mat->setShader(shader);
 		mat->name = name;
 		m_materials.emplace(id, std::move(mat));
 		m_names.emplace(id, name);
@@ -61,7 +61,7 @@ namespace rythe::rendering
 	{
 		if (m_materials.contains(nameHash))
 		{
-			ShaderCache::deleteShader(m_materials[nameHash]->shader->getName());
+			ShaderCache::deleteShader(m_materials[nameHash]->getShader()->getName());
 			m_materials.erase(nameHash);
 			m_names.erase(nameHash);
 		}

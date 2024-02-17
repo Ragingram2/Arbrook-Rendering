@@ -15,9 +15,17 @@
 
 namespace rythe::rendering
 {
+	struct light_info
+	{
+		int index = 0;
+		int count = MAX_POINT_LIGHT_COUNT;
+	};
+
 	template<typename Self, typename... componentTypes>
 	struct graphics_stage : public graphics_stage_base, protected core::System<Self, componentTypes...>
 	{
+		light_info lightInfo;
+
 		void shutdown_impl() override
 		{
 			if constexpr (rsl::has_shutdown_v<Self, void()>)

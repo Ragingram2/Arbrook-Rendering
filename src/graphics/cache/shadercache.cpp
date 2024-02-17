@@ -30,11 +30,13 @@ namespace rythe::rendering
 
 	void ShaderCache::compileShaders()
 	{
+		log::info("Compiling all shaders");
 		for (auto& [id, shad] : m_shaders)
 		{
 			auto source = ast::AssetCache<shader_source>::getAsset(m_names[id]);
 			shad->m_impl.initialize(m_names[id], source);
 		}
+		log::info("Finished compiling all shaders");
 	}
 
 	shader_handle ShaderCache::getShader(const std::string& name)

@@ -89,6 +89,12 @@ namespace rythe::rendering::internal
 			std::string file{ std::format("{}-{}", source.fileName, shaderType) };
 			auto hlslSource = source.sources[shaderIdx].second;
 
+			if (hlslSource.empty())
+			{
+				log::warn("[{}] Shader source is empty, this is ok if that was intended, but that means a \"{}\" shader will not be generated for this program", file, shaderType);
+				return 0;
+			}
+
 			std::vector<unsigned int> spirVBin = compileToSpirV(profile, shaderType, source.fileName, hlslSource);
 			if (spirVBin.size() < 1)
 			{
@@ -221,12 +227,12 @@ namespace rythe::rendering::internal
 
 			const char* textures[6] =
 			{
-				"Depth_Stencil",
-				"Color0",
 				"Texture0",
 				"Texture1",
 				"Texture2",
-				"Texture3"
+				"Texture3",
+				"Texture4",
+				"Texture5"
 			};
 			auto samplers = glsl.get_combined_image_samplers();
 			for (auto& resource : samplers)

@@ -13,44 +13,55 @@ namespace rythe::rendering
 
 	struct material
 	{
+	private:
+		shader_handle m_shader;
+		std::unordered_map<TextureSlot, texture_handle> m_textures;
+
+	public:
 		std::string name;
 		material_data data;
-		texture_handle texture0;
-		texture_handle texture1;
-		shader_handle shader;
 
 		material() = default;
-		material(const material& mat) : texture0(mat.texture0), texture1(mat.texture1), shader(mat.shader) {}
+		material(const material& mat) : name(mat.name), data(mat.data), m_textures(mat.m_textures), m_shader(mat.m_shader) {}
 
 		void bind()
 		{
-			if (shader != nullptr)
-				shader->bind();
+			if (m_shader != nullptr)
+				m_shader->bind();
 			else
 				log::warn("[Material] Shader handle is null, cannot bind");
-			if (texture0 != nullptr)
+
+			for (auto [slot, handle] : m_textures)
 			{
-				texture0->bind(TEXTURE0_SLOT);
+				handle->bind(slot);
 			}
-			if (texture1 != nullptr)
-			{
-				texture1->bind(TEXTURE1_SLOT);
-			}
+		}
+
+		shader_handle getShader()
+		{
+			return m_shader;
+		}
+
+		void setShader(shader_handle handle)
+		{
+			m_shader = handle;
+		}
+
+		void addTexture(TextureSlot slot, texture_handle handle)
+		{
+			m_textures.emplace(slot, handle);
 		}
 
 		void unbind()
 		{
-			//if (shader != nullptr)
-			//	shader->unbind();
-			//else
-			//	log::warn("[Material] Shader handle is null, cannot bind");
-			if (texture0 != nullptr)
+			if (m_shader != nullptr)
+				m_shader->unbind();
+			else
+				log::warn("[Material] Shader handle is null, cannot unbind");
+
+			for (auto [slot, handle] : m_textures)
 			{
-				texture0->unbind(TEXTURE0_SLOT);
-			}
-			if (texture1 != nullptr)
-			{
-				texture1->unbind(TEXTURE1_SLOT);
+				handle->unbind(slot);
 			}
 		}
 	};

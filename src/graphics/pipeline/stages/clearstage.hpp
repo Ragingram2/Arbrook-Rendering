@@ -16,7 +16,9 @@ namespace rythe::rendering
 		texture_handle colorHandle;
 		texture_handle mainDepthHandle;
 		framebuffer* depthFBO;
+		framebuffer* depthCubeFBO;
 		texture_handle depthHandle;
+		texture_handle depthCubeMap;
 		virtual void setup(core::transform camTransf, camera& cam) override
 		{
 			RI->makeCurrent();
@@ -46,33 +48,56 @@ namespace rythe::rendering
 				depthFBO->unbind();
 			}
 
-			mainFBO = addFramebuffer("MainBuffer");
-			mainFBO->initialize();
-			mainFBO->bind();
+			{
+				depthCubeFBO = addFramebuffer("DepthCubeBuffer");
+				depthCubeFBO->initialize();
+				depthCubeFBO->bind();
 
-			texture_handle colorHandle = TextureCache::createTexture("colorAttachment", TargetType::RENDER_TARGET, { 0, nullptr }, math::ivec2(Screen_Width, Screen_Height), texture_parameters
-				{
-					.usage = rendering::UsageType::DEFAULT
-				});
+				depthCubeMap = TextureCache::createCubemap("depthCubemap", { 0, nullptr }, math::ivec2(Shadow_Width, Shadow_Height), texture_parameters
+					{
+						.format = rendering::FormatType::D24_S8,
+						.usage = rendering::UsageType::DEPTH_COMPONENT,
+						.minFilterMode = rendering::FilterMode::NEAREST,
+						.magFilterMode = rendering::FilterMode::NEAREST,
+						.wrapModeS = rendering::WrapMode::CLAMP_TO_BORDER,
+						.wrapModeT = rendering::WrapMode::CLAMP_TO_BORDER,
+						.wrapModeR = rendering::WrapMode::CLAMP_TO_BORDER,
+						.borderColor = math::vec4(1.0f)
+					});
 
-			colorHandle->bind(COLOR_SLOT);
-			colorHandle->setMinFilterMode(rendering::FilterMode::LINEAR);
-			colorHandle->setMagFilterMode(rendering::FilterMode::LINEAR);
-			colorHandle->unbind(COLOR_SLOT);
+				depthCubeFBO->attach(AttachmentSlot::DEPTH_STENCIL, depthCubeMap, false, false);
+				depthCubeFBO->unbind();
+			}
 
-			mainDepthHandle = TextureCache::createTexture("main-depthAttachment", TargetType::DEPTH_STENCIL, { 0, nullptr }, math::ivec2(Screen_Width, Screen_Height), texture_parameters
-				{
-					.format = rendering::FormatType::D24_S8,
-					.usage = rendering::UsageType::DEPTH_COMPONENT,
-					.minFilterMode = rendering::FilterMode::NEAREST,
-					.magFilterMode = rendering::FilterMode::NEAREST,
-					.wrapModeS = rendering::WrapMode::REPEAT,
-					.wrapModeT = rendering::WrapMode::REPEAT
-				});
+			{
+				mainFBO = addFramebuffer("MainBuffer");
+				mainFBO->initialize();
+				mainFBO->bind();
 
-			mainFBO->attach(AttachmentSlot::COLOR0, colorHandle, true, true);
-			mainFBO->attach(AttachmentSlot::DEPTH_STENCIL, mainDepthHandle, true, true);
-			mainFBO->unbind();
+				texture_handle colorHandle = TextureCache::createTexture("colorAttachment", TargetType::RENDER_TARGET, { 0, nullptr }, math::ivec2(Screen_Width, Screen_Height), texture_parameters
+					{
+						.usage = rendering::UsageType::DEFAULT
+					});
+
+				colorHandle->bind(TextureSlot::TEXTURE0);
+				colorHandle->setMinFilterMode(rendering::FilterMode::LINEAR);
+				colorHandle->setMagFilterMode(rendering::FilterMode::LINEAR);
+				colorHandle->unbind(TextureSlot::TEXTURE0);
+
+				mainDepthHandle = TextureCache::createTexture("main-depthAttachment", TargetType::DEPTH_STENCIL, { 0, nullptr }, math::ivec2(Screen_Width, Screen_Height), texture_parameters
+					{
+						.format = rendering::FormatType::D24_S8,
+						.usage = rendering::UsageType::DEPTH_COMPONENT,
+						.minFilterMode = rendering::FilterMode::NEAREST,
+						.magFilterMode = rendering::FilterMode::NEAREST,
+						.wrapModeS = rendering::WrapMode::REPEAT,
+						.wrapModeT = rendering::WrapMode::REPEAT
+					});
+
+				mainFBO->attach(AttachmentSlot::COLOR0, colorHandle, true, true);
+				mainFBO->attach(AttachmentSlot::DEPTH_STENCIL, mainDepthHandle, true, true);
+				mainFBO->unbind();
+			}
 		}
 
 		virtual void render(core::transform camTransf, camera& cam) override

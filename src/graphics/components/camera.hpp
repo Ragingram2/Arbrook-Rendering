@@ -33,16 +33,6 @@ namespace rythe::rendering
 				return view;
 			}
 
-			//if (m_owner)
-			//{
-			//	if (m_owner.hasComponent<core::transform>())
-			//	{
-			//		auto transf = m_owner.getComponent<core::transform>();
-			//		view = transf.from_world();
-			//		return view;
-			//	}
-			//}
-
 			return math::mat4(1.f);
 		}
 
