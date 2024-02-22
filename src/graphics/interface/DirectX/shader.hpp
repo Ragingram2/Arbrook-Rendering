@@ -52,6 +52,8 @@ namespace rythe::rendering::internal
 		{
 			if (m_VS != nullptr)
 				m_VS->Release();
+			if (m_GS != nullptr)
+				m_GS->Release();
 			if (m_PS != nullptr)
 				m_PS->Release();
 		}
@@ -63,17 +65,26 @@ namespace rythe::rendering::internal
 			m_windowHandle = WindowProvider::activeWindow;
 			ShaderCompiler::initialize();
 			VS = ShaderCompiler::compile(ShaderType::VERTEX, source);
+			GS = ShaderCompiler::compile(ShaderType::GEOMETRY, source);
 			PS = ShaderCompiler::compile(ShaderType::FRAGMENT, source);
 
-			m_windowHandle->dev->CreateVertexShader(VS->GetBufferPointer(), VS->GetBufferSize(), NULL, &m_VS);
-			m_windowHandle->dev->CreatePixelShader(PS->GetBufferPointer(), PS->GetBufferSize(), NULL, &m_PS);
+			if (VS != nullptr)
+				m_windowHandle->dev->CreateVertexShader(VS->GetBufferPointer(), VS->GetBufferSize(), NULL, &m_VS);
+
+			if (GS != nullptr)
+				m_windowHandle->dev->CreateGeometryShader(GS->GetBufferPointer(), GS->GetBufferSize(), NULL, &m_GS);
+
+			if (PS != nullptr)
+				m_windowHandle->dev->CreatePixelShader(PS->GetBufferPointer(), PS->GetBufferSize(), NULL, &m_PS);
 		}
 
 		void bind()
 		{
 			ZoneScopedN("[DX11 Shader] bind()");
 			m_windowHandle->devcon->VSSetShader(m_VS, 0, 0);
+			m_windowHandle->devcon->GSSetShader(m_GS, 0, 0);
 			m_windowHandle->devcon->PSSetShader(m_PS, 0, 0);
+
 
 			for (auto& [name, handle] : m_constBuffers)
 			{
@@ -82,18 +93,19 @@ namespace rythe::rendering::internal
 			}
 		}
 
-		//void unbind()
-		//{
-		//	ZoneScopedN("[DX11 Shader] unbind()");
-		//	m_windowHandle->devcon->VSSetShader(nullptr, 0, 0);
-		//	m_windowHandle->devcon->PSSetShader(nullptr, 0, 0);
+		void unbind()
+		{
+			ZoneScopedN("[DX11 Shader] unbind()");
+			m_windowHandle->devcon->VSSetShader(nullptr, 0, 0);
+			m_windowHandle->devcon->GSSetShader(nullptr, 0, 0);
+			m_windowHandle->devcon->PSSetShader(nullptr, 0, 0);
 
-		//	for (auto& [name, handle] : m_constBuffers)
-		//	{
-		//		ZoneScopedN("[DX11 Shader][unbind()] unbinding attached buffers");
-		//		handle->unbind();
-		//	}
-		//}
+			for (auto& [name, handle] : m_constBuffers)
+			{
+				ZoneScopedN("[DX11 Shader][unbind()] unbinding attached buffers");
+				handle->unbind();
+			}
+		}
 
 		void addBuffer(buffer_handle handle)
 		{

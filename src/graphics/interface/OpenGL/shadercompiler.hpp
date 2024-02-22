@@ -117,11 +117,10 @@ namespace rythe::rendering::internal
 
 			GLint isCompiled = 0;
 			glGetShaderiv(id, GL_COMPILE_STATUS, &isCompiled);
-			if (isCompiled == GL_FALSE)
+			GLint maxLength = 0;
+			glGetShaderiv(id, GL_INFO_LOG_LENGTH, &maxLength);
+			if (isCompiled == GL_FALSE || maxLength != 0)
 			{
-				GLint maxLength = 0;
-				glGetShaderiv(id, GL_INFO_LOG_LENGTH, &maxLength);
-
 				std::vector<GLchar> infoLog(maxLength);
 				glGetShaderInfoLog(id, maxLength, &maxLength, &infoLog[0]);
 				log::error("[{}] Shader Compilation Failed", file);
@@ -160,7 +159,6 @@ namespace rythe::rendering::internal
 			_shader->setEntryPoint("main");
 			_shader->setAutoMapBindings(true);
 			_shader->setAutoMapLocations(true);
-			//_shader->setTextureSamplerTransformMode(EShTextureSamplerTransformMode::EShTexSampTransKeep);
 			_shader->setCompileOnly();
 
 			_shader->setFlattenUniformArrays(true);
@@ -182,7 +180,6 @@ namespace rythe::rendering::internal
 				log::error(_shader->getInfoLog());
 				return spirVBin;
 			}
-			//log::info(str);
 
 			if (!_shader->parse(GetResources(), defaultVersion, false, message, m_includer))
 			{
@@ -193,13 +190,11 @@ namespace rythe::rendering::internal
 
 			glslang::TProgram program;
 			program.addShader(_shader);
-			program.buildReflection();
 
 			if (!program.link(message))
 			{
 				log::error("[{}] Program Linking failed:\n{}", file, program.getInfoLog());
 			}
-			program.dumpReflection();
 
 			if (auto* i = program.getIntermediate(profile))
 			{
@@ -207,9 +202,6 @@ namespace rythe::rendering::internal
 				glslang::GlslangToSpv(*i, spirVBin, &logger);
 				if (logger.getAllMessages().length() > 0)
 					log::info("[{}] SpirV Conversion output log: {}", file, logger.getAllMessages());
-
-				//if (!glslang::OutputSpvBin(spirVBin, fileName.c_str()))
-				//	log::error("[{}] Output to SpirV bin failed", file);
 			}
 
 
@@ -225,20 +217,21 @@ namespace rythe::rendering::internal
 
 			glsl.build_combined_image_samplers();
 
-			const char* textures[6] =
+			const char* textures[8] =
 			{
 				"Texture0",
 				"Texture1",
 				"Texture2",
 				"Texture3",
 				"Texture4",
-				"Texture5"
+				"Texture5",
+				"Texture6",
+				"Texture7"
 			};
 			auto samplers = glsl.get_combined_image_samplers();
 			for (auto& resource : samplers)
 			{
 				uint32_t binding = glsl.get_decoration(resource.image_id, spv::DecorationBinding);
-				//log::info("CombinedID:{}, ImageID:{}, ImageBinding:{},SamplerID:{}", resource.combined_id, resource.image_id, binding, resource.sampler_id);
 
 				glsl.set_decoration(resource.combined_id, spv::DecorationBinding, binding);
 				glsl.set_name(resource.combined_id, textures[binding]);
@@ -255,6 +248,7 @@ namespace rythe::rendering::internal
 			return true;
 		}
 	};
+
 	inline std::vector<std::string> ShaderCompiler::IncludeDirectoryList;
 	inline DireStackFileIncluder ShaderCompiler::m_includer;
 	inline glslang::EShClient ShaderCompiler::m_client;  // will stay EShClientNone if only validating

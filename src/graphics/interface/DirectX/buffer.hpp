@@ -75,12 +75,36 @@ namespace rythe::rendering::internal
 				break;
 			case TargetType::CONSTANT_BUFFER:
 				WindowProvider::activeWindow->devcon->VSSetConstantBuffers(bindId, 1, &m_internalBuffer);
+				WindowProvider::activeWindow->devcon->GSSetConstantBuffers(bindId, 1, &m_internalBuffer);
 				WindowProvider::activeWindow->devcon->PSSetConstantBuffers(bindId, 1, &m_internalBuffer);
 				break;
 			default:
 				log::error("That type is not supported");
 				break;
 			}
+		}
+
+		void unbind()
+		{
+			ZoneScopedN("[DX11 Buffer] unbind()");
+
+			/*unsigned int offset = 0;
+			switch (m_target)
+			{
+			case TargetType::VERTEX_BUFFER:
+				WindowProvider::activeWindow->devcon->IASetVertexBuffers(bindId, 1, nullptr, 0, &offset);
+				break;
+			case TargetType::INDEX_BUFFER:
+				WindowProvider::activeWindow->devcon->IASetIndexBuffer(nullptr, static_cast<DXGI_FORMAT>(FormatType::R32U), offset);
+				break;
+			case TargetType::CONSTANT_BUFFER:
+				WindowProvider::activeWindow->devcon->VSSetConstantBuffers(bindId, 1, nullptr);
+				WindowProvider::activeWindow->devcon->PSSetConstantBuffers(bindId, 1, nullptr);
+				break;
+			default:
+				log::error("That type is not supported");
+				break;
+			}*/
 		}
 
 		template<typename elementType>

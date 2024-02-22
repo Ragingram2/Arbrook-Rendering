@@ -58,6 +58,12 @@ namespace rythe::rendering::internal
 			std::string src = source.sources[static_cast<int>(type)].second;
 			std::string sourceName = std::format("{}.shader", source.fileName);
 
+			if (src.empty())
+			{
+				log::warn("[{}] Shader source is empty, this is ok if that was intended, but that means a \"{}\" shader will not be generated for this program", file, profile);
+				return nullptr;
+			}
+
 			log::info("[{}] Preproccessing Shader", file);
 			CHECKERROR(D3DPreprocess(src.c_str(), src.length(), sourceName.c_str(), nullptr, m_includer, &ppShaderBlob, &errors), "Shader failed to preprocess", m_windowHandle->checkError());
 

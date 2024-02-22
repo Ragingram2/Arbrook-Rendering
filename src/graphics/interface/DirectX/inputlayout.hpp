@@ -55,6 +55,12 @@ namespace rythe::rendering::internal
 			m_windowHandle->devcon->IASetInputLayout(m_layout);
 		}
 
+		void unbind()
+		{
+			ZoneScopedN("[DX11 Inputlayout] unbind()");
+			m_windowHandle->devcon->IASetInputLayout(nullptr);
+		}
+
 		void setAttributePtr(buffer_handle buf, const std::string& attribName, unsigned int index, FormatType components, unsigned int inputSlot, unsigned int stride, unsigned int offset, InputClass inputClass, unsigned int instancedStep)
 		{
 			ZoneScopedN("[DX11 Inputlayout] setAttributePtr()");

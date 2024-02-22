@@ -33,6 +33,7 @@ namespace rythe::core::assets
 		math::vec4 borderColor = math::vec4(0.0f);
 		rendering::FormatType format = rendering::FormatType::RGB;
 		rendering::UsageType usage = rendering::UsageType::DEFAULT;
+		int textures = 1;
 		int mipLevels = 1;
 		bool generateMipMaps = false;
 	};
@@ -52,6 +53,7 @@ namespace rythe::rendering
 		.borderColor = math::vec4(0.0f),
 		.format = FormatType::RGBA,
 		.usage = UsageType::IMMUTABLE,
+		.textures = 1,
 		.mipLevels = 1,
 		.generateMipMaps = false,
 	};

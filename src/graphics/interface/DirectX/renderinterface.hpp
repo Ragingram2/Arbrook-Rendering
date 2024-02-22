@@ -258,13 +258,13 @@ namespace rythe::rendering::internal
 		void clear(internal::ClearBit flags)
 		{
 			ZoneScopedN("[DX11 Renderinterface] clear()");
-			ID3D11RenderTargetView* views = nullptr;
-			ID3D11DepthStencilView* depthStencilView = nullptr;
+			ID3D11RenderTargetView* views = NULL;
+			ID3D11DepthStencilView* depthStencilView = NULL;
 			m_windowHandle->devcon->OMGetRenderTargets(1, &views, &depthStencilView);
 
-			if (flags == internal::ClearBit::COLOR_DEPTH_STENCIL || flags == internal::ClearBit::DEPTH_STENCIL || flags == internal::ClearBit::DEPTH || flags == internal::ClearBit::STENCIL)
+			if ((flags == internal::ClearBit::COLOR_DEPTH_STENCIL || flags == internal::ClearBit::DEPTH_STENCIL || flags == internal::ClearBit::DEPTH || flags == internal::ClearBit::STENCIL) && depthStencilView != NULL)
 				m_windowHandle->devcon->ClearDepthStencilView(depthStencilView, static_cast<D3D11_CLEAR_FLAG>(flags), 1.f, 0);
-			if ((flags == internal::ClearBit::COLOR || flags == internal::ClearBit::COLOR_DEPTH || flags == internal::ClearBit::COLOR_DEPTH_STENCIL) && views != nullptr)
+			if ((flags == internal::ClearBit::COLOR || flags == internal::ClearBit::COLOR_DEPTH || flags == internal::ClearBit::COLOR_DEPTH_STENCIL) && views != NULL)
 				m_windowHandle->devcon->ClearRenderTargetView(views, m_colorData);
 		}
 

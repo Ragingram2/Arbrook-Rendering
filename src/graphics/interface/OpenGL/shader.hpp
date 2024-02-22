@@ -55,11 +55,11 @@ namespace rythe::rendering::internal
 
 			GLint isLinked = 0;
 			glGetProgramiv(programId, GL_LINK_STATUS, (int*)&isLinked);
-			if (isLinked == GL_FALSE)
+			GLint maxLength = 0;
+			glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &maxLength);
+			if (isLinked == GL_FALSE || maxLength != 0)
 			{
-				GLint maxLength = 0;
-				glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &maxLength);
-
+				maxLength = maxLength > 0 ? maxLength : 1;
 				std::vector<GLchar> infoLog(maxLength);
 				glGetProgramInfoLog(programId, maxLength, &maxLength, &infoLog[0]);
 
