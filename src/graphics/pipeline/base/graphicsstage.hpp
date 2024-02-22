@@ -18,7 +18,7 @@ namespace rythe::rendering
 	struct light_info
 	{
 		int index = 0;
-		int count = MAX_POINT_LIGHT_COUNT;
+		int count = 0;
 	};
 
 	template<typename Self, typename... componentTypes>

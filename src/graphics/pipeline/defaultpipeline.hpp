@@ -17,7 +17,7 @@ namespace rythe::rendering
 		void setup() override
 		{
 			attachStage<clear_stage>();
-			attachStage<skybox_stage>();
+			//attachStage<skybox_stage>();
 			attachStage<light_render_stage>();
 			attachStage<shadow_map_stage>();
 			attachStage<render_stage>();

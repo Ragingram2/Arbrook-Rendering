@@ -13,8 +13,8 @@ namespace rythe::rendering
 	public:
 
 		void initialize() { m_impl.initialize(); }
-		void bind() const { m_impl.bind(); }
-		void unbind() const { m_impl.unbind(); }
+		void bind() { m_impl.bind(); }
+		void unbind() { m_impl.unbind(); }
 		void attach(AttachmentSlot attachment, texture_handle texture, bool draw = true, bool read = false) { m_impl.attach(static_cast<internal::AttachmentSlot>(attachment), texture, draw, read); }
 		void detach(AttachmentSlot attachment) { m_impl.detach(static_cast<internal::AttachmentSlot>(attachment)); }
 		texture_handle getAttachment(AttachmentSlot attachment) { return m_impl.getAttachment(static_cast<internal::AttachmentSlot>(attachment)); }

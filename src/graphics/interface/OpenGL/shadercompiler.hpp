@@ -91,7 +91,7 @@ namespace rythe::rendering::internal
 
 			if (hlslSource.empty())
 			{
-				log::warn("[{}] Shader source is empty, this is ok if that was intended, but that means a \"{}\" shader will not be generated for this program", file, shaderType);
+				//log::warn("[{}] Shader source is empty, this is ok if that was intended, but that means a \"{}\" shader will not be generated for this program", file, shaderType);
 				return 0;
 			}
 

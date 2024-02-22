@@ -55,11 +55,15 @@ namespace rythe::rendering
 
 	enum class FormatType
 	{
+		D32 = static_cast<int>(internal::FormatType::D32), 
+		R24_UX8 = static_cast<int>(internal::FormatType::R24_UX8),
+		R24_G8 = static_cast<int>(internal::FormatType::R24_G8),
 		D24_S8 = static_cast<int>(internal::FormatType::D24_S8),
 		DEPTH_STENCIL = static_cast<int>(internal::FormatType::D24_S8),
 		RGBA32F = static_cast<int>(internal::FormatType::RGBA32F),
 		RGB32F = static_cast<int>(internal::FormatType::RGB32F),
 		RG32F = static_cast<int>(internal::FormatType::RG32F),
+		R32_TYPELESS = static_cast<int>(internal::FormatType::R32_TYPELESS),
 		R32F = static_cast<int>(internal::FormatType::R32F),
 		R32U = static_cast<int>(internal::FormatType::R32U),
 		RGBA = static_cast<int>(internal::FormatType::RGBA),

@@ -37,9 +37,9 @@ namespace rythe::rendering
 
 		virtual void render(core::transform camTransf, camera& cam) override
 		{
+			mainFBO->unbind();
 			auto colorTexture = mainFBO->getAttachment(AttachmentSlot::COLOR0);
 			colorTexture->unbind(TextureSlot::TEXTURE0);
-			mainFBO->unbind();
 			RI->depthTest(false);
 			RI->cullFace(CullMode::NONE);
 			RI->updateDepthStencil();

@@ -18,12 +18,12 @@ namespace rythe::rendering::internal
 			glGenFramebuffers(1, &m_id);
 		}
 
-		void bind() const
+		void bind()
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, m_id);
 		}
 
-		void unbind() const
+		void unbind()
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}

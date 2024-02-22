@@ -36,16 +36,14 @@ namespace rythe::rendering::internal
 			WindowProvider::activeWindow->devcon->PSGetSamplers(0, 1, &m_backBufferSamplerState);
 		}
 
-		void bind() const
+		void bind()
 		{
-			release();
 			WindowProvider::activeWindow->devcon->OMSetRenderTargets(m_renderTargetViews.size(), m_renderTargetViews.data(), m_depthStencilView);
 			WindowProvider::activeWindow->checkError();
 		}
 
-		void unbind() const
+		void unbind()
 		{
-			release();
 			WindowProvider::activeWindow->devcon->OMSetRenderTargets(1, &m_defaultView, m_defaultDepthStencilView);
 			WindowProvider::activeWindow->checkError();
 		}
@@ -106,6 +104,12 @@ namespace rythe::rendering::internal
 
 		void release() const
 		{
+			//for (auto handle : m_renderTextures)
+			//{
+			//	handle->unbind(static_cast<rendering::TextureSlot>(handle->m_impl.activeSlot));
+			//}
+
+			WindowProvider::activeWindow->checkError();
 			ID3D11RenderTargetView* nullRenderTargets[1] = { nullptr };
 			WindowProvider::activeWindow->devcon->OMSetRenderTargets(1, nullRenderTargets, nullptr);
 			WindowProvider::activeWindow->checkError();

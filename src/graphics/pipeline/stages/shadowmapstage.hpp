@@ -49,18 +49,16 @@ namespace rythe::rendering
 			dirShadowMap->addBuffer(materialBuffer);
 			dirShadowMap->addBuffer(lightBuffer);
 			dirShadowMap->addBuffer(lightInfoBuffer);
-
-			for (auto& ent : m_filter)
-			{
-				auto& renderer = ent.getComponent<mesh_renderer>();
-				initializeModel(renderer.model, renderer.model->meshHandle);
-			}
 		}
 
 		virtual void render(core::transform camTransf, camera& cam) override
 		{
 			ZoneScopedN("[Renderer] [Shadow Map Stage] Render");
 			mainFBO->unbind();
+
+			RI->setViewport(1, 0, 0, Shadow_Width, Shadow_Height);
+			RI->clear(ClearBit::DEPTH);
+			RI->cullFace(CullMode::FRONT);
 
 			directionalLightPass(camTransf, cam);
 			pointLightPass(camTransf, cam);
@@ -86,7 +84,7 @@ namespace rythe::rendering
 				ast::asset_handle<mesh> mesh = model->meshHandle;
 
 				if (renderer.dirty)
-					initializeModel(model, mesh);
+					initializeModel(model, mesh,dirShadowMap);
 
 				auto& transf = ent.getComponent<core::transform>();
 
@@ -99,9 +97,11 @@ namespace rythe::rendering
 					{
 						auto& submesh = mesh->meshes[i];
 						RI->drawIndexed(PrimitiveType::TRIANGLESLIST, submesh.count, submesh.indexOffset, submesh.vertexOffset);
+						WindowProvider::activeWindow->checkError();
 					}
 				else
 					RI->drawArrays(PrimitiveType::TRIANGLESLIST, 0, mesh->vertices.size());
+				model->unbind();
 			}
 			unbindDepthMap();
 		}
@@ -123,7 +123,7 @@ namespace rythe::rendering
 					ast::asset_handle<mesh> mesh = model->meshHandle;
 
 					if (renderer.dirty)
-						initializeModel(model, mesh);
+						initializeModel(model, mesh, pointShadowMap);
 
 					auto& transf = ent.getComponent<core::transform>();
 
@@ -139,6 +139,7 @@ namespace rythe::rendering
 						}
 					else
 						RI->drawArrays(PrimitiveType::TRIANGLESLIST, 0, mesh->vertices.size());
+					model->unbind();
 				}
 			}
 			unbindDepthCube();
@@ -146,49 +147,43 @@ namespace rythe::rendering
 
 		void bindDepthCube()
 		{
-			depthCubeFBO->bind();
-			RI->setViewport(1, 0, 0, Shadow_Width, Shadow_Height);
-			RI->clear(ClearBit::DEPTH);
-			RI->cullFace(CullMode::FRONT);
 			pointShadowMap->bind();
-			auto depthTexture = depthCubeFBO->getAttachment(AttachmentSlot::DEPTH_STENCIL);
-			depthTexture->bind(TextureSlot::TEXTURE2);
+			depthCubeFBO->bind();
+			//auto depthTexture = depthCubeFBO->getAttachment(AttachmentSlot::DEPTH_STENCIL);
+			//depthTexture->unbind(TextureSlot::TEXTURE2);
 		}
 
 		void unbindDepthCube()
 		{
+			//auto depthTexture = depthCubeFBO->getAttachment(AttachmentSlot::DEPTH_STENCIL);
+			//depthTexture->unbind(TextureSlot::TEXTURE2);
 			pointShadowMap->unbind();
-			auto depthTexture = depthCubeFBO->getAttachment(AttachmentSlot::DEPTH_STENCIL);
-			depthTexture->unbind(TextureSlot::TEXTURE2);
 			depthCubeFBO->unbind();
 		}
 
 		void bindDepthMap()
 		{
 			depthFBO->bind();
-			RI->setViewport(1, 0, 0, Shadow_Width, Shadow_Height);
-			RI->clear(ClearBit::DEPTH);
-			RI->cullFace(CullMode::FRONT);
 			dirShadowMap->bind();
-			auto depthTexture = depthFBO->getAttachment(AttachmentSlot::DEPTH_STENCIL);
-			depthTexture->bind(TextureSlot::TEXTURE1);
+			//auto depthTexture = depthFBO->getAttachment(AttachmentSlot::DEPTH_STENCIL);
+			//depthTexture->bind(TextureSlot::TEXTURE1);
 		}
 
 		void unbindDepthMap()
 		{
+			//auto depthTexture = depthFBO->getAttachment(AttachmentSlot::DEPTH_STENCIL);
+			//depthTexture->unbind(TextureSlot::TEXTURE1);
 			dirShadowMap->unbind();
-			auto depthTexture = depthFBO->getAttachment(AttachmentSlot::DEPTH_STENCIL);
-			depthTexture->unbind(TextureSlot::TEXTURE1);
 			depthFBO->unbind();
 		}
 
-		void initializeModel(ast::asset_handle<model> model, ast::asset_handle<mesh> mesh)
+		void initializeModel(ast::asset_handle<model> model, ast::asset_handle<mesh> mesh, shader_handle handle)
 		{
 			auto meshHandle = model->meshHandle = mesh;
 			auto& layout = model->layout;
 
 			layout.release();
-			layout.initialize(1, pointShadowMap);
+			layout.initialize(1, handle);
 			layout.bind();
 
 			model->vertexBuffer = BufferCache::createVertexBuffer<math::vec4>(std::format("{}-Depth-Vertex Buffer", meshHandle->name), 0, UsageType::STATICDRAW, meshHandle->vertices);

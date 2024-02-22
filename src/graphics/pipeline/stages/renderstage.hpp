@@ -71,7 +71,6 @@ namespace rythe::rendering
 		{
 			ZoneScopedN("[Renderer] [Render Stage] Render");
 			camera_data data[] = { camera_data{.viewPosition = camTransf.position, .projection = cam.projection, .view = cam.view, .model = math::mat4(1.0f)} };
-
 			for (auto& ent : m_filter)
 			{
 				auto& renderer = ent.getComponent<mesh_renderer>();
@@ -110,6 +109,7 @@ namespace rythe::rendering
 					RI->drawArrays(PrimitiveType::TRIANGLESLIST, 0, mesh->vertices.size());
 
 				material->unbind();
+				model->unbind();
 			}
 			m_onRender(camTransf, cam);
 		}

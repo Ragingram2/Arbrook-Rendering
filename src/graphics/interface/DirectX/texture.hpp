@@ -32,7 +32,7 @@ namespace rythe::rendering::internal
 		std::string name;
 		unsigned char* data;
 		texture_parameters params;
-		rendering::TextureSlot activeSlot;
+		TextureSlot activeSlot;
 		texture() = default;
 		texture(unsigned int id, std::string name) : id(id), name(name) { }
 		texture(texture* other)
@@ -54,11 +54,20 @@ namespace rythe::rendering::internal
 
 		void bind(TextureSlot slot)
 		{
+			activeSlot = slot;
 			ZoneScopedN("[DX11 Texture] bind()");
+			//log::debug("Binding Texture \"{}\"", name);
+			if (m_shaderResource == nullptr)
+			{
+				log::warn("Shader Resource is null, this is ok if this was intended, but this has the same effect as unbinding a texture here");
+			}
+
 			WindowProvider::activeWindow->devcon->VSSetShaderResources(static_cast<UINT>(slot), 1, &m_shaderResource);
 			WindowProvider::activeWindow->devcon->VSSetSamplers(static_cast<UINT>(slot), 1, &m_texSamplerState);
+
 			WindowProvider::activeWindow->devcon->GSSetShaderResources(static_cast<UINT>(slot), 1, &m_shaderResource);
 			WindowProvider::activeWindow->devcon->GSSetSamplers(static_cast<UINT>(slot), 1, &m_texSamplerState);
+
 			WindowProvider::activeWindow->devcon->PSSetShaderResources(static_cast<UINT>(slot), 1, &m_shaderResource);
 			WindowProvider::activeWindow->devcon->PSSetSamplers(static_cast<UINT>(slot), 1, &m_texSamplerState);
 		}
@@ -66,13 +75,18 @@ namespace rythe::rendering::internal
 		void unbind(TextureSlot slot)
 		{
 			ZoneScopedN("[DirectX Texture] unbind()");
+
+			//log::debug("Unbinding Texture \"{}\"", name);
+
 			ID3D11ShaderResourceView* nullResource[1] = { nullptr };
 			ID3D11SamplerState* nullSampler[1] = { nullptr };
 
 			WindowProvider::activeWindow->devcon->VSSetShaderResources(static_cast<UINT>(slot), 1, nullResource);
 			WindowProvider::activeWindow->devcon->VSSetSamplers(static_cast<UINT>(slot), 1, nullSampler);
+
 			WindowProvider::activeWindow->devcon->GSSetShaderResources(static_cast<UINT>(slot), 1, nullResource);
 			WindowProvider::activeWindow->devcon->GSSetSamplers(static_cast<UINT>(slot), 1, nullSampler);
+
 			WindowProvider::activeWindow->devcon->PSSetShaderResources(static_cast<UINT>(slot), 1, nullResource);
 			WindowProvider::activeWindow->devcon->PSSetSamplers(static_cast<UINT>(slot), 1, nullSampler);
 		}
@@ -138,68 +152,66 @@ namespace rythe::rendering::internal
 
 			if (m_texType == D3D11_BIND_RENDER_TARGET)
 				m_texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-			else if (m_texType == 9)
-			{
+			else if (m_texType == D3D11_BIND_DEPTH_STENCIL)
+				m_texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL;
+			else if (m_texType == D3D11_BIND_SHADER_RESOURCE + 1)
 				m_texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-				if (params.format == rendering::FormatType::D24_S8)
-					m_texDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
-			}
 			else
 				m_texDesc.BindFlags = m_texType;
 
 			if (textureData != nullptr)
 			{
-				if (m_texDesc.MiscFlags == D3D11_RESOURCE_MISC_TEXTURECUBE)
-				{
-					D3D11_SUBRESOURCE_DATA cubeData[params.textures];
-					for (int i = 0; i < params.textures; i++)
-					{
-						cubeData[i].pSysMem = textureData;
-						cubeData[i].SysMemPitch = m_texDesc.Width * channels;
-					}
-					CHECKERROR(WindowProvider::activeWindow->dev->CreateTexture2D(&m_texDesc, &cubeData[0], &m_texture), "Texture creation Failed", WindowProvider::activeWindow->checkError());
-				}
-				else
-				{
-					D3D11_SUBRESOURCE_DATA subData;
-					subData.pSysMem = textureData;
-					subData.SysMemPitch = m_texDesc.Width * channels;
+				//if (m_texDesc.MiscFlags == D3D11_RESOURCE_MISC_TEXTURECUBE)
+				//{
+				//	D3D11_SUBRESOURCE_DATA cubeData[params.textures];
+				//	for (int i = 0; i < params.textures; i++)
+				//	{
+				//		cubeData[i].pSysMem = textureData;
+				//		cubeData[i].SysMemPitch = m_texDesc.Width * channels;
+				//	}
+				//	CHECKERROR(WindowProvider::activeWindow->dev->CreateTexture2D(&m_texDesc, &cubeData[0], &m_texture), "Texture creation Failed", WindowProvider::activeWindow->checkError());
+				//}
+				//else
+				//{
+				D3D11_SUBRESOURCE_DATA subData;
+				subData.pSysMem = textureData;
+				subData.SysMemPitch = m_texDesc.Width * channels;
 
-					CHECKERROR(WindowProvider::activeWindow->dev->CreateTexture2D(&m_texDesc, &subData, &m_texture), "Texture creation Failed", WindowProvider::activeWindow->checkError());
-				}
+				CHECKERROR(WindowProvider::activeWindow->dev->CreateTexture2D(&m_texDesc, &subData, &m_texture), "Texture creation Failed", WindowProvider::activeWindow->checkError());
 			}
 			else
 			{
 				CHECKERROR(WindowProvider::activeWindow->dev->CreateTexture2D(&m_texDesc, NULL, &m_texture), "Texture creation Failed", WindowProvider::activeWindow->checkError());
 			}
 
+			D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+			ZeroMemory(&shaderResourceViewDesc, sizeof(shaderResourceViewDesc));
+			shaderResourceViewDesc.Format = m_texDesc.Format;
+			shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+			shaderResourceViewDesc.Texture2D.MipLevels = m_texDesc.MipLevels;
+
 			if (m_texType == D3D11_BIND_SHADER_RESOURCE || m_texType == D3D11_BIND_RENDER_TARGET)
 			{
-				D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-				ZeroMemory(&shaderResourceViewDesc, sizeof(shaderResourceViewDesc));
-				shaderResourceViewDesc.Format = m_texDesc.Format;
 				shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-				shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-				shaderResourceViewDesc.Texture2D.MipLevels = m_texDesc.MipLevels;
 				CHECKERROR(WindowProvider::activeWindow->dev->CreateShaderResourceView(m_texture, &shaderResourceViewDesc, &m_shaderResource), "Failed to create the Shader Resource View", WindowProvider::activeWindow->checkError());
 			}
-			else if (m_texType == D3D11_RESOURCE_MISC_TEXTURECUBE)
+			else if (m_texType == D3D11_BIND_SHADER_RESOURCE + 1 && m_texDesc.MiscFlags == D3D11_RESOURCE_MISC_TEXTURECUBE)
 			{
-				D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-				ZeroMemory(&shaderResourceViewDesc, sizeof(shaderResourceViewDesc));
-				shaderResourceViewDesc.Format = m_texDesc.Format;
+				shaderResourceViewDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 				shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-				shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-				shaderResourceViewDesc.Texture2D.MipLevels = m_texDesc.MipLevels;
 				CHECKERROR(WindowProvider::activeWindow->dev->CreateShaderResourceView(m_texture, &shaderResourceViewDesc, &m_shaderResource), "Failed to create the Shader Resource View", WindowProvider::activeWindow->checkError());
 			}
 			else if (m_texType == D3D11_BIND_DEPTH_STENCIL)
 			{
 				D3D11_DEPTH_STENCIL_VIEW_DESC m_depthStencilViewDesc;
 				ZeroMemory(&m_depthStencilViewDesc, sizeof(m_depthStencilViewDesc));
-				m_depthStencilViewDesc.Format = m_texDesc.Format;
+				m_depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 				m_depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 				CHECKERROR(WindowProvider::activeWindow->dev->CreateDepthStencilView(m_texture, &m_depthStencilViewDesc, &m_depthStencilView), "Creating Depth Stencil View failed", WindowProvider::activeWindow->checkError());
+
+				shaderResourceViewDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+				shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+				CHECKERROR(WindowProvider::activeWindow->dev->CreateShaderResourceView(m_texture, &shaderResourceViewDesc, &m_shaderResource), "Failed to create the Shader Resource View", WindowProvider::activeWindow->checkError());
 			}
 		}
 	};
