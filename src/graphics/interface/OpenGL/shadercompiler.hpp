@@ -87,13 +87,14 @@ namespace rythe::rendering::internal
 			}
 
 			std::string file{ std::format("{}-{}", source.fileName, shaderType) };
-			auto hlslSource = source.sources[shaderIdx].second;
+			std::string hlslSource = source.sources[shaderIdx].second;
 
 			if (hlslSource.empty())
 			{
-				//log::warn("[{}] Shader source is empty, this is ok if that was intended, but that means a \"{}\" shader will not be generated for this program", file, shaderType);
 				return 0;
 			}
+
+			hlslSource = std::string("#define OpenGL\n").append(hlslSource);
 
 			std::vector<unsigned int> spirVBin = compileToSpirV(profile, shaderType, source.fileName, hlslSource);
 			if (spirVBin.size() < 1)
@@ -241,6 +242,7 @@ namespace rythe::rendering::internal
 			options.version = 460;
 			options.es = false;
 			options.emit_push_constant_as_uniform_buffer = true;
+			options.enable_row_major_load_workaround = true;
 
 			glsl.set_common_options(options);
 

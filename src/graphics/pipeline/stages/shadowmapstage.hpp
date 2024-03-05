@@ -25,7 +25,8 @@ namespace rythe::rendering
 
 		buffer_handle cameraBuffer;
 		buffer_handle materialBuffer;
-		buffer_handle lightBuffer;
+		buffer_handle pointLightBuffer;
+		buffer_handle directionalLightBuffer;
 		buffer_handle lightInfoBuffer;
 		virtual void setup(core::transform camTransf, camera& cam) override
 		{
@@ -34,20 +35,21 @@ namespace rythe::rendering
 			mainFBO = getFramebuffer("MainBuffer");
 
 			cameraBuffer = BufferCache::getBuffer("CameraBuffer");
-			lightBuffer = BufferCache::getBuffer("LightBuffer");
+			pointLightBuffer = BufferCache::getBuffer("PointLightBuffer");
+			directionalLightBuffer = BufferCache::getBuffer("DirectionalLightBuffer");
 			materialBuffer = BufferCache::getBuffer("MaterialBuffer");
 			lightInfoBuffer = BufferCache::createConstantBuffer<light_info>("LightInfo", SV_MATERIALS + 1, UsageType::STATICDRAW);
 
 			pointShadowMap = ShaderCache::getShader("pointShadowMap");
 			pointShadowMap->addBuffer(cameraBuffer);
 			pointShadowMap->addBuffer(materialBuffer);
-			pointShadowMap->addBuffer(lightBuffer);
+			pointShadowMap->addBuffer(pointLightBuffer);
 			pointShadowMap->addBuffer(lightInfoBuffer);
 
 			dirShadowMap = ShaderCache::getShader("dirShadowMap");
 			dirShadowMap->addBuffer(cameraBuffer);
 			dirShadowMap->addBuffer(materialBuffer);
-			dirShadowMap->addBuffer(lightBuffer);
+			dirShadowMap->addBuffer(directionalLightBuffer);
 			dirShadowMap->addBuffer(lightInfoBuffer);
 		}
 
@@ -56,24 +58,31 @@ namespace rythe::rendering
 			ZoneScopedN("[Renderer] [Shadow Map Stage] Render");
 			mainFBO->unbind();
 
+			depthFBO->bind();
 			RI->setViewport(1, 0, 0, Shadow_Width, Shadow_Height);
-			RI->clear(ClearBit::DEPTH);
+			RI->clear(false, DepthClearBit::DEPTH_STENCIL);
 			RI->cullFace(CullMode::FRONT);
-
 			directionalLightPass(camTransf, cam);
-			pointLightPass(camTransf, cam);
+			depthFBO->unbind();
 
-			RI->cullFace(CullMode::BACK);
-			RI->clear(ClearBit::COLOR_DEPTH);
+			depthCubeFBO->bind();
+			RI->setViewport(1, 0, 0, Shadow_Width, Shadow_Height);
+			RI->clear(false, DepthClearBit::DEPTH_STENCIL);
+			RI->cullFace(CullMode::FRONT);
+			pointLightPass(camTransf, cam);
+			depthCubeFBO->unbind();
+
 			mainFBO->bind();
 			RI->setViewport(1, 0, 0, Screen_Width, Screen_Height);
+			RI->clear(true, DepthClearBit::DEPTH);
+			RI->cullFace(CullMode::BACK);
 		}
 
 		virtual rsl::priority_type priority() const override { return OPAQUE_PRIORITY - 5; }
 
 		void directionalLightPass(core::transform& camTransf, camera& cam)
 		{
-			bindDepthMap();
+			dirShadowMap->bind();
 			camera_data data[] = { camera_data{.viewPosition = camTransf.position, .projection = cam.projection, .view = cam.view, .model = math::mat4(1.0f)} };
 			for (auto& ent : m_filter)
 			{
@@ -84,7 +93,7 @@ namespace rythe::rendering
 				ast::asset_handle<mesh> mesh = model->meshHandle;
 
 				if (renderer.dirty)
-					initializeModel(model, mesh,dirShadowMap);
+					initializeModel(model, mesh, dirShadowMap);
 
 				auto& transf = ent.getComponent<core::transform>();
 
@@ -97,21 +106,22 @@ namespace rythe::rendering
 					{
 						auto& submesh = mesh->meshes[i];
 						RI->drawIndexed(PrimitiveType::TRIANGLESLIST, submesh.count, submesh.indexOffset, submesh.vertexOffset);
-						WindowProvider::activeWindow->checkError();
 					}
 				else
 					RI->drawArrays(PrimitiveType::TRIANGLESLIST, 0, mesh->vertices.size());
+
 				model->unbind();
 			}
-			unbindDepthMap();
+			dirShadowMap->unbind();
 		}
 
 		void pointLightPass(core::transform& camTransf, camera& cam)
 		{
-			bindDepthCube();
-
 			for (int i = 0; i < lightInfo.count; i++)
 			{
+				RI->clear(false, DepthClearBit::DEPTH_STENCIL);
+				pointShadowMap->bind();
+				lightInfo.index = i;
 				pointShadowMap->setUniform("LightInfo", &lightInfo);
 				camera_data data[] = { camera_data{.viewPosition = camTransf.position, .projection = cam.projection, .view = cam.view, .model = math::mat4(1.0f)} };
 				for (auto& ent : m_filter)
@@ -129,7 +139,6 @@ namespace rythe::rendering
 
 					data[0].model = transf.to_world();
 					pointShadowMap->setUniform("CameraBuffer", data);
-
 					model->bind();
 					if (model->indexBuffer != nullptr)
 						for (unsigned int i = 0; i < mesh->meshes.size(); i++)
@@ -141,40 +150,8 @@ namespace rythe::rendering
 						RI->drawArrays(PrimitiveType::TRIANGLESLIST, 0, mesh->vertices.size());
 					model->unbind();
 				}
+				pointShadowMap->unbind();
 			}
-			unbindDepthCube();
-		}
-
-		void bindDepthCube()
-		{
-			pointShadowMap->bind();
-			depthCubeFBO->bind();
-			//auto depthTexture = depthCubeFBO->getAttachment(AttachmentSlot::DEPTH_STENCIL);
-			//depthTexture->unbind(TextureSlot::TEXTURE2);
-		}
-
-		void unbindDepthCube()
-		{
-			//auto depthTexture = depthCubeFBO->getAttachment(AttachmentSlot::DEPTH_STENCIL);
-			//depthTexture->unbind(TextureSlot::TEXTURE2);
-			pointShadowMap->unbind();
-			depthCubeFBO->unbind();
-		}
-
-		void bindDepthMap()
-		{
-			depthFBO->bind();
-			dirShadowMap->bind();
-			//auto depthTexture = depthFBO->getAttachment(AttachmentSlot::DEPTH_STENCIL);
-			//depthTexture->bind(TextureSlot::TEXTURE1);
-		}
-
-		void unbindDepthMap()
-		{
-			//auto depthTexture = depthFBO->getAttachment(AttachmentSlot::DEPTH_STENCIL);
-			//depthTexture->unbind(TextureSlot::TEXTURE1);
-			dirShadowMap->unbind();
-			depthFBO->unbind();
 		}
 
 		void initializeModel(ast::asset_handle<model> model, ast::asset_handle<mesh> mesh, shader_handle handle)

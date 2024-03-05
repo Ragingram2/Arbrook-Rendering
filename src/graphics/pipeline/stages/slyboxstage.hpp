@@ -48,6 +48,7 @@ namespace rythe::rendering
 			for (auto submesh : cubeHandle->meshHandle->meshes)
 			{
 				RI->drawIndexed(PrimitiveType::TRIANGLESLIST, submesh.count, submesh.indexOffset, submesh.vertexOffset);
+				WindowProvider::activeWindow->checkError();
 			}
 			skyboxMat->unbind();
 			RI->setDepthFunction(DepthFuncs::LESS);

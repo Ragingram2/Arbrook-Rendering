@@ -18,7 +18,7 @@ namespace rythe::rendering
 		void attach(AttachmentSlot attachment, texture_handle texture, bool draw = true, bool read = false) { m_impl.attach(static_cast<internal::AttachmentSlot>(attachment), texture, draw, read); }
 		void detach(AttachmentSlot attachment) { m_impl.detach(static_cast<internal::AttachmentSlot>(attachment)); }
 		texture_handle getAttachment(AttachmentSlot attachment) { return m_impl.getAttachment(static_cast<internal::AttachmentSlot>(attachment)); }
-		void verify() { m_impl.verify(); }
+		bool verify() { return m_impl.verify(); }
 		void release() { m_impl.release(); }
 
 	private:

@@ -46,6 +46,8 @@ namespace rythe::rendering::internal
 			std::string file{ std::format("{}-{}", source.fileName, profile) };
 
 			UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
+			flags |= D3DCOMPILE_PACK_MATRIX_COLUMN_MAJOR;
+			flags |= D3DCOMPILE_AVOID_FLOW_CONTROL;
 #if defined( DEBUG ) || defined( _DEBUG )
 			flags |= D3DCOMPILE_DEBUG;
 			flags |= D3DCOMPILE_OPTIMIZATION_LEVEL0;
@@ -60,29 +62,42 @@ namespace rythe::rendering::internal
 
 			if (src.empty())
 			{
-				//log::warn("[{}] Shader source is empty, this is ok if that was intended, but that means a \"{}\" shader will not be generated for this program", file, profile);
 				return nullptr;
 			}
+			src = std::string("#define DirectX\n").append(src);
 
 			log::info("[{}] Preproccessing Shader", file);
 			CHECKERROR(D3DPreprocess(src.c_str(), src.length(), sourceName.c_str(), nullptr, m_includer, &ppShaderBlob, &errors), "Shader failed to preprocess", m_windowHandle->checkError());
 
 			if (errors && errors->GetBufferSize())
-				log::error("[{}] Shader Preprocesing {}", file, static_cast<char*>(errors->GetBufferPointer()));
+			{
+				auto infoLog = static_cast<char*>(errors->GetBufferPointer());
+				log::error("[{}] Shader Preproccesing Failed", file);
+				log::error("[{}] Shader Preproccesing log:\n{}", file, infoLog);
+				return nullptr;
+			}
 			else
 				log::info("[{}] Shader Preprocesing Success", file);
 
 			errors = nullptr;
 
 			ID3DBlob* shaderBlob;
+			//log::debug("\n{}", static_cast<char*>(ppShaderBlob->GetBufferPointer()));
 			log::info("[{}] Compiling Shader", file);
-			CHECKERROR(D3DCompile(ppShaderBlob->GetBufferPointer(), ppShaderBlob->GetBufferSize(), sourceName.c_str(), nullptr, m_includer, "main", profile.c_str(), flags, 0, &shaderBlob, &errors), std::format("Shader failed to compile:\n{}",static_cast<char*>(errors->GetBufferPointer())), m_windowHandle->checkError(););
+			CHECKERROR(D3DCompile(ppShaderBlob->GetBufferPointer(), ppShaderBlob->GetBufferSize(), sourceName.c_str(), nullptr, m_includer, "main", profile.c_str(), flags, 0, &shaderBlob, &errors), std::format("Shader failed to compile:\n{}", static_cast<char*>(errors->GetBufferPointer())), m_windowHandle->checkError(););
 
 
+			//It really sucks that I can't differentiate different warning types
 			if (errors && errors->GetBufferSize())
-				rsl::log::error("[{}] Shader Compilation {}", file, static_cast<char*>(errors->GetBufferPointer()));
+			{
+				auto infoLog = static_cast<char*>(errors->GetBufferPointer());
+				log::error("[{}] Shader Compilation Failed", file);
+				log::error("[{}] Shader Compilation log:\n{}", file, infoLog);
+				//log::info("[{}] Shader Source:\n{}",file, static_cast<char*>(ppShaderBlob->GetBufferPointer()));
+				return nullptr;
+			}
 			else
-				rsl::log::info("[{}] Shader Compilation Success", file);
+				log::info("[{}] Shader Compilation Success", file);
 
 			return std::move(shaderBlob);
 		}

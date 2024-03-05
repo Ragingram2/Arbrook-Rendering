@@ -11,6 +11,8 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
+#include <DirectXMath.h>
+
 #include "graphics/cache/windowprovider.hpp"
 #include "graphics/data/shadersource.hpp"
 #include "graphics/interface/DirectX/dx11includes.hpp"
@@ -255,16 +257,16 @@ namespace rythe::rendering::internal
 			m_windowHandle->devcon->DrawIndexedInstanced(indexCount, instanceCount, startIndex, baseVertex, startInstance);
 		}
 
-		void clear(internal::ClearBit flags)
+		void clear(bool clearColor, internal::DepthClearBit flags)
 		{
 			ZoneScopedN("[DX11 Renderinterface] clear()");
 			ID3D11RenderTargetView* views = NULL;
 			ID3D11DepthStencilView* depthStencilView = NULL;
 			m_windowHandle->devcon->OMGetRenderTargets(1, &views, &depthStencilView);
 
-			if ((flags == internal::ClearBit::COLOR_DEPTH_STENCIL || flags == internal::ClearBit::DEPTH_STENCIL || flags == internal::ClearBit::DEPTH || flags == internal::ClearBit::STENCIL) && depthStencilView != NULL)
-				m_windowHandle->devcon->ClearDepthStencilView(depthStencilView, static_cast<D3D11_CLEAR_FLAG>(flags), 1.f, 0);
-			if ((flags == internal::ClearBit::COLOR || flags == internal::ClearBit::COLOR_DEPTH || flags == internal::ClearBit::COLOR_DEPTH_STENCIL) && views != NULL)
+			if ((flags == internal::DepthClearBit::DEPTH_STENCIL || flags == internal::DepthClearBit::DEPTH || flags == internal::DepthClearBit::STENCIL) && depthStencilView != NULL)
+				m_windowHandle->devcon->ClearDepthStencilView(depthStencilView, static_cast<D3D11_CLEAR_FLAG>(flags), 1.0f, 0);
+			if (clearColor && views != NULL)
 				m_windowHandle->devcon->ClearRenderTargetView(views, m_colorData);
 		}
 

@@ -32,7 +32,7 @@ namespace rythe::rendering::internal
 		std::string name;
 		unsigned int bindId = 0;
 	private:
-		TargetType m_target;
+		BufferType m_type;
 		UsageType m_usage;
 		unsigned int m_slot;
 		unsigned int m_offset;
@@ -41,10 +41,10 @@ namespace rythe::rendering::internal
 	public:
 
 		template<typename elementType>
-		void initialize(TargetType target, UsageType usage, int size, elementType* data)
+		void initialize(BufferType target, UsageType usage, int size, elementType* data)
 		{
 			ZoneScopedN("[OpenGL Buffer] initialize()");
-			m_target = target;
+			m_type = target;
 			m_usage = usage;
 			m_size = size;
 			m_elementSize = sizeof(elementType);
@@ -55,13 +55,13 @@ namespace rythe::rendering::internal
 		void bind()
 		{
 			ZoneScopedN("[OpenGL Buffer] bind()");
-			glBindBuffer(static_cast<GLenum>(m_target), id);
+			glBindBuffer(static_cast<GLenum>(m_type), id);
 		}
 
 		void unbind()
 		{
 			ZoneScopedN("[OpenGL Buffer] unbind()");
-			glBindBuffer(static_cast<GLenum>(m_target), 0);
+			glBindBuffer(static_cast<GLenum>(m_type), 0);
 		}
 
 		template<typename elementType>
@@ -83,15 +83,15 @@ namespace rythe::rendering::internal
 
 			bind();
 
-			if (m_target == TargetType::CONSTANT_BUFFER || m_usage == UsageType::IMMUTABLE)
+			if (m_type == BufferType::CONSTANT_BUFFER || m_usage == UsageType::IMMUTABLE)
 			{
 				ZoneScopedN("[OpenGL Buffer] [bufferData()] Buffering Immutable data");
-				glBufferSubData(static_cast<GLenum>(m_target), 0, m_size * sizeof(elementType), data);
+				glBufferSubData(static_cast<GLenum>(m_type), 0, m_size * sizeof(elementType), data);
 			}
 			else
 			{
 				ZoneScopedN("[OpenGL Buffer] [bufferData()] Buffering data");
-				glBufferData(static_cast<GLenum>(m_target), m_size * sizeof(elementType), data, static_cast<GLenum>(m_usage));
+				glBufferData(static_cast<GLenum>(m_type), m_size * sizeof(elementType), data, static_cast<GLenum>(m_usage));
 			}
 		}
 
@@ -116,16 +116,16 @@ namespace rythe::rendering::internal
 			if (m_usage == UsageType::IMMUTABLE)
 			{
 				ZoneScopedN("[OpenGL Buffer] [createBuffer()] Buffering Immutable data");
-				glBufferStorage(static_cast<GLenum>(m_target), m_size * m_elementSize, data, GL_MAP_WRITE_BIT | GL_DYNAMIC_STORAGE_BIT);
+				glBufferStorage(static_cast<GLenum>(m_type), m_size * m_elementSize, data, GL_MAP_WRITE_BIT | GL_DYNAMIC_STORAGE_BIT);
 			}
 			else
 			{
 				ZoneScopedN("[OpenGL Buffer] [createBuffer()] Buffering the data");
-				glBufferData(static_cast<GLenum>(m_target), m_size * m_elementSize, data, static_cast<GLenum>(m_usage));
-				if (m_target == TargetType::CONSTANT_BUFFER)
+				glBufferData(static_cast<GLenum>(m_type), m_size * m_elementSize, data, static_cast<GLenum>(m_usage));
+				if (m_type == BufferType::CONSTANT_BUFFER)
 				{
 					ZoneScopedN("[OpenGL Buffer] [createBuffer()] Specialization for a Const Buffer");
-					glBindBufferRange(static_cast<GLenum>(m_target), 0, id, 0, m_elementSize);
+					glBindBufferRange(static_cast<GLenum>(m_type), 0, id, 0, m_elementSize);
 				}
 			}
 		}

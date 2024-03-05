@@ -11,7 +11,6 @@
 namespace rythe::rendering::internal
 {
 	struct framebuffer;
-	//this should behave more like buffers
 	struct texture
 	{
 		friend struct framebuffer;
@@ -24,7 +23,7 @@ namespace rythe::rendering::internal
 		D3D11_TEXTURE2D_DESC m_texDesc;
 		D3D11_BIND_FLAG m_texType;
 		D3D11_USAGE m_usageType;
-		TargetType m_type;
+		TextureType m_type;
 	public:
 		int channels;
 		math::ivec2 resolution;
@@ -43,7 +42,7 @@ namespace rythe::rendering::internal
 			params = other->params;
 		}
 
-		void initialize(TargetType texType, texture_parameters _params)
+		void initialize(TextureType texType, texture_parameters _params)
 		{
 			ZoneScopedN("[DX11 Texture] initialize()");
 			params = _params;
@@ -56,7 +55,6 @@ namespace rythe::rendering::internal
 		{
 			activeSlot = slot;
 			ZoneScopedN("[DX11 Texture] bind()");
-			//log::debug("Binding Texture \"{}\"", name);
 			if (m_shaderResource == nullptr)
 			{
 				log::warn("Shader Resource is null, this is ok if this was intended, but this has the same effect as unbinding a texture here");
@@ -75,8 +73,6 @@ namespace rythe::rendering::internal
 		void unbind(TextureSlot slot)
 		{
 			ZoneScopedN("[DirectX Texture] unbind()");
-
-			//log::debug("Unbinding Texture \"{}\"", name);
 
 			ID3D11ShaderResourceView* nullResource[1] = { nullptr };
 			ID3D11SamplerState* nullSampler[1] = { nullptr };
@@ -135,6 +131,10 @@ namespace rythe::rendering::internal
 			setWrapMode(2, static_cast<WrapMode>(params.wrapModeT));
 			m_sampDesc.MinLOD = 0;
 			m_sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+			m_sampDesc.BorderColor[0] = params.borderColor.r;
+			m_sampDesc.BorderColor[1] = params.borderColor.g;
+			m_sampDesc.BorderColor[2] = params.borderColor.b;
+			m_sampDesc.BorderColor[3] = params.borderColor.a;
 
 			CHECKERROR(WindowProvider::activeWindow->dev->CreateSamplerState(&m_sampDesc, &m_texSamplerState), "Texture sampler failed creation", WindowProvider::activeWindow->checkError());
 
@@ -142,17 +142,17 @@ namespace rythe::rendering::internal
 			m_texDesc.Width = resolution.x;
 			m_texDesc.Height = resolution.y;
 			setMipCount(params.mipLevels);
-			m_texDesc.ArraySize = m_type == TargetType::CUBEMAP ? 6 : params.textures;
+			m_texDesc.ArraySize = m_type == TextureType::CUBEMAP ? 6 : params.textures;
 			m_texDesc.Format = static_cast<DXGI_FORMAT>(params.format);
 			m_texDesc.SampleDesc.Count = 1;
 			m_texDesc.SampleDesc.Quality = 0;
-			m_texDesc.Usage = m_usageType;
-			if (m_type == TargetType::CUBEMAP)
+			m_texDesc.Usage = params.usage == rendering::UsageType::DEPTH_COMPONENT ? D3D11_USAGE_DEFAULT : m_usageType;
+			if (m_type == TextureType::CUBEMAP)
 				m_texDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 
 			if (m_texType == D3D11_BIND_RENDER_TARGET)
 				m_texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-			else if (m_texType == D3D11_BIND_DEPTH_STENCIL)
+			else if (m_texType == D3D11_BIND_DEPTH_STENCIL || params.usage == rendering::UsageType::DEPTH_COMPONENT)
 				m_texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL;
 			else if (m_texType == D3D11_BIND_SHADER_RESOURCE + 1)
 				m_texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
@@ -161,18 +161,6 @@ namespace rythe::rendering::internal
 
 			if (textureData != nullptr)
 			{
-				//if (m_texDesc.MiscFlags == D3D11_RESOURCE_MISC_TEXTURECUBE)
-				//{
-				//	D3D11_SUBRESOURCE_DATA cubeData[params.textures];
-				//	for (int i = 0; i < params.textures; i++)
-				//	{
-				//		cubeData[i].pSysMem = textureData;
-				//		cubeData[i].SysMemPitch = m_texDesc.Width * channels;
-				//	}
-				//	CHECKERROR(WindowProvider::activeWindow->dev->CreateTexture2D(&m_texDesc, &cubeData[0], &m_texture), "Texture creation Failed", WindowProvider::activeWindow->checkError());
-				//}
-				//else
-				//{
 				D3D11_SUBRESOURCE_DATA subData;
 				subData.pSysMem = textureData;
 				subData.SysMemPitch = m_texDesc.Width * channels;
@@ -187,31 +175,57 @@ namespace rythe::rendering::internal
 			D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
 			ZeroMemory(&shaderResourceViewDesc, sizeof(shaderResourceViewDesc));
 			shaderResourceViewDesc.Format = m_texDesc.Format;
-			shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-			shaderResourceViewDesc.Texture2D.MipLevels = m_texDesc.MipLevels;
 
-			if (m_texType == D3D11_BIND_SHADER_RESOURCE || m_texType == D3D11_BIND_RENDER_TARGET)
+
+			switch (m_type)
 			{
+			case TextureType::RENDER_TARGET:
+			case TextureType::TEXTURE2D:
+				shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+				shaderResourceViewDesc.Texture2D.MipLevels = m_texDesc.MipLevels;
 				shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 				CHECKERROR(WindowProvider::activeWindow->dev->CreateShaderResourceView(m_texture, &shaderResourceViewDesc, &m_shaderResource), "Failed to create the Shader Resource View", WindowProvider::activeWindow->checkError());
-			}
-			else if (m_texType == D3D11_BIND_SHADER_RESOURCE + 1 && m_texDesc.MiscFlags == D3D11_RESOURCE_MISC_TEXTURECUBE)
-			{
-				shaderResourceViewDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-				shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-				CHECKERROR(WindowProvider::activeWindow->dev->CreateShaderResourceView(m_texture, &shaderResourceViewDesc, &m_shaderResource), "Failed to create the Shader Resource View", WindowProvider::activeWindow->checkError());
-			}
-			else if (m_texType == D3D11_BIND_DEPTH_STENCIL)
-			{
+				break;
+			case TextureType::CUBEMAP:
+				if (params.usage == rendering::UsageType::DEPTH_COMPONENT)
+				{
+					D3D11_DEPTH_STENCIL_VIEW_DESC m_depthStencilViewDesc;
+					ZeroMemory(&m_depthStencilViewDesc, sizeof(m_depthStencilViewDesc));
+					m_depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+					m_depthStencilViewDesc.Flags = 0;
+					m_depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
+					m_depthStencilViewDesc.Texture2DArray.MipSlice = 0;
+					m_depthStencilViewDesc.Texture2DArray.ArraySize = m_texDesc.ArraySize;
+					m_depthStencilViewDesc.Texture2DArray.FirstArraySlice = 0;
+					CHECKERROR(WindowProvider::activeWindow->dev->CreateDepthStencilView(m_texture, &m_depthStencilViewDesc, &m_depthStencilView), "Creating Depth Stencil View failed", WindowProvider::activeWindow->checkError());
+
+					shaderResourceViewDesc.Texture2DArray.MostDetailedMip = 0;
+					shaderResourceViewDesc.Texture2DArray.MipLevels = m_texDesc.MipLevels;
+					shaderResourceViewDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+					shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+					CHECKERROR(WindowProvider::activeWindow->dev->CreateShaderResourceView(m_texture, &shaderResourceViewDesc, &m_shaderResource), "Failed to create the Shader Resource View", WindowProvider::activeWindow->checkError());
+				}
+				else
+				{
+					shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+					CHECKERROR(WindowProvider::activeWindow->dev->CreateShaderResourceView(m_texture, &shaderResourceViewDesc, &m_shaderResource), "Failed to create the Shader Resource View", WindowProvider::activeWindow->checkError());
+				}
+				break;
+			case TextureType::DEPTH_STENCIL:
 				D3D11_DEPTH_STENCIL_VIEW_DESC m_depthStencilViewDesc;
 				ZeroMemory(&m_depthStencilViewDesc, sizeof(m_depthStencilViewDesc));
 				m_depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 				m_depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 				CHECKERROR(WindowProvider::activeWindow->dev->CreateDepthStencilView(m_texture, &m_depthStencilViewDesc, &m_depthStencilView), "Creating Depth Stencil View failed", WindowProvider::activeWindow->checkError());
 
+				shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+				shaderResourceViewDesc.Texture2D.MipLevels = m_texDesc.MipLevels;
 				shaderResourceViewDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 				shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 				CHECKERROR(WindowProvider::activeWindow->dev->CreateShaderResourceView(m_texture, &shaderResourceViewDesc, &m_shaderResource), "Failed to create the Shader Resource View", WindowProvider::activeWindow->checkError());
+				break;
+			default:
+				break;
 			}
 		}
 	};

@@ -22,10 +22,9 @@ namespace rythe::rendering::internal
 	namespace log = rsl::log;
 	struct texture
 	{
-	private:
-		GLenum m_texType;
-		GLenum m_usageType;
 	public:
+		GLenum texType;
+		GLenum usageType;
 		int channels;
 		math::ivec2 resolution;
 		unsigned int id = 0;
@@ -41,16 +40,16 @@ namespace rythe::rendering::internal
 			params = other->params;
 		}
 
-		void initialize(TargetType _texType, texture_parameters _params)
+		void initialize(TextureType _texType, texture_parameters _params)
 		{
 			ZoneScopedN("[OpenGL Texture] initialize()");
 			params = _params;
-			m_texType = static_cast<GLenum>(_texType);
-			m_usageType = static_cast<GLenum>(params.usage);
+			texType = static_cast<GLenum>(_texType);
+			usageType = static_cast<GLenum>(params.usage);
 
 			glGenTextures(1, &id);
-			bind(slot);
-			glTexParameterfv(m_texType, GL_TEXTURE_BORDER_COLOR, params.borderColor.data);
+			glBindTexture(texType, id);
+			glTexParameterfv(texType, GL_TEXTURE_BORDER_COLOR, params.borderColor.data);
 			setWrapMode(0, static_cast<WrapMode>(params.wrapModeS));
 			setWrapMode(1, static_cast<WrapMode>(params.wrapModeT));
 			setWrapMode(2, static_cast<WrapMode>(params.wrapModeR));
@@ -64,7 +63,7 @@ namespace rythe::rendering::internal
 			ZoneScopedN("[OpenGL Texture] bind()");
 			slot = textureSlot;
 			glActiveTexture(static_cast<GLenum>(textureSlot));
-			glBindTexture(m_texType, id);
+			glBindTexture(texType, id);
 
 
 			GLint shaderId;
@@ -82,7 +81,7 @@ namespace rythe::rendering::internal
 		void unbind(TextureSlot textureSlot)
 		{
 			ZoneScopedN("[OpenGL Texture] unbind()");
-			glBindTexture(m_texType, 0);
+			glBindTexture(texType, 0);
 		}
 
 		void setMipCount(int mipCount)
@@ -92,7 +91,7 @@ namespace rythe::rendering::internal
 				return;
 			}
 			params.mipLevels = mipCount = mipCount >= 0 ? mipCount : 1;
-			glTexParameteri(m_texType, GL_TEXTURE_MAX_LEVEL, mipCount);
+			glTexParameteri(texType, GL_TEXTURE_MAX_LEVEL, mipCount);
 		}
 
 		void setWrapMode(int axis, WrapMode mode)
@@ -100,13 +99,13 @@ namespace rythe::rendering::internal
 			switch (axis)
 			{
 			case 0:
-				glTexParameteri(m_texType, GL_TEXTURE_WRAP_S, static_cast<GLint>(mode));
+				glTexParameteri(texType, GL_TEXTURE_WRAP_S, static_cast<GLint>(mode));
 				break;
 			case 1:
-				glTexParameteri(m_texType, GL_TEXTURE_WRAP_T, static_cast<GLint>(mode));
+				glTexParameteri(texType, GL_TEXTURE_WRAP_T, static_cast<GLint>(mode));
 				break;
 			case 2:
-				glTexParameteri(m_texType, GL_TEXTURE_WRAP_R, static_cast<GLint>(mode));
+				glTexParameteri(texType, GL_TEXTURE_WRAP_R, static_cast<GLint>(mode));
 				break;
 			}
 		}
@@ -114,7 +113,7 @@ namespace rythe::rendering::internal
 		void setMinFilterMode(FilterMode mode)
 		{
 			params.minFilterMode = static_cast<rendering::FilterMode>(mode);
-			glTexParameteri(m_texType, GL_TEXTURE_MIN_FILTER, static_cast<GLint>(mode));
+			glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, static_cast<GLint>(mode));
 		}
 
 		void setMagFilterMode(FilterMode mode)
@@ -124,7 +123,7 @@ namespace rythe::rendering::internal
 			{
 			case FilterMode::NEAREST:
 			case FilterMode::LINEAR:
-				glTexParameteri(m_texType, GL_TEXTURE_MAG_FILTER, static_cast<GLint>(mode));
+				glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, static_cast<GLint>(mode));
 				break;
 			case FilterMode::NEAREST_MIPMAP_NEAREST:
 			case FilterMode::NEAREST_MIPMAP_LINEAR:
@@ -157,7 +156,7 @@ namespace rythe::rendering::internal
 				break;
 			}
 
-			if (m_texType == GL_TEXTURE_CUBE_MAP)
+			if (texType == GL_TEXTURE_CUBE_MAP)
 			{
 				for (unsigned int i = 0; i < 6; i++)
 					createTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, internalFormat, textureData[i]);
@@ -165,13 +164,13 @@ namespace rythe::rendering::internal
 			else
 			{
 				for (unsigned int i = 0; i < size; i++)
-					createTexture(m_texType, internalFormat, textureData[i]);
+					createTexture(texType, internalFormat, textureData[i]);
 			}
 
 
 			if (params.generateMipMaps)
 			{
-				glGenerateMipmap(m_texType);
+				glGenerateMipmap(texType);
 			}
 
 		}
@@ -198,18 +197,18 @@ namespace rythe::rendering::internal
 				break;
 			}
 
-			if (m_texType == GL_TEXTURE_CUBE_MAP)
+			if (texType == GL_TEXTURE_CUBE_MAP)
 			{
 				for (unsigned int i = 0; i < 6; i++)
 					createTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, internalFormat, textureData);
 			}
 			else
-				createTexture(m_texType, internalFormat, textureData);
+				createTexture(texType, internalFormat, textureData);
 
 
 			if (params.generateMipMaps)
 			{
-				glGenerateMipmap(m_texType);
+				glGenerateMipmap(texType);
 			}
 
 		}
@@ -217,7 +216,7 @@ namespace rythe::rendering::internal
 
 		void createTexture(GLenum texType, GLenum internalFormat, unsigned char* textureData)
 		{
-			switch (m_usageType)
+			switch (usageType)
 			{
 			case static_cast<GLenum>(0):
 				glTexStorage2D(texType, static_cast<GLint>(params.mipLevels), static_cast<GLint>(params.format), resolution.x, resolution.y);

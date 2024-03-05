@@ -15,7 +15,7 @@
 
 namespace rythe::rendering
 {
-	class Renderer : public core::System<Renderer,core::transform, camera>
+	class Renderer : public core::System<Renderer, core::transform, camera>
 	{
 	public:
 		static std::unique_ptr<pipeline_provider_base> provider;
@@ -61,8 +61,8 @@ namespace rythe::rendering
 			auto& camEnt = getCameraEntity();
 			auto& transf = camEnt.getComponent<core::transform>();
 			auto& cam = camEnt.getComponent<camera>();
-			cam.calculate_projection();
-			cam.calculate_view(&transf);
+			cam.projection = math::perspective(cam.fov, Screen_Width / Screen_Height, cam.nearZ, cam.farZ);
+			cam.view = transf.from_world();
 			pipeline->render(transf, cam);
 		}
 

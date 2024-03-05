@@ -30,7 +30,6 @@ namespace rythe::rendering::internal
 
 		void attach(AttachmentSlot attachment, texture_handle texture, bool draw, bool read)
 		{
-			bind();
 			glFramebufferTexture(GL_FRAMEBUFFER, static_cast<GLenum>(attachment), texture->getId(), 0);
 
 			if (attachment != AttachmentSlot::DEPTH_STENCIL)
@@ -38,15 +37,12 @@ namespace rythe::rendering::internal
 				glDrawBuffer(draw ? static_cast<GLenum>(attachment) : GL_NONE);
 				glReadBuffer(read ? static_cast<GLenum>(attachment) : GL_NONE);
 			}
-			unbind();
 			m_attachments[attachment] = texture;
 		}
 
 		void detach(AttachmentSlot attachment)
 		{
-			bind();
 			glFramebufferTexture(GL_FRAMEBUFFER, static_cast<GLenum>(attachment), 0, 0);
-			unbind();
 			m_attachments.erase(attachment);
 		}
 
@@ -61,12 +57,14 @@ namespace rythe::rendering::internal
 			return { nullptr };
 		}
 
-		void verify() const
+		bool verify() const
 		{
-			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			bool status = glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE;
+			if (status)
 				log::error("Framebuffer is not complete!");
 			else
 				log::info("Framebuffer complete");
+			return !status;
 		}
 
 		void release()

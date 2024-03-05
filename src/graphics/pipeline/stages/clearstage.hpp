@@ -33,7 +33,7 @@ namespace rythe::rendering
 				depthFBO->initialize();
 				depthFBO->bind();
 
-				auto colorHandle = TextureCache::createTexture("DepthBuffer-colorAttachment", TargetType::RENDER_TARGET, { 0, nullptr }, math::ivec2(Screen_Width, Screen_Height), texture_parameters
+				auto colorHandle = TextureCache::createTexture("shadowMap-color", TextureType::RENDER_TARGET, { 0, nullptr }, math::ivec2(Shadow_Width, Shadow_Height), texture_parameters
 					{
 						.usage = rendering::UsageType::DEFAULT,
 						.minFilterMode = rendering::FilterMode::LINEAR,
@@ -41,7 +41,7 @@ namespace rythe::rendering
 					});
 
 
-				depthHandle = TextureCache::createTexture("depthAttachment", TargetType::DEPTH_STENCIL, { 0, nullptr }, math::ivec2(Screen_Width, Screen_Height), texture_parameters
+				depthHandle = TextureCache::createTexture("shadowMap-depth", TextureType::DEPTH_STENCIL, { 0, nullptr }, math::ivec2(Shadow_Width, Shadow_Height), texture_parameters
 					{
 						.format = rendering::FormatType::R24_G8,
 						.usage = rendering::UsageType::DEPTH_COMPONENT,
@@ -49,6 +49,7 @@ namespace rythe::rendering
 						.magFilterMode = rendering::FilterMode::NEAREST,
 						.wrapModeS = rendering::WrapMode::CLAMP_TO_BORDER,
 						.wrapModeT = rendering::WrapMode::CLAMP_TO_BORDER,
+						.wrapModeR = rendering::WrapMode::CLAMP_TO_BORDER,
 						.borderColor = math::vec4(1.0f)
 					});
 
@@ -63,14 +64,14 @@ namespace rythe::rendering
 				depthCubeFBO->bind();
 
 
-				auto colorHandle = TextureCache::createTexture("DepthCubeBuffer-colorAttachment", TargetType::RENDER_TARGET, { 0, nullptr }, math::ivec2(Shadow_Width, Shadow_Height), texture_parameters
+				auto colorHandle = TextureCache::createTexture("shadowCube-color", TextureType::RENDER_TARGET, { 0, nullptr }, math::ivec2(Shadow_Width, Shadow_Height), texture_parameters
 					{
 						.usage = rendering::UsageType::DEFAULT,
 						.minFilterMode = rendering::FilterMode::LINEAR,
 						.magFilterMode = rendering::FilterMode::LINEAR
 					});
 
-				depthCubeMap = TextureCache::createCubemap("depthCubemap", { 0, nullptr }, math::ivec2(Shadow_Width, Shadow_Height), texture_parameters
+				depthCubeMap = TextureCache::createCubemap("shadowCube-depth", { 0, nullptr }, math::ivec2(Shadow_Width, Shadow_Height), texture_parameters
 					{
 						.format = rendering::FormatType::R24_G8,
 						.usage = rendering::UsageType::DEPTH_COMPONENT,
@@ -82,7 +83,7 @@ namespace rythe::rendering
 						.borderColor = math::vec4(1.0f)
 					});
 
-				depthCubeFBO->attach(AttachmentSlot::COLOR0, colorHandle, true, true);
+				//depthCubeFBO->attach(AttachmentSlot::COLOR0, colorHandle, true, true);
 				depthCubeFBO->attach(AttachmentSlot::DEPTH_STENCIL, depthCubeMap, false, false);
 				depthCubeFBO->unbind();
 			}
@@ -92,14 +93,14 @@ namespace rythe::rendering
 				mainFBO->initialize();
 				mainFBO->bind();
 
-				texture_handle colorHandle = TextureCache::createTexture("colorAttachment", TargetType::RENDER_TARGET, { 0, nullptr }, math::ivec2(Screen_Width, Screen_Height), texture_parameters
+				texture_handle colorHandle = TextureCache::createTexture("main-color", TextureType::RENDER_TARGET, { 0, nullptr }, math::ivec2(Screen_Width, Screen_Height), texture_parameters
 					{
 						.usage = rendering::UsageType::DEFAULT,
 						.minFilterMode = rendering::FilterMode::LINEAR,
 						.magFilterMode = rendering::FilterMode::LINEAR
 					});
 
-				mainDepthHandle = TextureCache::createTexture("main-depthAttachment", TargetType::DEPTH_STENCIL, { 0, nullptr }, math::ivec2(Screen_Width, Screen_Height), texture_parameters
+				mainDepthHandle = TextureCache::createTexture("main-depth", TextureType::DEPTH_STENCIL, { 0, nullptr }, math::ivec2(Screen_Width, Screen_Height), texture_parameters
 					{
 						.format = rendering::FormatType::R24_G8,
 						.usage = rendering::UsageType::DEPTH_COMPONENT,
@@ -120,6 +121,7 @@ namespace rythe::rendering
 			ZoneScopedN("[Renderer] [Clear Stage] Render");
 
 			mainFBO->bind();
+			RI->setViewport(1, 0, 0, Screen_Width, Screen_Height);
 			RI->depthTest(true);
 			RI->depthWrite(true);
 			RI->setDepthFunction(DepthFuncs::LESS);
@@ -127,7 +129,7 @@ namespace rythe::rendering
 			RI->cullFace(CullMode::BACK);
 
 			RI->setClearColor(0x64 / 255.0f, 0x95 / 255.0f, 0xED / 255.0f, 1.0f);
-			RI->clear(ClearBit::COLOR_DEPTH);
+			RI->clear(true, DepthClearBit::DEPTH);
 		}
 
 		virtual rsl::priority_type priority() const override { return CLEAR_PRIORITY; }

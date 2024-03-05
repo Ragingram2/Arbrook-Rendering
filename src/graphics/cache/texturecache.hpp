@@ -21,8 +21,8 @@ namespace rythe::rendering
 		static std::unordered_map<rsl::id_type, std::unique_ptr<texture>> m_textures;
 		static std::unordered_map<rsl::id_type, std::string> m_names;
 	public:
-		static texture_handle createTexture(const std::string& name, TargetType targetType, ast::asset_handle<texture_source> textureData, math::ivec2 overrideResolution, texture_parameters params = default_texture_params);
-		static texture_handle createTexture(const std::string& name, TargetType targetType, ast::asset_handle<texture_source> textureData, texture_parameters params = default_texture_params);
+		static texture_handle createTexture(const std::string& name, TextureType targetType, ast::asset_handle<texture_source> textureData, math::ivec2 overrideResolution, texture_parameters params = default_texture_params);
+		static texture_handle createTexture(const std::string& name, TextureType targetType, ast::asset_handle<texture_source> textureData, texture_parameters params = default_texture_params);
 		static texture_handle createTexture2D(const std::string& name, ast::asset_handle<texture_source> textureData, math::ivec2 overrideResolution, texture_parameters params = default_texture_params);
 		static texture_handle createTexture2D(const std::string& name, ast::asset_handle<texture_source> textureData, texture_parameters params = default_texture_params);
 		static texture_handle createCubemap(const std::string& name, ast::asset_handle<texture_source> textureData, math::ivec2 overrideResolution, texture_parameters params = default_texture_params);

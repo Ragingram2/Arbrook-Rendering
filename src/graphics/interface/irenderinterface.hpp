@@ -32,11 +32,14 @@ namespace rythe::rendering
 		void drawIndexed(PrimitiveType mode, unsigned int indexCount, unsigned int startIndex, unsigned int baseVertex) { m_impl.drawIndexed(static_cast<internal::PrimitiveType>(mode), indexCount, startIndex, baseVertex); }
 		void drawIndexedInstanced(PrimitiveType mode, unsigned int indexCount, unsigned int instanceCount, unsigned int startIndex, unsigned int baseVertex, unsigned int startInstance) { m_impl.drawIndexedInstanced(static_cast<internal::PrimitiveType>(mode), indexCount, instanceCount, startIndex, baseVertex, startInstance); }
 
-		void clear(ClearBit flags) { m_impl.clear(static_cast<internal::ClearBit>(flags)); }
+		void clear(bool clearColor, DepthClearBit flags = DepthClearBit::NONE) { m_impl.clear(clearColor, static_cast<internal::DepthClearBit>(flags)); }
 		void setClearColor(math::vec4 color) { m_impl.setClearColor(color); }
 		void setClearColor(math::vec3 color, float alpha = 1.0f) { m_impl.setClearColor(math::vec4(color, alpha)); }
 		void setClearColor(float r, float g, float b, float alpha = 1.0f) { m_impl.setClearColor(math::vec4(r, g, b, alpha)); }
 		void setViewport(float numViewPorts = 1, float leftX = 0, float leftY = 0, float width = 0, float height = 0, float minDepth = 0, float maxDepth = 1) { m_impl.setViewport(numViewPorts, leftX, leftY, width, height, minDepth, maxDepth); }
+		//math::mat4 lookAt(math::vec3 position, math::vec3 target, math::vec3 up) { return m_impl.lookAt(position, target, up); }
+		//math::mat4 orthographic(float left, float right, float bottom, float top, float near_plane, float far_plane) { return m_impl.orthographic(left, right, bottom, top, near_plane, far_plane); }
+		//math::mat4 perspective(float degrees, float aspect, float near_plane, float far_plane) { return m_impl.perspective(degrees, aspect, near_plane, far_plane); }
 
 		void cullFace(CullMode mode) { m_impl.cullFace(static_cast<internal::CullMode>(mode)); }
 		void setWindOrder(WindOrder order) { m_impl.setWindOrder(static_cast<internal::WindOrder>(order)); }

@@ -24,7 +24,7 @@ namespace rythe::core::assets
 	struct import_settings<rendering::texture>
 	{
 	public:
-		rendering::TargetType targetType = rendering::TargetType::TEXTURE2D;
+		rendering::TextureType targetType = rendering::TextureType::TEXTURE2D;
 		rendering::WrapMode wrapModeS = rendering::WrapMode::REPEAT;
 		rendering::WrapMode wrapModeT = rendering::WrapMode::REPEAT;
 		rendering::WrapMode wrapModeR = rendering::WrapMode::REPEAT;
@@ -44,7 +44,7 @@ namespace rythe::rendering
 	using texture_parameters = core::assets::import_settings<rendering::texture>;
 
 	constexpr core::assets::import_settings<rendering::texture> default_texture_params{
-		.targetType = rendering::TargetType::TEXTURE2D,
+		.targetType = rendering::TextureType::TEXTURE2D,
 		.wrapModeS = WrapMode::REPEAT,
 		.wrapModeT = WrapMode::REPEAT,
 		.wrapModeR = WrapMode::REPEAT,

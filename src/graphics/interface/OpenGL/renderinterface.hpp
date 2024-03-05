@@ -88,7 +88,7 @@ namespace rythe::rendering::internal
 				return;
 			}
 
-			
+
 
 #ifdef _DEBUG
 			glEnable(GL_DEBUG_OUTPUT);
@@ -180,10 +180,13 @@ namespace rythe::rendering::internal
 			glDrawElementsInstanced(static_cast<GLenum>(mode), indexCount, static_cast<GLenum>(DataType::UINT), reinterpret_cast<void*>(sizeof(unsigned int) * startIndex), instanceCount);
 		}
 
-		void clear(internal::ClearBit flags)
+		void clear(bool clearColor, internal::DepthClearBit flags)
 		{
 			ZoneScopedN("[OpenGL RenderInterface] clear()");
-			glClear(static_cast<int>(flags));
+			if (clearColor)
+				glClear(GL_COLOR_BUFFER_BIT | static_cast<int>(flags));
+			else
+				glClear(static_cast<int>(flags));
 		}
 
 		void setClearColor(math::vec4 color)

@@ -59,9 +59,10 @@ namespace rythe::rendering::internal
 		}
 		operator unsigned int() const { return programId; }
 
-		void initialize(const std::string& name, const shader_source& source)
+		void initialize(const std::string& shaderName, const shader_source& source)
 		{
 			ZoneScopedN("[DX11 Shader] initialize()");
+			name = shaderName;
 			m_windowHandle = WindowProvider::activeWindow;
 			ShaderCompiler::initialize();
 			VS = ShaderCompiler::compile(ShaderType::VERTEX, source);
@@ -110,7 +111,7 @@ namespace rythe::rendering::internal
 		void addBuffer(buffer_handle handle)
 		{
 			ZoneScopedN("[DX11 Shader] addBuffer()");
-			if (static_cast<internal::TargetType>(handle->getTargetType()) != TargetType::CONSTANT_BUFFER)
+			if (static_cast<internal::BufferType>(handle->getTargetType()) != BufferType::CONSTANT_BUFFER)
 			{
 				log::error("Buffer is not a constant buffer, this is not supported");
 				return;

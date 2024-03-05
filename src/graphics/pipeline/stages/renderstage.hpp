@@ -23,7 +23,8 @@ namespace rythe::rendering
 	public:
 		buffer_handle cameraBuffer;
 		buffer_handle materialBuffer;
-		buffer_handle lightBuffer;
+		buffer_handle pointLightBuffer;
+		buffer_handle directionalLightBuffer;
 		buffer_handle lightInfoBuffer;
 		std::vector<shader_handle> m_shaders;
 
@@ -36,7 +37,8 @@ namespace rythe::rendering
 
 			cameraBuffer = BufferCache::getBuffer("CameraBuffer");
 			materialBuffer = BufferCache::getBuffer("MaterialBuffer");
-			lightBuffer = BufferCache::getBuffer("LightBuffer");
+			pointLightBuffer = BufferCache::getBuffer("PointLightBuffer");
+			directionalLightBuffer = BufferCache::getBuffer("DirectionalLightBuffer");
 			lightInfoBuffer = BufferCache::getBuffer("LightInfo");
 
 			for (auto& ent : m_filter)
@@ -56,8 +58,10 @@ namespace rythe::rendering
 
 			for (auto handle : m_shaders)
 			{
-				if (lightBuffer != nullptr)
-					handle->addBuffer(lightBuffer);
+				if (pointLightBuffer != nullptr)
+					handle->addBuffer(pointLightBuffer);
+				if (directionalLightBuffer != nullptr)
+					handle->addBuffer(directionalLightBuffer);
 				if (cameraBuffer != nullptr)
 					handle->addBuffer(cameraBuffer);
 				if (materialBuffer != nullptr)
@@ -87,7 +91,8 @@ namespace rythe::rendering
 					if (pos == m_shaders.end())
 					{
 						m_shaders.push_back(shader);
-						shader->addBuffer(lightBuffer);
+						shader->addBuffer(pointLightBuffer);
+						shader->addBuffer(directionalLightBuffer);
 						shader->addBuffer(cameraBuffer);
 						shader->addBuffer(materialBuffer);
 						shader->addBuffer(lightInfoBuffer);
@@ -104,6 +109,7 @@ namespace rythe::rendering
 					{
 						auto& submesh = mesh->meshes[i];
 						RI->drawIndexed(PrimitiveType::TRIANGLESLIST, submesh.count, submesh.indexOffset, submesh.vertexOffset);
+						WindowProvider::activeWindow->checkError();
 					}
 				else
 					RI->drawArrays(PrimitiveType::TRIANGLESLIST, 0, mesh->vertices.size());
@@ -131,16 +137,21 @@ namespace rythe::rendering
 
 			model->indexBuffer = BufferCache::createIndexBuffer(std::format("{}-Index Buffer", meshHandle->name), UsageType::STATICDRAW, meshHandle->indices);
 
-			model->normalBuffer = BufferCache::createVertexBuffer<math::vec3>(std::format("{}-Normal Buffer", meshHandle->name), 1, UsageType::STATICDRAW, meshHandle->normals);
-			layout.setAttributePtr(model->normalBuffer, "NORMAL", 0, FormatType::RGB32F, 1, sizeof(math::vec3), 0);
+			if (meshHandle->normals.size() > 0)
+			{
+				model->normalBuffer = BufferCache::createVertexBuffer<math::vec3>(std::format("{}-Normal Buffer", meshHandle->name), 1, UsageType::STATICDRAW, meshHandle->normals);
+				layout.setAttributePtr(model->normalBuffer, "NORMAL", 0, FormatType::RGB32F, 1, sizeof(math::vec3), 0);
+			}
 
-			model->uvBuffer = BufferCache::createVertexBuffer<math::vec2>(std::format("{}-UV Buffer", meshHandle->name), 2, UsageType::STATICDRAW, meshHandle->texCoords);
-			layout.setAttributePtr(model->uvBuffer, "TEXCOORD", 0, FormatType::RG32F, 2, sizeof(math::vec2), 0);
-
+			if (meshHandle->texCoords.size() > 0)
+			{
+				model->uvBuffer = BufferCache::createVertexBuffer<math::vec2>(std::format("{}-UV Buffer", meshHandle->name), 2, UsageType::STATICDRAW, meshHandle->texCoords);
+				layout.setAttributePtr(model->uvBuffer, "TEXCOORD", 0, FormatType::RG32F, 2, sizeof(math::vec2), 0);
+			}
 
 			if (instanced)
 			{
-				model->matrixBuffer = BufferCache::createBuffer<math::mat4>(std::format("{}-Matrix Buffer", meshHandle->name), TargetType::VERTEX_BUFFER);
+				model->matrixBuffer = BufferCache::createBuffer<math::mat4>(std::format("{}-Matrix Buffer", meshHandle->name), BufferType::VERTEX_BUFFER);
 				layout.setAttributePtr(model->matrixBuffer, "MODEL", 1, FormatType::RGBA32F, 3, sizeof(math::mat4), 0.f * sizeof(math::vec4), InputClass::PER_INSTANCE, 1);
 				layout.setAttributePtr(model->matrixBuffer, "MODEL", 2, FormatType::RGBA32F, 3, sizeof(math::mat4), 1.f * sizeof(math::vec4), InputClass::PER_INSTANCE, 1);
 				layout.setAttributePtr(model->matrixBuffer, "MODEL", 3, FormatType::RGBA32F, 3, sizeof(math::mat4), 2.f * sizeof(math::vec4), InputClass::PER_INSTANCE, 1);

@@ -13,15 +13,19 @@ namespace rythe::rendering
 		COMPUTE = static_cast<int>(internal::ShaderType::COMPUTE)
 	};
 
-	enum class TargetType
+	enum class BufferType
 	{
-		VERTEX_BUFFER = static_cast<int>(internal::TargetType::VERTEX_BUFFER),
-		INDEX_BUFFER = static_cast<int>(internal::TargetType::INDEX_BUFFER),
-		CONSTANT_BUFFER = static_cast<int>(internal::TargetType::CONSTANT_BUFFER),
-		TEXTURE2D = static_cast<int>(internal::TargetType::TEXTURE2D),
-		DEPTH_STENCIL = static_cast<int>(internal::TargetType::DEPTH_STENCIL),
-		RENDER_TARGET = static_cast<int>(internal::TargetType::RENDER_TARGET),
-		CUBEMAP = static_cast<int>(internal::TargetType::CUBEMAP)
+		VERTEX_BUFFER = static_cast<int>(internal::BufferType::VERTEX_BUFFER),
+		INDEX_BUFFER = static_cast<int>(internal::BufferType::INDEX_BUFFER),
+		CONSTANT_BUFFER = static_cast<int>(internal::BufferType::CONSTANT_BUFFER)
+	};
+
+	enum class TextureType
+	{
+		TEXTURE2D = static_cast<int>(internal::TextureType::TEXTURE2D),
+		DEPTH_STENCIL = static_cast<int>(internal::TextureType::DEPTH_STENCIL),
+		RENDER_TARGET = static_cast<int>(internal::TextureType::RENDER_TARGET),
+		CUBEMAP = static_cast<int>(internal::TextureType::CUBEMAP)
 	};
 
 	enum class UsageType
@@ -90,14 +94,12 @@ namespace rythe::rendering
 		LINEAR_MIPMAP_LINEAR = static_cast<int>(internal::FilterMode::LINEAR_MIPMAP_LINEAR)
 	};
 
-	enum class ClearBit
+	enum class DepthClearBit
 	{
-		COLOR = static_cast<int>(internal::ClearBit::COLOR),
-		DEPTH = static_cast<int>(internal::ClearBit::DEPTH),
-		STENCIL = static_cast<int>(internal::ClearBit::STENCIL),
-		COLOR_DEPTH = static_cast<int>(internal::ClearBit::COLOR_DEPTH),
-		DEPTH_STENCIL = static_cast<int>(internal::ClearBit::DEPTH_STENCIL),
-		COLOR_DEPTH_STENCIL = static_cast<int>(internal::ClearBit::COLOR_DEPTH_STENCIL)
+		NONE = static_cast<int>(internal::DepthClearBit::NONE),
+		DEPTH = static_cast<int>(internal::DepthClearBit::DEPTH),
+		STENCIL = static_cast<int>(internal::DepthClearBit::STENCIL),
+		DEPTH_STENCIL = static_cast<int>(internal::DepthClearBit::DEPTH_STENCIL)
 	};
 
 	enum class DepthFuncs

@@ -25,7 +25,7 @@ namespace rythe::rendering
 			screenQuad->vertexBuffer = BufferCache::createVertexBuffer<math::vec4>("ScreenQuad-Vertex Buffer", 0, UsageType::STATICDRAW, screenQuad->meshHandle->vertices);
 			screenQuad->layout.setAttributePtr(screenQuad->vertexBuffer, "POSITION", 0, FormatType::RGBA32F, 0, sizeof(math::vec4), 0);
 
-			screenQuad->indexBuffer = BufferCache::createIndexBuffer("ScreenQuad - Index Buffer", UsageType::STATICDRAW, screenQuad->meshHandle->indices);
+			screenQuad->indexBuffer = BufferCache::createIndexBuffer("ScreenQuad-Index Buffer", UsageType::STATICDRAW, screenQuad->meshHandle->indices);
 
 			screenQuad->uvBuffer = BufferCache::createVertexBuffer<math::vec2>("ScreenQuad-UV Buffer", 1, UsageType::STATICDRAW, screenQuad->meshHandle->texCoords);
 			screenQuad->layout.setAttributePtr(screenQuad->uvBuffer, "TEXCOORD", 0, FormatType::RG32F, 1, sizeof(math::vec2), 0);
@@ -39,19 +39,20 @@ namespace rythe::rendering
 		{
 			mainFBO->unbind();
 			auto colorTexture = mainFBO->getAttachment(AttachmentSlot::COLOR0);
-			colorTexture->unbind(TextureSlot::TEXTURE0);
+			//colorTexture->unbind(TextureSlot::TEXTURE0);
 			RI->depthTest(false);
 			RI->cullFace(CullMode::NONE);
 			RI->updateDepthStencil();
 
 			RI->setClearColor(1.0f, 0.0f, 1.0f, 1.0f);
-			RI->clear(ClearBit::COLOR);
+			RI->clear(true);
 
 			screenShader->bind();
 			colorTexture->bind(TextureSlot::TEXTURE0);
 			screenQuad->bind();
 
 			RI->drawIndexed(PrimitiveType::TRIANGLESLIST, screenQuad->meshHandle->indexCount, 0, 0);
+			WindowProvider::activeWindow->checkError();
 
 			colorTexture->unbind(TextureSlot::TEXTURE0);
 		}

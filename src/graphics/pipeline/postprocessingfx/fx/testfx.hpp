@@ -31,7 +31,7 @@ namespace rythe::rendering
 
 				depthTexture->bind(DEPTH_STENCIL_SLOT);
 				RI->setClearColor(0x64 / 255.0f, 0x95 / 255.0f, 0xED / 255.0f, 1.0f);
-				RI->clear(ClearBit::DEPTH);
+				RI->clear(false,DepthClearBit::DEPTH);
 
 				pass.invoke(camTransf, cam);
 

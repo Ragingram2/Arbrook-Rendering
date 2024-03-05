@@ -9,45 +9,37 @@
 
 namespace rythe::rendering
 {
-
-	inline math::mat4 ortho(float left, float right, float bottom, float top, float near_plane, float far_plane)
-	{
-		math::mat4 result(1.0f);
-		result[0][0] = 2.0f / (right - left);
-		result[1][1] = 2.0f / (top - bottom);
-		result[2][2] = -1.0f / (far_plane - near_plane);
-		result[3][0] = -(right + left) / (right - left);
-		result[3][1] = -(top + bottom) / (top - bottom);
-		result[3][2] = -near_plane / (far_plane - near_plane);
-		return result;
-	}
-
-	struct light_buffer
+	struct point_light_buffer
 	{
 		point_light_data point_data[MAX_POINT_LIGHT_COUNT];
+	};
+
+	struct dir_light_buffer
+	{
 		dir_light_data dir_data[1];
 	};
 
 	struct light_render_stage : public graphics_stage<light_render_stage, light>
 	{
 		rsl::uint m_lastIdx = 0;
-		buffer_handle lightBuffer;
-		light_buffer lightDataStruct;
+		buffer_handle pointLightBuffer;
+		buffer_handle directionalLightBuffer;
+		point_light_buffer pointLightData;
+		dir_light_buffer dirLightData;
 
 		math::mat4 lightProjection;
 		math::mat4 shadowProjection;
 		std::vector<math::mat4> shadowTransforms;
 
-		float near_plane = 1.0f;
 		float far_plane = 50.0f;
 
 		virtual void setup(core::transform camTransf, camera& cam) override
 		{
-			lightBuffer = BufferCache::createConstantBuffer<light_buffer>("LightBuffer", SV_LIGHTS, UsageType::STATICDRAW);
+			pointLightBuffer = BufferCache::createConstantBuffer<point_light_buffer>("PointLightBuffer", SV_PT_LIGHTS, UsageType::STATICDRAW);
+			directionalLightBuffer = BufferCache::createConstantBuffer<dir_light_buffer>("DirectionalLightBuffer", SV_DIR_LIGHTS, UsageType::STATICDRAW);
 
-			lightProjection = ortho(-20.0f, 20.0f, -20.0f, 20.0f, near_plane, far_plane);
-
-			shadowProjection = math::perspective(math::radians(90.0f), Shadow_Width / Shadow_Height, near_plane, far_plane);
+			lightProjection = math::orthographic(-30.0f, 30.0f, -30.0f, 30.0f, -10.0f, 40.0f);
+			shadowProjection = math::perspective(math::radians(90.0f), Shadow_Width / Shadow_Height, 1.0f, far_plane);
 		}
 
 		virtual void render(core::transform camTransf, camera& cam) override
@@ -58,14 +50,15 @@ namespace rythe::rendering
 			{
 				auto& transf = ent.getComponent<core::transform>();
 				auto& lightComp = ent.getComponent<light>();
+				auto lightView = math::lookAt(transf.forward(), math::vec3::zero, transf.up());
 
 				switch (lightComp.type)
 				{
 				case LightType::DIRECTIONAL:
 					lightComp.dir_data.lightProjection = lightProjection;
-					lightComp.dir_data.lightView = math::lookAt(math::vec3::zero, -transf.forward(), transf.up());
+					lightComp.dir_data.lightView = lightView;
 					lightComp.dir_data.direction = transf.forward();
-					lightDataStruct.dir_data[0] = lightComp.dir_data;
+					dirLightData.dir_data[0] = lightComp.dir_data;
 					break;
 				case LightType::POINT:
 					if (m_lastIdx >= MAX_POINT_LIGHT_COUNT) return;
@@ -76,10 +69,10 @@ namespace rythe::rendering
 					if (lightComp.index < 0)
 					{
 						lightComp.index = m_lastIdx++;
-						lightInfo.count++;
+						lightInfo.count += 1;
 					}
 					if (lightComp.index < MAX_POINT_LIGHT_COUNT)
-						lightDataStruct.point_data[lightComp.index] = lightComp.point_data;
+						pointLightData.point_data[lightComp.index] = lightComp.point_data;
 					break;
 				case LightType::SPOT:
 					//lightComp.data.position = transf.position;
@@ -87,10 +80,11 @@ namespace rythe::rendering
 				}
 			}
 
-			if (lightBuffer != nullptr)
-			{
-				lightBuffer->bufferData(&lightDataStruct, 1);
-			}
+			if (pointLightBuffer != nullptr)
+				pointLightBuffer->bufferData(&pointLightData, 1);
+
+			if (directionalLightBuffer != nullptr)
+				directionalLightBuffer->bufferData(&dirLightData, 1);
 		}
 
 		virtual rsl::priority_type priority() const override { return LIGHT_PRIORITY; }
@@ -99,8 +93,8 @@ namespace rythe::rendering
 		{
 			transfArray[0] = math::lookAt(lightPos, lightPos + math::vec3::left, math::vec3::up);
 			transfArray[1] = math::lookAt(lightPos, lightPos + math::vec3::right, math::vec3::up);
-			transfArray[2] = math::lookAt(lightPos, lightPos + math::vec3::up, math::vec3::forward);
-			transfArray[3] = math::lookAt(lightPos, lightPos + math::vec3::down, math::vec3::backward);
+			transfArray[3] = math::lookAt(lightPos, lightPos + math::vec3::up, math::vec3::forward);
+			transfArray[2] = math::lookAt(lightPos, lightPos + math::vec3::down, math::vec3::backward);
 			transfArray[4] = math::lookAt(lightPos, lightPos + math::vec3::backward, math::vec3::up);
 			transfArray[5] = math::lookAt(lightPos, lightPos + math::vec3::forward, math::vec3::up);
 		}

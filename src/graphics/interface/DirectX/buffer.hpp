@@ -42,18 +42,18 @@ namespace rythe::rendering::internal
 		ID3D11Buffer* m_internalBuffer;
 		D3D11_BUFFER_DESC m_bufferDesc;
 
-		TargetType m_target;
+		BufferType m_type;
 		UsageType m_usage;
 		window_handle m_windowHandle;
 
 	public:
 		operator ID3D11Buffer* () const { return m_internalBuffer; }
 		template<typename elementType>
-		void initialize(TargetType target, UsageType usage, int size, elementType data[] = nullptr)
+		void initialize(BufferType target, UsageType usage, int size, elementType data[] = nullptr)
 		{
 			ZoneScopedN("[DX11 Buffer] initialize()");
 			m_windowHandle = WindowProvider::activeWindow;
-			m_target = target;
+			m_type = target;
 			m_usage = usage;
 			m_size = size;
 			m_elementSize = sizeof(elementType);
@@ -65,15 +65,15 @@ namespace rythe::rendering::internal
 		{
 			ZoneScopedN("[DX11 Buffer] bind()");
 			unsigned int offset = 0;
-			switch (m_target)
+			switch (m_type)
 			{
-			case TargetType::VERTEX_BUFFER:
+			case BufferType::VERTEX_BUFFER:
 				WindowProvider::activeWindow->devcon->IASetVertexBuffers(bindId, 1, &m_internalBuffer, &m_elementSize, &offset);
 				break;
-			case TargetType::INDEX_BUFFER:
+			case BufferType::INDEX_BUFFER:
 				WindowProvider::activeWindow->devcon->IASetIndexBuffer(m_internalBuffer, static_cast<DXGI_FORMAT>(FormatType::R32U), offset);
 				break;
-			case TargetType::CONSTANT_BUFFER:
+			case BufferType::CONSTANT_BUFFER:
 				WindowProvider::activeWindow->devcon->VSSetConstantBuffers(bindId, 1, &m_internalBuffer);
 				WindowProvider::activeWindow->devcon->GSSetConstantBuffers(bindId, 1, &m_internalBuffer);
 				WindowProvider::activeWindow->devcon->PSSetConstantBuffers(bindId, 1, &m_internalBuffer);
@@ -120,7 +120,6 @@ namespace rythe::rendering::internal
 			{
 				m_size = size;
 				m_elementSize = sizeof(elementType);
-				bind();
 				createBuffer(data);
 				return;
 			}
@@ -150,12 +149,12 @@ namespace rythe::rendering::internal
 			ZeroMemory(&m_bufferDesc, sizeof(m_bufferDesc));
 
 			m_bufferDesc.Usage = static_cast<D3D11_USAGE>(m_usage);
-			m_bufferDesc.BindFlags = static_cast<D3D11_BIND_FLAG>(m_target);
+			m_bufferDesc.BindFlags = static_cast<D3D11_BIND_FLAG>(m_type);
 			m_bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 			m_bufferDesc.MiscFlags = 0;
 			m_bufferDesc.StructureByteStride = 0;
 
-			if (m_target == TargetType::CONSTANT_BUFFER)
+			if (m_type == BufferType::CONSTANT_BUFFER)
 				m_bufferDesc.ByteWidth = static_cast<unsigned int>(m_elementSize + (16 - (m_elementSize % 16)));
 			else
 				m_bufferDesc.ByteWidth = m_elementSize;

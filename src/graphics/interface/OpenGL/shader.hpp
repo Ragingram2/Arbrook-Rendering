@@ -126,6 +126,7 @@ namespace rythe::rendering::internal
 			}
 
 			log::error("No data was buffered, because the buffer {} was not added or does not exist", bufferName);
+			glUseProgram(0);
 		}
 
 		void addBuffer(buffer_handle handle)

@@ -6,7 +6,7 @@ namespace rythe::rendering
 
 	buffer_handle BufferCache::createIndexBuffer(const std::string& name, UsageType usage, const std::vector<unsigned int>& data)
 	{
-		return { createBuffer(name,TargetType::INDEX_BUFFER,usage,data) };
+		return { createBuffer(name,BufferType::INDEX_BUFFER,usage,data) };
 	}
 
 	buffer_handle BufferCache::getBuffer(const std::string& name)
