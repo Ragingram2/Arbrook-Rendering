@@ -77,6 +77,16 @@ namespace rythe::rendering::internal
 
 			UINT creationFlags = D3D11_CREATE_DEVICE_DEBUG;
 
+			//D3D_FEATURE_LEVEL features[]=
+			//{
+			//	D3D_FEATURE_LEVEL_11_1,
+			//	D3D_FEATURE_LEVEL_11_0,
+			//	D3D_FEATURE_LEVEL_10_1,
+			//	D3D_FEATURE_LEVEL_10_0,
+			//	D3D_FEATURE_LEVEL_9_3,
+			//	D3D_FEATURE_LEVEL_9_2,
+			//	D3D_FEATURE_LEVEL_9_1,
+			//};
 
 			HRESULT hr = D3D11CreateDeviceAndSwapChain(NULL,
 				D3D_DRIVER_TYPE_HARDWARE,

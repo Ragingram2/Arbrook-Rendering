@@ -39,7 +39,7 @@ namespace rythe::rendering
 			directionalLightBuffer = BufferCache::createConstantBuffer<dir_light_buffer>("DirectionalLightBuffer", SV_DIR_LIGHTS, UsageType::STATICDRAW);
 
 			lightProjection = math::orthographic(-30.0f, 30.0f, -30.0f, 30.0f, -10.0f, 40.0f);
-			shadowProjection = math::perspective(math::radians(90.0f), Shadow_Width / Shadow_Height, 1.0f, far_plane);
+			shadowProjection = math::perspective(90.0f, Shadow_Width / Shadow_Height, 1.0f, far_plane);
 		}
 
 		virtual void render(core::transform camTransf, camera& cam) override
@@ -62,10 +62,10 @@ namespace rythe::rendering
 					break;
 				case LightType::POINT:
 					if (m_lastIdx >= MAX_POINT_LIGHT_COUNT) return;
-					lightComp.point_data.position = transf.position;
-					lightComp.point_data.farPlane = far_plane;
 					lightComp.point_data.shadowProjection = shadowProjection;
 					buildShadowCube(lightComp.point_data.shadowTransforms, transf.position);
+					lightComp.point_data.position = transf.position;
+					lightComp.point_data.farPlane = far_plane;
 					if (lightComp.index < 0)
 					{
 						lightComp.index = m_lastIdx++;
@@ -91,12 +91,17 @@ namespace rythe::rendering
 
 		void buildShadowCube(math::mat4* transfArray, math::vec3 lightPos)
 		{
-			transfArray[0] = math::lookAt(lightPos, lightPos + math::vec3::left, math::vec3::up);
-			transfArray[1] = math::lookAt(lightPos, lightPos + math::vec3::right, math::vec3::up);
-			transfArray[3] = math::lookAt(lightPos, lightPos + math::vec3::up, math::vec3::forward);
+			transfArray[0] = math::lookAt( lightPos, lightPos + math::vec3::left, math::vec3::up);
+			transfArray[1] = math::lookAt( lightPos, lightPos + math::vec3::right, math::vec3::up);
+#ifdef RenderingAPI_OGL
 			transfArray[2] = math::lookAt(lightPos, lightPos + math::vec3::down, math::vec3::backward);
+			transfArray[3] = math::lookAt(lightPos, lightPos + math::vec3::up, math::vec3::forward);
+#else
+			transfArray[2] = math::lookAt(lightPos, lightPos + math::vec3::up, math::vec3::forward);
+			transfArray[3] = math::lookAt(lightPos, lightPos + math::vec3::down, math::vec3::backward);
+#endif
 			transfArray[4] = math::lookAt(lightPos, lightPos + math::vec3::backward, math::vec3::up);
-			transfArray[5] = math::lookAt(lightPos, lightPos + math::vec3::forward, math::vec3::up);
+			transfArray[5] = math::lookAt( lightPos, lightPos + math::vec3::forward, math::vec3::up);
 		}
 	};
 

@@ -125,7 +125,7 @@ namespace rythe::rendering::internal
 				if (m_type == BufferType::CONSTANT_BUFFER)
 				{
 					ZoneScopedN("[OpenGL Buffer] [createBuffer()] Specialization for a Const Buffer");
-					glBindBufferRange(static_cast<GLenum>(m_type), 0, id, 0, m_elementSize);
+					glBindBufferRange(static_cast<GLenum>(m_type), 0, id, 0, static_cast<unsigned int>(m_elementSize + (16 - (m_elementSize % 16))));
 				}
 			}
 		}

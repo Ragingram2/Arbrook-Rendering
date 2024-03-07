@@ -164,6 +164,7 @@ namespace rythe::rendering::internal
 
 			_shader->setFlattenUniformArrays(true);
 			_shader->setHlslIoMapping(true);
+			_shader->setInvertY(false);
 			_shader->setDxPositionW(true);
 
 			_shader->setEnvInput(m_sourceType, profile, m_client, defaultVersion);

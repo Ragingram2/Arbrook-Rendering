@@ -13,7 +13,7 @@ namespace rythe::rendering
 
 	struct point_light_data
 	{
-		math::mat4 shadowProjection = math::mat4();
+		math::mat4 shadowProjection = math::mat4(0.0f);
 		math::mat4 shadowTransforms[6];
 		math::vec4 position = math::vec4(0.0f);
 		math::vec4 color = math::vec4(0.0f);
@@ -24,8 +24,8 @@ namespace rythe::rendering
 
 	struct dir_light_data
 	{
-		math::mat4 lightProjection = math::mat4();
-		math::mat4 lightView = math::mat4();
+		math::mat4 lightProjection = math::mat4(0.0f);
+		math::mat4 lightView = math::mat4(0.0f);
 		math::vec4 direction = math::vec4(0.0f);
 		math::vec4 color = math::vec4(0.0f);
 		float intensity = 0.0f;

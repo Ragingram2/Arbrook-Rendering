@@ -59,7 +59,9 @@ namespace rythe::rendering
 		virtual ast::asset_handle<texture_source> load(rsl::id_type id, fs::path filePath, texture_source* data, const ast::import_settings<texture_source>& settings) override
 		{
 			auto name = filePath.stem().string();
+#ifndef RenderingAPI_DX11
 			stbi_set_flip_vertically_on_load(settings.flipVertical);
+#endif
 			data->filePath = filePath.string();
 			data->data = std::move(stbi_load(filePath.string().c_str(), &data->resolution.x, &data->resolution.y, &data->channels, 0));
 			if (!data)
