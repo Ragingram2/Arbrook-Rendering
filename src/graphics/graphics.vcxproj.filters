@@ -329,6 +329,7 @@
       <Filter>systems</Filter>
     </ClInclude>
     <ClInclude Include="pipeline\stages\shadowmapstage.hpp" />
+    <ClInclude Include="cache\importers\materialimporter.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\include\GL\src\glad.c">
@@ -388,5 +389,6 @@
     <ClCompile Include="systems\renderer.cpp">
       <Filter>systems</Filter>
     </ClCompile>
+    <ClCompile Include="cache\importers\materialimporter.cpp" />
   </ItemGroup>
 </Project>

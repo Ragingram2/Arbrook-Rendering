@@ -25,9 +25,8 @@ namespace rythe::rendering
 			for (auto& ent : m_filter)
 			{
 				skyboxMat->addTexture(TextureSlot::TEXTURE0, ent.getComponent<skybox_renderer>().skyboxTex);
+				initializeSkyboxModel(ent->id, cubeHandle, skyboxMat);
 			}
-
-			initializeSkyboxModel(cubeHandle, skyboxMat);
 		}
 
 		virtual void render(core::transform camTransf, camera& cam) override
@@ -58,7 +57,7 @@ namespace rythe::rendering
 
 		virtual rsl::priority_type priority() const override { return SKYBOX_PRIORITY; }
 
-		void initializeSkyboxModel(ast::asset_handle<model> model, ast::asset_handle<material> mat)
+		void initializeSkyboxModel(rsl::uint entId, ast::asset_handle<model> model, ast::asset_handle<material> mat)
 		{
 			auto& meshHandle = model->meshHandle;
 			auto& matHandle = model->matHandle = mat;
@@ -68,14 +67,14 @@ namespace rythe::rendering
 			layout.initialize(1, matHandle->getShader());
 			layout.bind();
 
-			model->vertexBuffer = BufferCache::createVertexBuffer<math::vec4>(std::format("{}-Vertex Buffer", meshHandle->name), 0, UsageType::STATICDRAW, meshHandle->vertices);
+			model->vertexBuffer = BufferCache::createVertexBuffer<math::vec4>(std::format("{}{}-Vertex Buffer", meshHandle->name, entId), 0, UsageType::STATICDRAW, meshHandle->vertices);
 			model->layout.setAttributePtr(model->vertexBuffer, "POSITION", 0, FormatType::RGBA32F, 0, sizeof(math::vec4), 0);
-			model->indexBuffer = BufferCache::createIndexBuffer(std::format("{}-Index Buffer", meshHandle->name), UsageType::STATICDRAW, meshHandle->indices);
+			model->indexBuffer = BufferCache::createIndexBuffer(std::format("{}{}-Index Buffer", meshHandle->name, entId), UsageType::STATICDRAW, meshHandle->indices);
 
-			model->normalBuffer = BufferCache::createVertexBuffer<math::vec3>(std::format("{}-Normal Buffer", meshHandle->name), 1, UsageType::STATICDRAW, meshHandle->normals);
+			model->normalBuffer = BufferCache::createVertexBuffer<math::vec3>(std::format("{}{}-Normal Buffer", meshHandle->name, entId), 1, UsageType::STATICDRAW, meshHandle->normals);
 			layout.setAttributePtr(model->normalBuffer, "NORMAL", 0, FormatType::RGB32F, 1, sizeof(math::vec3), 0);
 
-			model->uvBuffer = BufferCache::createVertexBuffer<math::vec2>(std::format("{}-UV Buffer", meshHandle->name), 2, UsageType::STATICDRAW, meshHandle->texCoords);
+			model->uvBuffer = BufferCache::createVertexBuffer<math::vec2>(std::format("{}{}-UV Buffer", meshHandle->name, entId), 2, UsageType::STATICDRAW, meshHandle->texCoords);
 			layout.setAttributePtr(model->uvBuffer, "TEXCOORD", 0, FormatType::RG32F, 2, sizeof(math::vec2), 0);
 			layout.submitAttributes();
 		}

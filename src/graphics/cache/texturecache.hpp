@@ -25,6 +25,8 @@ namespace rythe::rendering
 		static texture_handle createTexture(const std::string& name, TextureType targetType, ast::asset_handle<texture_source> textureData, texture_parameters params = default_texture_params);
 		static texture_handle createTexture2D(const std::string& name, ast::asset_handle<texture_source> textureData, math::ivec2 overrideResolution, texture_parameters params = default_texture_params);
 		static texture_handle createTexture2D(const std::string& name, ast::asset_handle<texture_source> textureData, texture_parameters params = default_texture_params);
+		static texture_handle createTexture2D(ast::asset_handle<texture_source> textureData, texture_parameters params = default_texture_params);
+		static texture_handle createTexture2D(const std::string& name, texture_parameters params = default_texture_params);
 		static texture_handle createCubemap(const std::string& name, ast::asset_handle<texture_source> textureData, math::ivec2 overrideResolution, texture_parameters params = default_texture_params);
 		static texture_handle createCubemap(const std::string& name, ast::asset_handle<texture_source> textureData, texture_parameters params = default_texture_params);
 		//static texture_handle createCubemap(const std::string& name, ast::asset_handle<texture_source>* textureDataArray, texture_parameters params = default_texture_params);

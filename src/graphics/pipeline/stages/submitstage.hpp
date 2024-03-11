@@ -39,7 +39,6 @@ namespace rythe::rendering
 		{
 			mainFBO->unbind();
 			auto colorTexture = mainFBO->getAttachment(AttachmentSlot::COLOR0);
-			//colorTexture->unbind(TextureSlot::TEXTURE0);
 			RI->depthTest(false);
 			RI->cullFace(CullMode::NONE);
 			RI->updateDepthStencil();

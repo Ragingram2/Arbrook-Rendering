@@ -93,7 +93,7 @@ namespace rythe::rendering
 				ast::asset_handle<mesh> mesh = model->meshHandle;
 
 				if (renderer.dirty)
-					initializeModel(model, mesh, dirShadowMap);
+					initializeModel(ent->id, model, mesh, dirShadowMap);
 
 				auto& transf = ent.getComponent<core::transform>();
 
@@ -133,7 +133,7 @@ namespace rythe::rendering
 					ast::asset_handle<mesh> mesh = model->meshHandle;
 
 					if (renderer.dirty)
-						initializeModel(model, mesh, pointShadowMap);
+						initializeModel(ent->id, model, mesh, pointShadowMap);
 
 					auto& transf = ent.getComponent<core::transform>();
 
@@ -154,7 +154,7 @@ namespace rythe::rendering
 			}
 		}
 
-		void initializeModel(ast::asset_handle<model> model, ast::asset_handle<mesh> mesh, shader_handle handle)
+		void initializeModel(rsl::uint entId, ast::asset_handle<model> model, ast::asset_handle<mesh> mesh, shader_handle handle)
 		{
 			auto meshHandle = model->meshHandle = mesh;
 			auto& layout = model->layout;
@@ -163,10 +163,10 @@ namespace rythe::rendering
 			layout.initialize(1, handle);
 			layout.bind();
 
-			model->vertexBuffer = BufferCache::createVertexBuffer<math::vec4>(std::format("{}-Depth-Vertex Buffer", meshHandle->name), 0, UsageType::STATICDRAW, meshHandle->vertices);
+			model->vertexBuffer = BufferCache::createVertexBuffer<math::vec4>(std::format("{}{}-Depth-Vertex Buffer", meshHandle->name, entId), 0, UsageType::STATICDRAW, meshHandle->vertices);
 			model->layout.setAttributePtr(model->vertexBuffer, "POSITION", 0, FormatType::RGBA32F, 0, sizeof(math::vec4), 0);
 
-			model->indexBuffer = BufferCache::createIndexBuffer(std::format("{}-Depth-Index Buffer", meshHandle->name), UsageType::STATICDRAW, meshHandle->indices);
+			model->indexBuffer = BufferCache::createIndexBuffer(std::format("{}{}-Depth-Index Buffer", meshHandle->name, entId), UsageType::STATICDRAW, meshHandle->indices);
 			layout.submitAttributes();
 		}
 	};

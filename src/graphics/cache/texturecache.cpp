@@ -1,4 +1,5 @@
 #include "graphics/cache/texturecache.hpp"
+#include "graphics/cache/importers/textureimporter.hpp"
 
 namespace rythe::rendering
 {
@@ -15,6 +16,7 @@ namespace rythe::rendering
 			return { m_textures[id].get() };
 		}
 
+		textureData->name = name;
 		auto& tex = m_textures.emplace(id, std::make_unique<texture>()).first->second;
 		tex->m_impl.name = name;
 		tex->m_impl.channels = textureData != nullptr ? textureData->channels : 4;
@@ -39,6 +41,7 @@ namespace rythe::rendering
 			return { m_textures[id].get() };
 		}
 
+		textureData->name = name;
 		auto& tex = m_textures.emplace(id, std::make_unique<texture>()).first->second;
 		tex->m_impl.name = name;
 		tex->m_impl.channels = textureData != nullptr ? textureData->channels : 4;
@@ -54,6 +57,17 @@ namespace rythe::rendering
 		return createTexture2D(name, textureData, textureData->resolution, params);
 	}
 
+	texture_handle TextureCache::createTexture2D(ast::asset_handle<texture_source> textureData, texture_parameters params)
+	{
+		return createTexture2D(textureData->name, textureData, textureData->resolution, params);
+	}
+
+	texture_handle TextureCache::createTexture2D(const std::string& name, texture_parameters params)
+	{
+		auto data = ast::AssetCache<texture_source>::getAsset(name);
+		return createTexture2D(name, data, data->resolution, params);
+	}
+
 	texture_handle TextureCache::createCubemap(const std::string& name, ast::asset_handle<texture_source> textureData, math::ivec2 overrideResolution, texture_parameters params)
 	{
 		rsl::id_type id = rsl::nameHash(name);
@@ -63,6 +77,7 @@ namespace rythe::rendering
 			return { m_textures[id].get() };
 		}
 
+		textureData->name = name;
 		auto& tex = m_textures.emplace(id, std::make_unique<texture>()).first->second;
 		tex->m_impl.name = name;
 		tex->m_impl.channels = textureData != nullptr ? textureData->channels : 4;

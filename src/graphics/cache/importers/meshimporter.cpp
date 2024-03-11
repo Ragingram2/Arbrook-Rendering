@@ -53,7 +53,6 @@ namespace rythe::rendering
 		{
 			initMesh(data, scene->mMeshes[i]);
 		}
-		//data->load(scene);
 		return { id, data };
 	}
 

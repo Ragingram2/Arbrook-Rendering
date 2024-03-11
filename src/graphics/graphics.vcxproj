@@ -192,6 +192,7 @@
     <ClInclude Include="..\..\include\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="cache\buffercache.hpp" />
     <ClInclude Include="cache\cache.hpp" />
+    <ClInclude Include="cache\importers\materialimporter.hpp" />
     <ClInclude Include="cache\importers\meshimporter.hpp" />
     <ClInclude Include="cache\importers\shaderimporter.hpp" />
     <ClInclude Include="cache\importers\textureimporter.hpp" />
@@ -296,6 +297,7 @@
     <ClCompile Include="..\..\include\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\..\include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="cache\buffercache.cpp" />
+    <ClCompile Include="cache\importers\materialimporter.cpp" />
     <ClCompile Include="cache\importers\meshimporter.cpp" />
     <ClCompile Include="cache\importers\shaderimporter.cpp" />
     <ClCompile Include="cache\importers\textureimporter.cpp" />

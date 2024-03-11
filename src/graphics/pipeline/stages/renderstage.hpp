@@ -49,7 +49,7 @@ namespace rythe::rendering
 				renderer.material->addTexture(TextureSlot::TEXTURE1, depthTexture);
 				renderer.material->addTexture(TextureSlot::TEXTURE2, depthCube);
 
-				initializeModel(renderer.model, mat, renderer.model->meshHandle, renderer.instanced);
+				initializeModel(ent->id, renderer.model, mat, renderer.model->meshHandle, renderer.instanced);
 				renderer.dirty = false;
 				auto pos = std::find(m_shaders.begin(), m_shaders.end(), mat->getShader());
 				if (pos == m_shaders.end())
@@ -84,7 +84,7 @@ namespace rythe::rendering
 				ast::asset_handle<mesh> mesh = renderer.model->meshHandle;
 				if (renderer.dirty)
 				{
-					initializeModel(model, material, mesh, renderer.instanced);
+					initializeModel(ent->id, model, material, mesh, renderer.instanced);
 
 					renderer.dirty = false;
 					auto pos = std::find(m_shaders.begin(), m_shaders.end(), shader);
@@ -122,7 +122,7 @@ namespace rythe::rendering
 
 		virtual rsl::priority_type priority() const override { return OPAQUE_PRIORITY; }
 
-		void initializeModel(ast::asset_handle<model> model, ast::asset_handle<material> mat, ast::asset_handle<mesh> mesh, bool instanced = false)
+		void initializeModel(rsl::uint entId, ast::asset_handle<model> model, ast::asset_handle<material> mat, ast::asset_handle<mesh> mesh, bool instanced = false)
 		{
 			auto meshHandle = model->meshHandle = mesh;
 			auto matHandle = model->matHandle = mat;
@@ -132,26 +132,26 @@ namespace rythe::rendering
 			layout.initialize(1, matHandle->getShader());
 			layout.bind();
 
-			model->vertexBuffer = BufferCache::createVertexBuffer<math::vec4>(std::format("{}-Vertex Buffer", meshHandle->name), 0, UsageType::STATICDRAW, meshHandle->vertices);
+			model->vertexBuffer = BufferCache::createVertexBuffer<math::vec4>(std::format("{}{}-Vertex Buffer", meshHandle->name, entId), 0, UsageType::STATICDRAW, meshHandle->vertices);
 			model->layout.setAttributePtr(model->vertexBuffer, "POSITION", 0, FormatType::RGBA32F, 0, sizeof(math::vec4), 0);
 
 			model->indexBuffer = BufferCache::createIndexBuffer(std::format("{}-Index Buffer", meshHandle->name), UsageType::STATICDRAW, meshHandle->indices);
 
 			if (meshHandle->normals.size() > 0)
 			{
-				model->normalBuffer = BufferCache::createVertexBuffer<math::vec3>(std::format("{}-Normal Buffer", meshHandle->name), 1, UsageType::STATICDRAW, meshHandle->normals);
+				model->normalBuffer = BufferCache::createVertexBuffer<math::vec3>(std::format("{}{}-Normal Buffer", meshHandle->name, entId), 1, UsageType::STATICDRAW, meshHandle->normals);
 				layout.setAttributePtr(model->normalBuffer, "NORMAL", 0, FormatType::RGB32F, 1, sizeof(math::vec3), 0);
 			}
 
 			if (meshHandle->texCoords.size() > 0)
 			{
-				model->uvBuffer = BufferCache::createVertexBuffer<math::vec2>(std::format("{}-UV Buffer", meshHandle->name), 2, UsageType::STATICDRAW, meshHandle->texCoords);
+				model->uvBuffer = BufferCache::createVertexBuffer<math::vec2>(std::format("{}{}-UV Buffer", meshHandle->name, entId), 2, UsageType::STATICDRAW, meshHandle->texCoords);
 				layout.setAttributePtr(model->uvBuffer, "TEXCOORD", 0, FormatType::RG32F, 2, sizeof(math::vec2), 0);
 			}
 
 			if (instanced)
 			{
-				model->matrixBuffer = BufferCache::createBuffer<math::mat4>(std::format("{}-Matrix Buffer", meshHandle->name), BufferType::VERTEX_BUFFER);
+				model->matrixBuffer = BufferCache::createBuffer<math::mat4>(std::format("{}{}-Matrix Buffer", meshHandle->name, entId), BufferType::VERTEX_BUFFER);
 				layout.setAttributePtr(model->matrixBuffer, "MODEL", 1, FormatType::RGBA32F, 3, sizeof(math::mat4), 0.f * sizeof(math::vec4), InputClass::PER_INSTANCE, 1);
 				layout.setAttributePtr(model->matrixBuffer, "MODEL", 2, FormatType::RGBA32F, 3, sizeof(math::mat4), 1.f * sizeof(math::vec4), InputClass::PER_INSTANCE, 1);
 				layout.setAttributePtr(model->matrixBuffer, "MODEL", 3, FormatType::RGBA32F, 3, sizeof(math::mat4), 2.f * sizeof(math::vec4), InputClass::PER_INSTANCE, 1);
