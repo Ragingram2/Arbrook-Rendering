@@ -9,6 +9,7 @@
 #include "graphics/data/vertex.hpp"
 #include "graphics/data/texturesource.hpp"
 #include "graphics/data/shadersource.hpp"
+#include "graphics/data/materialsource.hpp"
 #include "graphics/systems/renderer.hpp"
 #include "graphics/pipeline/stages/guistage.hpp"
 #include "graphics/pipeline/stages/renderstage.hpp"
