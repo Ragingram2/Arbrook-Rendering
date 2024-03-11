@@ -30,7 +30,7 @@ namespace rythe::rendering
 		m_names.emplace(id, name);
 		auto mod = m_models.emplace(id, std::make_unique<model>()).first->second.get();
 		mod->meshHandle = meshHandle;
-		mod->matHandle = matHandle;
+		//mod->matHandle = matHandle;
 		mod->name = name;
 		return { id, mod };
 	}

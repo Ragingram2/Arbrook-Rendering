@@ -16,8 +16,8 @@ namespace rythe::rendering
 		ast::asset_handle<shader> shaderHandle;
 		inputlayout layout;
 
-		sprite_renderer() = default;
-		sprite_renderer(ast::asset_handle<texture> t_handle, ast::asset_handle<shader> s_handle) : sprite(t_handle), shaderHandle(s_handle) {}
+		//sprite_renderer() = default;
+		//sprite_renderer(ast::asset_handle<texture> t_handle, ast::asset_handle<shader> s_handle) : sprite(t_handle), shaderHandle(s_handle) {}
 
 	};
 }

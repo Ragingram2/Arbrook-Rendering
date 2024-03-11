@@ -16,7 +16,8 @@ namespace rythe::rendering
 			return { m_textures[id].get() };
 		}
 
-		textureData->name = name;
+		if (textureData != nullptr)
+			textureData->name = name;
 		auto& tex = m_textures.emplace(id, std::make_unique<texture>()).first->second;
 		tex->m_impl.name = name;
 		tex->m_impl.channels = textureData != nullptr ? textureData->channels : 4;
@@ -41,7 +42,8 @@ namespace rythe::rendering
 			return { m_textures[id].get() };
 		}
 
-		textureData->name = name;
+		if (textureData != nullptr)
+			textureData->name = name;
 		auto& tex = m_textures.emplace(id, std::make_unique<texture>()).first->second;
 		tex->m_impl.name = name;
 		tex->m_impl.channels = textureData != nullptr ? textureData->channels : 4;
@@ -77,7 +79,8 @@ namespace rythe::rendering
 			return { m_textures[id].get() };
 		}
 
-		textureData->name = name;
+		if (textureData != nullptr)
+			textureData->name = name;
 		auto& tex = m_textures.emplace(id, std::make_unique<texture>()).first->second;
 		tex->m_impl.name = name;
 		tex->m_impl.channels = textureData != nullptr ? textureData->channels : 4;

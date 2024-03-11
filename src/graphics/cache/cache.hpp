@@ -8,3 +8,4 @@
 #include "importers/meshimporter.hpp"
 #include "importers/shaderimporter.hpp"
 #include "importers/textureimporter.hpp"
+#include "importers/materialimporter.hpp"

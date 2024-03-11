@@ -40,8 +40,18 @@ namespace rythe::rendering::internal
 		std::unordered_map<std::string, vertexattribute> m_vertexAttribs;
 		ID3D11InputLayout* m_layout = nullptr;
 		ID3DBlob* m_vsBlob = nullptr;
-		window_handle m_windowHandle;
+		window_handle m_windowHandle{nullptr};
 	public:
+		inputlayout& operator=(const inputlayout& other)
+		{
+			id = other.id;
+			elementDesc = other.elementDesc;
+			//m_vertexAttribs = other.m_vertexAttribs;
+			m_layout = other.m_layout;
+			m_vsBlob = other.m_vsBlob;
+			m_windowHandle = other.m_windowHandle;
+			return *this;
+		}
 		void initialize(unsigned int numBuffers, shader_handle shader)
 		{
 			ZoneScopedN("[DX11 Inputlayout] initialize()");

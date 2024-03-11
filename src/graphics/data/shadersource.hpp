@@ -8,16 +8,17 @@
 
 namespace rythe::rendering
 {
+	namespace fs = std::filesystem;
 	struct shader_source
 	{
-		std::string fileName;
-		std::filesystem::path filePath;
+		std::string name;
+		fs::path filePath;
 		std::pair<ShaderType, std::string> sources[5];
 
 		shader_source() = default;
-		shader_source(std::string _fileName, std::filesystem::path _filePath, std::stringstream _ss[])
+		shader_source(std::string _name, fs::path _filePath, std::stringstream _ss[])
 		{
-			fileName = _fileName;
+			name = _name;
 			filePath = _filePath;
 			sources[0] = std::make_pair<ShaderType,std::string>(ShaderType::VERTEX,_ss[0].str());
 			sources[1] = std::make_pair<ShaderType, std::string>(ShaderType::FRAGMENT,_ss[1].str());

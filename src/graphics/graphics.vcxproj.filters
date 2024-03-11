@@ -75,6 +75,9 @@
     <ClInclude Include="cache\cache.hpp">
       <Filter>cache</Filter>
     </ClInclude>
+    <ClInclude Include="cache\importers\materialimporter.hpp">
+      <Filter>cache\importers</Filter>
+    </ClInclude>
     <ClInclude Include="cache\importers\meshimporter.hpp">
       <Filter>cache\importers</Filter>
     </ClInclude>
@@ -121,6 +124,9 @@
       <Filter>data</Filter>
     </ClInclude>
     <ClInclude Include="data\material.hpp">
+      <Filter>data</Filter>
+    </ClInclude>
+    <ClInclude Include="data\materialsource.hpp">
       <Filter>data</Filter>
     </ClInclude>
     <ClInclude Include="data\mesh.hpp">
@@ -318,6 +324,9 @@
     <ClInclude Include="pipeline\stages\renderstage.hpp">
       <Filter>pipeline\stages</Filter>
     </ClInclude>
+    <ClInclude Include="pipeline\stages\shadowmapstage.hpp">
+      <Filter>pipeline\stages</Filter>
+    </ClInclude>
     <ClInclude Include="pipeline\stages\slyboxstage.hpp">
       <Filter>pipeline\stages</Filter>
     </ClInclude>
@@ -328,8 +337,6 @@
     <ClInclude Include="systems\renderer.hpp">
       <Filter>systems</Filter>
     </ClInclude>
-    <ClInclude Include="pipeline\stages\shadowmapstage.hpp" />
-    <ClInclude Include="cache\importers\materialimporter.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\include\GL\src\glad.c">
@@ -362,6 +369,9 @@
     <ClCompile Include="cache\buffercache.cpp">
       <Filter>cache</Filter>
     </ClCompile>
+    <ClCompile Include="cache\importers\materialimporter.cpp">
+      <Filter>cache\importers</Filter>
+    </ClCompile>
     <ClCompile Include="cache\importers\meshimporter.cpp">
       <Filter>cache\importers</Filter>
     </ClCompile>
@@ -389,6 +399,5 @@
     <ClCompile Include="systems\renderer.cpp">
       <Filter>systems</Filter>
     </ClCompile>
-    <ClCompile Include="cache\importers\materialimporter.cpp" />
   </ItemGroup>
 </Project>

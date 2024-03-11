@@ -18,7 +18,6 @@ namespace rythe::rendering
 	struct model
 	{
 		std::string name;
-		inputlayout layout;
 		buffer_handle indexBuffer;
 		buffer_handle vertexBuffer;
 		buffer_handle normalBuffer;
@@ -27,14 +26,12 @@ namespace rythe::rendering
 		buffer_handle tangentBuffer;
 		buffer_handle matrixBuffer;
 		ast::asset_handle<mesh> meshHandle;
-		ast::asset_handle<material> matHandle;
 
 		model() = default;
-		model(const model& mod) : name(mod.name), indexBuffer(mod.indexBuffer), vertexBuffer(mod.vertexBuffer), normalBuffer(mod.normalBuffer), uvBuffer(mod.uvBuffer), colorBuffer(mod.colorBuffer), tangentBuffer(mod.tangentBuffer), matrixBuffer(mod.matrixBuffer), meshHandle(mod.meshHandle), matHandle(mod.matHandle) { }
+		model(const model& mod) : name(mod.name), indexBuffer(mod.indexBuffer), vertexBuffer(mod.vertexBuffer), normalBuffer(mod.normalBuffer), uvBuffer(mod.uvBuffer), colorBuffer(mod.colorBuffer), tangentBuffer(mod.tangentBuffer), matrixBuffer(mod.matrixBuffer), meshHandle(mod.meshHandle) { }
 
 		void bind()
 		{
-			layout.bind();
 			if (vertexBuffer != nullptr)
 				vertexBuffer->bind();
 
@@ -50,8 +47,6 @@ namespace rythe::rendering
 
 		void unbind()
 		{
-			layout.unbind();
-
 			if (vertexBuffer != nullptr)
 				vertexBuffer->unbind();
 

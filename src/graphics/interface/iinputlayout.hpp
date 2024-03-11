@@ -16,7 +16,6 @@ namespace rythe::rendering
 	private:
 		APIType m_impl;
 	public:
-
 		void initialize(unsigned int numBuffers, shader_handle shader) { m_impl.initialize(numBuffers, shader); }
 		void bind() { m_impl.bind(); }
 		void unbind() { m_impl.unbind(); }

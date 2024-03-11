@@ -43,7 +43,7 @@ namespace rythe::rendering::internal
 		{
 			ZoneScopedN("[DX11 Shadercompiler] compile()");
 			std::string profile = m_profiles[static_cast<int>(type)];
-			std::string file{ std::format("{}-{}", source.fileName, profile) };
+			std::string file{ std::format("{}-{}", source.name, profile) };
 
 			UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
 			flags |= D3DCOMPILE_PACK_MATRIX_COLUMN_MAJOR;
@@ -58,7 +58,7 @@ namespace rythe::rendering::internal
 			ID3DBlob* errors;
 			ID3DBlob* ppShaderBlob;
 			std::string src = source.sources[static_cast<int>(type)].second;
-			std::string sourceName = std::format("{}.shader", source.fileName);
+			std::string sourceName = std::format("{}.shader", source.name);
 
 			if (src.empty())
 			{

@@ -64,12 +64,12 @@ namespace rythe::rendering
 				depthCubeFBO->bind();
 
 
-				auto colorHandle = TextureCache::createTexture("shadowCube-color", TextureType::RENDER_TARGET, { 0, nullptr }, math::ivec2(Shadow_Width, Shadow_Height), texture_parameters
-					{
-						.usage = rendering::UsageType::DEFAULT,
-						.minFilterMode = rendering::FilterMode::LINEAR,
-						.magFilterMode = rendering::FilterMode::LINEAR
-					});
+				//auto colorHandle = TextureCache::createTexture("shadowCube-color", TextureType::RENDER_TARGET, { 0, nullptr }, math::ivec2(Shadow_Width, Shadow_Height), texture_parameters
+				//	{
+				//		.usage = rendering::UsageType::DEFAULT,
+				//		.minFilterMode = rendering::FilterMode::LINEAR,
+				//		.magFilterMode = rendering::FilterMode::LINEAR
+				//	});
 
 				depthCubeMap = TextureCache::createCubemap("shadowCube-depth", { 0, nullptr }, math::ivec2(Shadow_Width, Shadow_Height), texture_parameters
 					{
@@ -83,7 +83,6 @@ namespace rythe::rendering
 						.borderColor = math::vec4(1.0f)
 					});
 
-				//depthCubeFBO->attach(AttachmentSlot::COLOR0, colorHandle, true, true);
 				depthCubeFBO->attach(AttachmentSlot::DEPTH_STENCIL, depthCubeMap, false, false);
 				depthCubeFBO->unbind();
 			}

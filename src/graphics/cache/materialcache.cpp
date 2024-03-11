@@ -1,5 +1,6 @@
 #include "graphics/cache/materialcache.hpp"
 #include "graphics/cache/shadercache.hpp"
+#include "graphics/cache/texturecache.hpp"
 
 #include "graphics/cache/importers/shaderimporter.hpp"
 #include "graphics/cache/importers/textureimporter.hpp"
@@ -9,6 +10,41 @@ namespace rythe::rendering
 	std::unordered_map<rsl::id_type, std::unique_ptr<material>> MaterialCache::m_materials;
 	std::unordered_map<rsl::id_type, std::string> MaterialCache::m_names;
 
+	ast::asset_handle<material> MaterialCache::loadMaterial(const std::string& name, ast::asset_handle<material_source> source)
+	{
+		rsl::id_type id = rsl::nameHash(name);
+		if (m_materials.contains(id))
+		{
+			log::warn("Material {} already exists, ignoring creation request and returning existing material", name);
+			return { id, m_materials[id].get() };
+		}
+
+		std::unique_ptr<material> mat = std::make_unique<material>();
+		if (source->shaderId != 0)
+		{
+			mat->setShader(ShaderCache::getShader(source->shaderId));
+		}
+		else if (!source->shaderName.empty())
+		{
+			mat->setShader(ShaderCache::getShader(source->shaderName));
+		}
+		else
+		{
+			mat->setShader(ShaderCache::getShader("error"));
+		}
+
+		int count = 3;
+		for (fs::path path : source->textureFilepaths)
+		{
+			auto texName = path.stem().string();
+			mat->addTexture(static_cast<TextureSlot>(count), TextureCache::createTexture2D(ast::AssetCache<texture_source>::createAsset(texName, path, default_texture_import_params)));
+			count++;
+		}
+		mat->name = name;
+		m_materials.emplace(id, std::move(mat));
+		m_names.emplace(id, name);
+		return { id,  m_materials[id].get() };
+	}
 
 	ast::asset_handle<material> MaterialCache::loadMaterial(const std::string& name, shader_handle shader)
 	{
@@ -37,12 +73,27 @@ namespace rythe::rendering
 	}
 	ast::asset_handle<material> MaterialCache::loadMaterial(const std::string& name, ast::asset_handle<shader_source> shader)
 	{
-		return loadMaterial(name, ShaderCache::createShader(shader->fileName, shader));
+		return loadMaterial(name, ShaderCache::createShader(shader->name, shader));
 	}
+
+	ast::asset_handle<material> MaterialCache::loadMaterial(const std::string& name)
+	{
+		return loadMaterial(name, ast::AssetCache<material_source>::getAsset(name));
+	}
+
 	ast::asset_handle<material> MaterialCache::loadMaterialFromFile(const std::string& name, fs::path shaderPath)
 	{
 		return loadMaterial(name, ast::AssetCache<shader_source>::createAsset(name, shaderPath, default_shader_params, false));
 	}
+
+	void MaterialCache::loadMaterials(std::vector<ast::asset_handle<material_source>> assets)
+	{
+		for (auto source : assets)
+		{
+			loadMaterial(source->name, source);
+		}
+	}
+
 	ast::asset_handle<material> MaterialCache::getMaterial(const std::string& name)
 	{
 		rsl::id_type id = rsl::nameHash(name);

@@ -153,7 +153,7 @@ namespace rythe::rendering
 		PER_INSTANCE = static_cast<int>(internal::InputClass::PER_INSTANCE)
 	};
 
-	enum class TextureSlot
+	enum class TextureSlot : int
 	{
 		TEXTURE0 = static_cast<int>(internal::TextureSlot::TEXTURE0),
 		TEXTURE1 = static_cast<int>(internal::TextureSlot::TEXTURE1),

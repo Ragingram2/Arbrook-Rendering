@@ -13,6 +13,7 @@ namespace rythe::rendering
 	{
 		framebuffer* mainFBO;
 		framebuffer* depthFBO;
+		inputlayout layout;
 		shader_handle screenShader;
 		ast::asset_handle<model> screenQuad;
 		virtual void setup(core::transform camTransf, camera& cam) override
@@ -20,17 +21,17 @@ namespace rythe::rendering
 			screenShader = ShaderCache::getShader("screen");
 			screenQuad = ModelCache::getModel("plane");
 
-			screenQuad->layout.initialize(1, screenShader);
-			screenQuad->layout.bind();
+			layout.initialize(1, screenShader);
+			layout.bind();
 			screenQuad->vertexBuffer = BufferCache::createVertexBuffer<math::vec4>("ScreenQuad-Vertex Buffer", 0, UsageType::STATICDRAW, screenQuad->meshHandle->vertices);
-			screenQuad->layout.setAttributePtr(screenQuad->vertexBuffer, "POSITION", 0, FormatType::RGBA32F, 0, sizeof(math::vec4), 0);
+			layout.setAttributePtr(screenQuad->vertexBuffer, "POSITION", 0, FormatType::RGBA32F, 0, sizeof(math::vec4), 0);
 
 			screenQuad->indexBuffer = BufferCache::createIndexBuffer("ScreenQuad-Index Buffer", UsageType::STATICDRAW, screenQuad->meshHandle->indices);
 
 			screenQuad->uvBuffer = BufferCache::createVertexBuffer<math::vec2>("ScreenQuad-UV Buffer", 1, UsageType::STATICDRAW, screenQuad->meshHandle->texCoords);
-			screenQuad->layout.setAttributePtr(screenQuad->uvBuffer, "TEXCOORD", 0, FormatType::RG32F, 1, sizeof(math::vec2), 0);
+			layout.setAttributePtr(screenQuad->uvBuffer, "TEXCOORD", 0, FormatType::RG32F, 1, sizeof(math::vec2), 0);
 
-			screenQuad->layout.submitAttributes();
+			layout.submitAttributes();
 
 			mainFBO = getFramebuffer("MainBuffer");
 		}

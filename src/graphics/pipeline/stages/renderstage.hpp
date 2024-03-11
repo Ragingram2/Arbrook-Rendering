@@ -49,7 +49,7 @@ namespace rythe::rendering
 				renderer.material->addTexture(TextureSlot::TEXTURE1, depthTexture);
 				renderer.material->addTexture(TextureSlot::TEXTURE2, depthCube);
 
-				initializeModel(ent->id, renderer.model, mat, renderer.model->meshHandle, renderer.instanced);
+				initializeModel(ent->id, renderer);
 				renderer.dirty = false;
 				auto pos = std::find(m_shaders.begin(), m_shaders.end(), mat->getShader());
 				if (pos == m_shaders.end())
@@ -84,7 +84,7 @@ namespace rythe::rendering
 				ast::asset_handle<mesh> mesh = renderer.model->meshHandle;
 				if (renderer.dirty)
 				{
-					initializeModel(ent->id, model, material, mesh, renderer.instanced);
+					initializeModel(ent->id, renderer);
 
 					renderer.dirty = false;
 					auto pos = std::find(m_shaders.begin(), m_shaders.end(), shader);
@@ -103,6 +103,7 @@ namespace rythe::rendering
 				cameraBuffer->bufferData(data, 1);
 				materialBuffer->bufferData(&material->data, 1);
 				material->bind();
+				renderer.layout.bind();
 				model->bind();
 				if (model->indexBuffer != nullptr)
 					for (unsigned int i = 0; i < mesh->meshes.size(); i++)
@@ -114,6 +115,7 @@ namespace rythe::rendering
 				else
 					RI->drawArrays(PrimitiveType::TRIANGLESLIST, 0, mesh->vertices.size());
 
+				renderer.layout.unbind();
 				material->unbind();
 				model->unbind();
 			}
@@ -122,18 +124,19 @@ namespace rythe::rendering
 
 		virtual rsl::priority_type priority() const override { return OPAQUE_PRIORITY; }
 
-		void initializeModel(rsl::uint entId, ast::asset_handle<model> model, ast::asset_handle<material> mat, ast::asset_handle<mesh> mesh, bool instanced = false)
+		void initializeModel(rsl::uint entId, mesh_renderer& renderer)
 		{
-			auto meshHandle = model->meshHandle = mesh;
-			auto matHandle = model->matHandle = mat;
-			auto& layout = model->layout;
+			auto& model = renderer.model;
+			auto meshHandle = renderer.model->meshHandle;
+			auto matHandle = renderer.material;
+			auto& layout = renderer.layout;
 
 			layout.release();
 			layout.initialize(1, matHandle->getShader());
 			layout.bind();
 
 			model->vertexBuffer = BufferCache::createVertexBuffer<math::vec4>(std::format("{}{}-Vertex Buffer", meshHandle->name, entId), 0, UsageType::STATICDRAW, meshHandle->vertices);
-			model->layout.setAttributePtr(model->vertexBuffer, "POSITION", 0, FormatType::RGBA32F, 0, sizeof(math::vec4), 0);
+			renderer.layout.setAttributePtr(model->vertexBuffer, "POSITION", 0, FormatType::RGBA32F, 0, sizeof(math::vec4), 0);
 
 			model->indexBuffer = BufferCache::createIndexBuffer(std::format("{}-Index Buffer", meshHandle->name), UsageType::STATICDRAW, meshHandle->indices);
 
@@ -149,7 +152,7 @@ namespace rythe::rendering
 				layout.setAttributePtr(model->uvBuffer, "TEXCOORD", 0, FormatType::RG32F, 2, sizeof(math::vec2), 0);
 			}
 
-			if (instanced)
+			if (renderer.instanced)
 			{
 				model->matrixBuffer = BufferCache::createBuffer<math::mat4>(std::format("{}{}-Matrix Buffer", meshHandle->name, entId), BufferType::VERTEX_BUFFER);
 				layout.setAttributePtr(model->matrixBuffer, "MODEL", 1, FormatType::RGBA32F, 3, sizeof(math::mat4), 0.f * sizeof(math::vec4), InputClass::PER_INSTANCE, 1);

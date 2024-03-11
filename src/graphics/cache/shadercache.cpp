@@ -24,7 +24,7 @@ namespace rythe::rendering
 	{
 		for (auto& source : assets)
 		{
-			createShader(source->fileName, source);
+			createShader(source->name, source);
 		}
 	}
 
@@ -50,7 +50,7 @@ namespace rythe::rendering
 		{
 			return { m_shaders[nameHash].get() };
 		}
-		log::error("Shader \"{}\" does not exist");
+		log::error("Shader id \"{}\" does not exist", nameHash);
 		return { nullptr };
 	}
 
