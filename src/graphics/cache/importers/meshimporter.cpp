@@ -67,11 +67,13 @@ namespace rythe::rendering
 		{
 			const aiVector3D& vertex = _mesh->mVertices[i];
 			const aiVector3D& normal = _mesh->mNormals[i];
+			const aiVector3D& tangent = _mesh->HasTangentsAndBitangents() ? _mesh->mTangents[i] : Zero3D;
 			const aiVector3D texcoord = _mesh->HasTextureCoords(0) ? _mesh->mTextureCoords[0][i] : Zero3D;
 
 			data->vertices.push_back(math::vec4(vertex.x, vertex.y, vertex.z, 1.0f));
 			data->normals.push_back(math::vec3(normal.x, normal.y, normal.z));
 			data->texCoords.push_back(math::vec2(texcoord.x, texcoord.y));
+			data->tangents.push_back(math::vec3(tangent.x, tangent.y, tangent.z));
 		}
 
 		if (_mesh->HasVertexColors(0))

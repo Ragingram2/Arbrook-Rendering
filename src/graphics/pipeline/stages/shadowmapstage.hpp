@@ -74,7 +74,6 @@ namespace rythe::rendering
 
 			mainFBO->bind();
 			RI->setViewport(1, 0, 0, Screen_Width, Screen_Height);
-			RI->clear(true, DepthClearBit::DEPTH);
 			RI->cullFace(CullMode::BACK);
 		}
 

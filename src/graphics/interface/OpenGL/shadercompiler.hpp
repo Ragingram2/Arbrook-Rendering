@@ -86,7 +86,7 @@ namespace rythe::rendering::internal
 				break;
 			}
 
-			std::string file{ std::format("{}-{}", source.fileName, shaderType) };
+			std::string file{ std::format("{}-{}", source.name, shaderType) };
 			std::string hlslSource = source.sources[shaderIdx].second;
 
 			if (hlslSource.empty())
@@ -96,7 +96,7 @@ namespace rythe::rendering::internal
 
 			hlslSource = std::string("#define OpenGL\n").append(hlslSource);
 
-			std::vector<unsigned int> spirVBin = compileToSpirV(profile, shaderType, source.fileName, hlslSource);
+			std::vector<unsigned int> spirVBin = compileToSpirV(profile, shaderType, source.name, hlslSource);
 			if (spirVBin.size() < 1)
 			{
 				log::error("[{}] SpirV file is too small", file);

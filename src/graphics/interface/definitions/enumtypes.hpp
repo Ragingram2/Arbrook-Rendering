@@ -59,7 +59,7 @@ namespace rythe::rendering
 
 	enum class FormatType
 	{
-		D32 = static_cast<int>(internal::FormatType::D32), 
+		D32 = static_cast<int>(internal::FormatType::D32),
 		R24_UX8 = static_cast<int>(internal::FormatType::R24_UX8),
 		R24_G8 = static_cast<int>(internal::FormatType::R24_G8),
 		D24_S8 = static_cast<int>(internal::FormatType::D24_S8),
@@ -188,6 +188,11 @@ namespace rythe::rendering
 		TEXTURE30 = static_cast<int>(internal::TextureSlot::TEXTURE30),
 		TEXTURE31 = static_cast<int>(internal::TextureSlot::TEXTURE31)
 	};
+
+	inline TextureSlot operator++(TextureSlot& t,int)
+	{
+		return t = static_cast<TextureSlot>(static_cast<int>(t) + 1);
+	}
 
 	enum class AttachmentSlot
 	{

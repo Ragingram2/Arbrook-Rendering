@@ -152,13 +152,19 @@ namespace rythe::rendering
 				layout.setAttributePtr(model->uvBuffer, "TEXCOORD", 0, FormatType::RG32F, 2, sizeof(math::vec2), 0);
 			}
 
+			if (meshHandle->tangents.size() > 0)
+			{
+				model->tangentBuffer = BufferCache::createVertexBuffer<math::vec3>(std::format("{}{}-Tangent Buffer", meshHandle->name, entId), 3, UsageType::STATICDRAW, meshHandle->tangents);
+				layout.setAttributePtr(model->tangentBuffer, "TANGENT", 0, FormatType::RGB32F, 3, sizeof(math::vec3), 0);
+			}
+
 			if (renderer.instanced)
 			{
 				model->matrixBuffer = BufferCache::createBuffer<math::mat4>(std::format("{}{}-Matrix Buffer", meshHandle->name, entId), BufferType::VERTEX_BUFFER);
-				layout.setAttributePtr(model->matrixBuffer, "MODEL", 1, FormatType::RGBA32F, 3, sizeof(math::mat4), 0.f * sizeof(math::vec4), InputClass::PER_INSTANCE, 1);
-				layout.setAttributePtr(model->matrixBuffer, "MODEL", 2, FormatType::RGBA32F, 3, sizeof(math::mat4), 1.f * sizeof(math::vec4), InputClass::PER_INSTANCE, 1);
-				layout.setAttributePtr(model->matrixBuffer, "MODEL", 3, FormatType::RGBA32F, 3, sizeof(math::mat4), 2.f * sizeof(math::vec4), InputClass::PER_INSTANCE, 1);
-				layout.setAttributePtr(model->matrixBuffer, "MODEL", 4, FormatType::RGBA32F, 3, sizeof(math::mat4), 3.f * sizeof(math::vec4), InputClass::PER_INSTANCE, 1);
+				layout.setAttributePtr(model->matrixBuffer, "MODEL", 1, FormatType::RGBA32F, 4, sizeof(math::mat4), 0.f * sizeof(math::vec4), InputClass::PER_INSTANCE, 1);
+				layout.setAttributePtr(model->matrixBuffer, "MODEL", 2, FormatType::RGBA32F, 4, sizeof(math::mat4), 1.f * sizeof(math::vec4), InputClass::PER_INSTANCE, 1);
+				layout.setAttributePtr(model->matrixBuffer, "MODEL", 3, FormatType::RGBA32F, 4, sizeof(math::mat4), 2.f * sizeof(math::vec4), InputClass::PER_INSTANCE, 1);
+				layout.setAttributePtr(model->matrixBuffer, "MODEL", 4, FormatType::RGBA32F, 4, sizeof(math::mat4), 3.f * sizeof(math::vec4), InputClass::PER_INSTANCE, 1);
 			}
 			layout.submitAttributes();
 		}

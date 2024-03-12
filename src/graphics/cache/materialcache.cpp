@@ -33,12 +33,12 @@ namespace rythe::rendering
 			mat->setShader(ShaderCache::getShader("error"));
 		}
 
-		int count = 0;
+		auto slot = TextureSlot::TEXTURE0;
 		for (fs::path path : source->textureFilepaths)
 		{
 			auto texName = path.stem().string();
-			mat->addTexture(static_cast<TextureSlot>(count), TextureCache::createTexture2D(ast::AssetCache<texture_source>::createAsset(texName, path, default_texture_import_params)));
-			count++;
+			mat->addTexture(slot, TextureCache::createTexture2D(ast::AssetCache<texture_source>::createAsset(texName, path, default_texture_import_params)));
+			slot++;
 		}
 		mat->name = name;
 		m_materials.emplace(id, std::move(mat));

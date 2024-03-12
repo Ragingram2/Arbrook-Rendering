@@ -327,7 +327,7 @@
     <ClInclude Include="pipeline\stages\shadowmapstage.hpp">
       <Filter>pipeline\stages</Filter>
     </ClInclude>
-    <ClInclude Include="pipeline\stages\slyboxstage.hpp">
+    <ClInclude Include="pipeline\stages\skyboxstage.hpp">
       <Filter>pipeline\stages</Filter>
     </ClInclude>
     <ClInclude Include="pipeline\stages\submitstage.hpp">

@@ -28,6 +28,7 @@ namespace rythe::rendering
 		std::vector<math::vec4> colors;
 		std::vector<math::vec3> normals;
 		std::vector<math::vec2> texCoords;
+		std::vector<math::vec3> tangents;
 		std::vector<unsigned int> indices;
 		std::vector<rsl::uint> materialIndices;
 		std::vector<sub_mesh> meshes;

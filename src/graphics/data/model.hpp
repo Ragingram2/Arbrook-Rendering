@@ -43,6 +43,9 @@ namespace rythe::rendering
 
 			if (uvBuffer != nullptr)
 				uvBuffer->bind();
+
+			if (tangentBuffer != nullptr)
+				tangentBuffer->bind();
 		}
 
 		void unbind()
@@ -58,6 +61,9 @@ namespace rythe::rendering
 
 			if (uvBuffer != nullptr)
 				uvBuffer->unbind();
+
+			if (tangentBuffer != nullptr)
+				tangentBuffer->unbind();
 		}
 	};
 

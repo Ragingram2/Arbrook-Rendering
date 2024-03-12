@@ -82,7 +82,6 @@ namespace rythe::rendering::internal
 			errors = nullptr;
 
 			ID3DBlob* shaderBlob;
-			//log::debug("\n{}", static_cast<char*>(ppShaderBlob->GetBufferPointer()));
 			log::info("[{}] Compiling Shader", file);
 			CHECKERROR(D3DCompile(ppShaderBlob->GetBufferPointer(), ppShaderBlob->GetBufferSize(), sourceName.c_str(), nullptr, m_includer, "main", profile.c_str(), flags, 0, &shaderBlob, &errors), std::format("Shader failed to compile:\n{}", static_cast<char*>(errors->GetBufferPointer())), m_windowHandle->checkError(););
 
@@ -93,7 +92,6 @@ namespace rythe::rendering::internal
 				auto infoLog = static_cast<char*>(errors->GetBufferPointer());
 				log::error("[{}] Shader Compilation Failed", file);
 				log::error("[{}] Shader Compilation log:\n{}", file, infoLog);
-				//log::info("[{}] Shader Source:\n{}",file, static_cast<char*>(ppShaderBlob->GetBufferPointer()));
 				return nullptr;
 			}
 			else
