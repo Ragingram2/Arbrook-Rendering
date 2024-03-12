@@ -1,7 +1,7 @@
 #pragma once
 #include "graphics/pipeline/base/pipeline.hpp"
 #include "graphics/pipeline/stages/clearstage.hpp"
-#include "graphics/pipeline/stages/slyboxstage.hpp"
+#include "graphics/pipeline/stages/skyboxstage.hpp"
 #include "graphics/pipeline/stages/shadowmapstage.hpp"
 #include "graphics/pipeline/stages/renderstage.hpp"
 #include "graphics/pipeline/stages/guistage.hpp"

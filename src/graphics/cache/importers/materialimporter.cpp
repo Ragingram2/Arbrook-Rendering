@@ -43,9 +43,4 @@ namespace rythe::rendering
 	}
 
 	void MaterialImporter::free(material_source&) {}
-
-	//void MaterialImporter::initMat(material_source* data, const aiMaterial* _material)
-	//{
-
-	//}
 }

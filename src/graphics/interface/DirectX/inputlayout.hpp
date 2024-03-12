@@ -46,7 +46,7 @@ namespace rythe::rendering::internal
 		{
 			id = other.id;
 			elementDesc = other.elementDesc;
-			//m_vertexAttribs = other.m_vertexAttribs;
+			m_vertexAttribs = other.m_vertexAttribs;
 			m_layout = other.m_layout;
 			m_vsBlob = other.m_vsBlob;
 			m_windowHandle = other.m_windowHandle;

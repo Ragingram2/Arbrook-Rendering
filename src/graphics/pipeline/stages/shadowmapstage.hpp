@@ -101,6 +101,7 @@ namespace rythe::rendering
 				dirShadowMap->setUniform("CameraBuffer", data);
 
 				model->bind();
+				renderer.layout.bind();
 				if (model->indexBuffer != nullptr)
 					for (unsigned int i = 0; i < mesh->meshes.size(); i++)
 					{
@@ -109,7 +110,7 @@ namespace rythe::rendering
 					}
 				else
 					RI->drawArrays(PrimitiveType::TRIANGLESLIST, 0, mesh->vertices.size());
-
+				renderer.layout.unbind();
 				model->unbind();
 			}
 			dirShadowMap->unbind();
@@ -140,6 +141,7 @@ namespace rythe::rendering
 					data[0].model = transf.to_world();
 					pointShadowMap->setUniform("CameraBuffer", data);
 					model->bind();
+					renderer.layout.bind();
 					if (model->indexBuffer != nullptr)
 						for (unsigned int i = 0; i < mesh->meshes.size(); i++)
 						{
@@ -148,6 +150,7 @@ namespace rythe::rendering
 						}
 					else
 						RI->drawArrays(PrimitiveType::TRIANGLESLIST, 0, mesh->vertices.size());
+					renderer.layout.unbind();
 					model->unbind();
 				}
 				pointShadowMap->unbind();

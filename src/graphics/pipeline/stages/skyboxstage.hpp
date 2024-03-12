@@ -18,7 +18,7 @@ namespace rythe::rendering
 		inputlayout layout;
 		virtual void setup(core::transform camTransf, camera& cam) override
 		{
-			skyboxMat = MaterialCache::loadMaterialFromFile("skybox", "resources/shaders/skybox.shader");
+			skyboxMat = MaterialCache::loadMaterial("skybox");
 			cubeHandle = ModelCache::getModel("cube");
 			cameraBuffer = BufferCache::getBuffer("CameraBuffer");
 			skyboxMat->getShader()->addBuffer(cameraBuffer);
@@ -44,12 +44,14 @@ namespace rythe::rendering
 			cameraBuffer->bufferData(&data, 1);
 			skyboxMat->bind();
 			cubeHandle->bind();
-
+			layout.bind();
 			for (auto submesh : cubeHandle->meshHandle->meshes)
 			{
 				RI->drawIndexed(PrimitiveType::TRIANGLESLIST, submesh.count, submesh.indexOffset, submesh.vertexOffset);
 				WindowProvider::activeWindow->checkError();
 			}
+			layout.unbind();
+			cubeHandle->unbind();
 			skyboxMat->unbind();
 			RI->setDepthFunction(DepthFuncs::LESS);
 			RI->updateDepthStencil();

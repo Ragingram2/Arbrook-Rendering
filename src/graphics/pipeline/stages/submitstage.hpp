@@ -50,11 +50,13 @@ namespace rythe::rendering
 			screenShader->bind();
 			colorTexture->bind(TextureSlot::TEXTURE0);
 			screenQuad->bind();
-
+			layout.bind();
 			RI->drawIndexed(PrimitiveType::TRIANGLESLIST, screenQuad->meshHandle->indexCount, 0, 0);
 			WindowProvider::activeWindow->checkError();
-
+			layout.unbind();
+			screenQuad->unbind();
 			colorTexture->unbind(TextureSlot::TEXTURE0);
+			screenShader->unbind();
 		}
 
 		virtual rsl::priority_type priority() const override { return SUBMIT_PRIORITY; }

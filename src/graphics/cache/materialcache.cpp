@@ -33,7 +33,7 @@ namespace rythe::rendering
 			mat->setShader(ShaderCache::getShader("error"));
 		}
 
-		int count = 3;
+		int count = 0;
 		for (fs::path path : source->textureFilepaths)
 		{
 			auto texName = path.stem().string();
@@ -104,10 +104,12 @@ namespace rythe::rendering
 		log::error("Material \"{}\" does not exist", name);
 		return { 0, nullptr };
 	}
+
 	void MaterialCache::deleteMaterial(const std::string& name)
 	{
 		deleteMaterial(rsl::nameHash(name));
 	}
+
 	void MaterialCache::deleteMaterial(rsl::id_type nameHash)
 	{
 		if (m_materials.contains(nameHash))
@@ -117,6 +119,7 @@ namespace rythe::rendering
 			m_names.erase(nameHash);
 		}
 	}
+
 	std::vector<ast::asset_handle<material>> MaterialCache::getMaterials()
 	{
 		std::vector<ast::asset_handle<material>> handles;
@@ -126,6 +129,7 @@ namespace rythe::rendering
 		}
 		return handles;
 	}
+
 	std::vector<std::string> MaterialCache::getMaterialNames()
 	{
 		std::vector<std::string> names;
@@ -135,6 +139,7 @@ namespace rythe::rendering
 		}
 		return names;
 	}
+
 	std::vector<const char*> MaterialCache::getMaterialNamesC()
 	{
 		std::vector<const char*> names;
