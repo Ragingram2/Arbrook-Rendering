@@ -46,8 +46,8 @@ namespace rythe::rendering
 				auto& renderer = ent.getComponent<mesh_renderer>();
 				ast::asset_handle<material> mat = renderer.material;
 
-				renderer.material->addTexture(TextureSlot::TEXTURE3, depthTexture);
-				renderer.material->addTexture(TextureSlot::TEXTURE4, depthCube);
+				renderer.material->addTexture(TextureSlot::TEXTURE4, depthTexture);
+				renderer.material->addTexture(TextureSlot::TEXTURE5, depthCube);
 
 				initializeModel(ent->id, renderer);
 				renderer.dirty = false;

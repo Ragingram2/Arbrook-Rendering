@@ -51,7 +51,6 @@ namespace rythe::rendering
 		.minFilterMode = FilterMode::LINEAR,
 		.magFilterMode = FilterMode::LINEAR,
 		.borderColor = math::vec4(0.0f),
-		.format = FormatType::RGBA,
 		.usage = UsageType::IMMUTABLE,
 		.textures = 1,
 		.mipLevels = 1,

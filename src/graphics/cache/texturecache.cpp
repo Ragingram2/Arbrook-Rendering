@@ -47,6 +47,13 @@ namespace rythe::rendering
 		auto& tex = m_textures.emplace(id, std::make_unique<texture>()).first->second;
 		tex->m_impl.name = name;
 		tex->m_impl.channels = textureData != nullptr ? textureData->channels : 4;
+		switch (tex->m_impl.channels)
+		{
+		case 1: params.format = FormatType::R; break;
+		case 2: params.format = FormatType::RG; break;
+		case 3: params.format = FormatType::RGB; break;
+		case 4: params.format = FormatType::RGBA; break;
+		}
 		tex->m_impl.resolution = overrideResolution;
 		tex->m_impl.initialize(internal::TextureType::TEXTURE2D, params);
 		tex->loadData(textureData != nullptr ? textureData->data : nullptr);
