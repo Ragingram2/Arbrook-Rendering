@@ -3,6 +3,7 @@
 #include "graphics/pipeline/stages/clearstage.hpp"
 #include "graphics/pipeline/stages/skyboxstage.hpp"
 #include "graphics/pipeline/stages/shadowmapstage.hpp"
+#include "graphics/pipeline/stages/pickingstage.hpp"
 #include "graphics/pipeline/stages/renderstage.hpp"
 #include "graphics/pipeline/stages/guistage.hpp"
 #include "graphics/pipeline/stages/postprocessingstage.hpp"
@@ -19,6 +20,7 @@ namespace rythe::rendering
 			attachStage<clear_stage>();
 			attachStage<skybox_stage>();
 			attachStage<light_render_stage>();
+			attachStage<picking_stage>();
 			attachStage<shadow_map_stage>();
 			attachStage<render_stage>();
 			//attachStage<post_processing_stage>();

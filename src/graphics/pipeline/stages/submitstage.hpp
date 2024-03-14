@@ -16,49 +16,14 @@ namespace rythe::rendering
 		inputlayout layout;
 		shader_handle screenShader;
 		ast::asset_handle<model> screenQuad;
-		virtual void setup(core::transform camTransf, camera& cam) override
+		virtual void setup(core::transform camTransf, camera& cam) override;
+		virtual void render(core::transform camTransf, camera& cam) override;
+		virtual rsl::priority_type priority() const override;
+
+		template <class T, void(T::* Func)(core::transform, camera)>
+		static void addRender(T* ptr)
 		{
-			screenShader = ShaderCache::getShader("screen");
-			screenQuad = ModelCache::getModel("plane");
-
-			layout.initialize(1, screenShader);
-			layout.bind();
-			screenQuad->vertexBuffer = BufferCache::createVertexBuffer<math::vec4>("ScreenQuad-Vertex Buffer", 0, UsageType::STATICDRAW, screenQuad->meshHandle->vertices);
-			layout.setAttributePtr(screenQuad->vertexBuffer, "POSITION", 0, FormatType::RGBA32F, 0, sizeof(math::vec4), 0);
-
-			screenQuad->indexBuffer = BufferCache::createIndexBuffer("ScreenQuad-Index Buffer", UsageType::STATICDRAW, screenQuad->meshHandle->indices);
-
-			screenQuad->uvBuffer = BufferCache::createVertexBuffer<math::vec2>("ScreenQuad-UV Buffer", 1, UsageType::STATICDRAW, screenQuad->meshHandle->texCoords);
-			layout.setAttributePtr(screenQuad->uvBuffer, "TEXCOORD", 0, FormatType::RG32F, 1, sizeof(math::vec2), 0);
-
-			layout.submitAttributes();
-
-			mainFBO = getFramebuffer("MainBuffer");
+			m_onRender.push_back<T, Func>(*ptr);
 		}
-
-		virtual void render(core::transform camTransf, camera& cam) override
-		{
-			mainFBO->unbind();
-			auto colorTexture = mainFBO->getAttachment(AttachmentSlot::COLOR0);
-			RI->depthTest(false);
-			RI->cullFace(CullMode::NONE);
-			RI->updateDepthStencil();
-
-			RI->setClearColor(1.0f, 0.0f, 1.0f, 1.0f);
-			RI->clear(true);
-
-			screenShader->bind();
-			colorTexture->bind(TextureSlot::TEXTURE0);
-			screenQuad->bind();
-			layout.bind();
-			RI->drawIndexed(PrimitiveType::TRIANGLESLIST, screenQuad->meshHandle->indexCount, 0, 0);
-			WindowProvider::activeWindow->checkError();
-			layout.unbind();
-			screenQuad->unbind();
-			colorTexture->unbind(TextureSlot::TEXTURE0);
-			screenShader->unbind();
-		}
-
-		virtual rsl::priority_type priority() const override { return SUBMIT_PRIORITY; }
 	};
 }

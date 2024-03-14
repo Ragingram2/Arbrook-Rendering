@@ -208,6 +208,17 @@ namespace rythe::rendering::internal
 			glDepthRange(minDepth, maxDepth);
 		}
 
+		math::vec4 readPixel(int x, int y, int width, int height)
+		{
+			unsigned char res[4];
+			GLint viewport[4];
+
+			glGetIntegerv(GL_VIEWPORT, viewport);
+			glReadPixels(x, viewport[3] - y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, &res);
+
+			return math::vec4(res[0], res[1], res[2], res[3]);
+		}
+
 		void cullFace(CullMode mode = CullMode::NONE)
 		{
 			ZoneScopedN("[OpenGL RenderInterface] cullFace()");

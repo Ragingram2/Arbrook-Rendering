@@ -37,10 +37,8 @@ namespace rythe::rendering
 		void setClearColor(math::vec3 color, float alpha = 1.0f) { m_impl.setClearColor(math::vec4(color, alpha)); }
 		void setClearColor(float r, float g, float b, float alpha = 1.0f) { m_impl.setClearColor(math::vec4(r, g, b, alpha)); }
 		void setViewport(float numViewPorts = 1, float leftX = 0, float leftY = 0, float width = 0, float height = 0, float minDepth = 0, float maxDepth = 1) { m_impl.setViewport(numViewPorts, leftX, leftY, width, height, minDepth, maxDepth); }
-		//math::mat4 lookAt(math::vec3 position, math::vec3 target, math::vec3 up) { return m_impl.lookAt(position, target, up); }
-		//math::mat4 orthographic(float left, float right, float bottom, float top, float near_plane, float far_plane) { return m_impl.orthographic(left, right, bottom, top, near_plane, far_plane); }
-		//math::mat4 perspective(float degrees, float aspect, float near_plane, float far_plane) { return m_impl.perspective(degrees, aspect, near_plane, far_plane); }
-
+		math::vec4 readPixels(int x, int y,int width, int height) { return m_impl.readPixel(x, y, width, height); }
+		math::vec4 readPixels(math::ivec2 pos, math::ivec2 dims) { return m_impl.readPixel(pos.x, pos.y, dims.x, dims.y); }
 		void cullFace(CullMode mode) { m_impl.cullFace(static_cast<internal::CullMode>(mode)); }
 		void setWindOrder(WindOrder order) { m_impl.setWindOrder(static_cast<internal::WindOrder>(order)); }
 

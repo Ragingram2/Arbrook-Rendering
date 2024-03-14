@@ -273,6 +273,7 @@
     <ClInclude Include="pipeline\stages\clearstage.hpp" />
     <ClInclude Include="pipeline\stages\guistage.hpp" />
     <ClInclude Include="pipeline\stages\lightrenderstage.hpp" />
+    <ClInclude Include="pipeline\stages\pickingstage.hpp" />
     <ClInclude Include="pipeline\stages\postprocessingstage.hpp" />
     <ClInclude Include="pipeline\stages\renderstage.hpp" />
     <ClInclude Include="pipeline\stages\shadowmapstage.hpp" />
@@ -307,6 +308,14 @@
     <ClCompile Include="cache\shadercache.cpp" />
     <ClCompile Include="cache\texturecache.cpp" />
     <ClCompile Include="pipeline\base\graphicsstage.cpp" />
+    <ClCompile Include="pipeline\stages\clearstage.cpp" />
+    <ClCompile Include="pipeline\stages\guistage.cpp" />
+    <ClCompile Include="pipeline\stages\lightrenderstage.cpp" />
+    <ClCompile Include="pipeline\stages\pickingstage.cpp" />
+    <ClCompile Include="pipeline\stages\renderstage.cpp" />
+    <ClCompile Include="pipeline\stages\shadowmapstage.cpp" />
+    <ClCompile Include="pipeline\stages\skyboxstage.cpp" />
+    <ClCompile Include="pipeline\stages\submitstage.cpp" />
     <ClCompile Include="systems\renderer.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -337,6 +337,7 @@
     <ClInclude Include="systems\renderer.hpp">
       <Filter>systems</Filter>
     </ClInclude>
+    <ClInclude Include="pipeline\stages\pickingstage.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\include\GL\src\glad.c">
@@ -399,5 +400,13 @@
     <ClCompile Include="systems\renderer.cpp">
       <Filter>systems</Filter>
     </ClCompile>
+    <ClCompile Include="pipeline\stages\clearstage.cpp" />
+    <ClCompile Include="pipeline\stages\guistage.cpp" />
+    <ClCompile Include="pipeline\stages\lightrenderstage.cpp" />
+    <ClCompile Include="pipeline\stages\renderstage.cpp" />
+    <ClCompile Include="pipeline\stages\shadowmapstage.cpp" />
+    <ClCompile Include="pipeline\stages\skyboxstage.cpp" />
+    <ClCompile Include="pipeline\stages\submitstage.cpp" />
+    <ClCompile Include="pipeline\stages\pickingstage.cpp" />
   </ItemGroup>
 </Project>
