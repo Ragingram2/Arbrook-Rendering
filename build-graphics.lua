@@ -2,7 +2,8 @@ createProject("engine","graphics","StaticLib")
 includedirs {
     basicIncludes,
     "C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/Include",
-    "include/imgui/"
+    "include/imgui/",
+    "include/imgui/addons/"
 }  
 defines {"GLEW_STATIC"}
 files { 
@@ -12,6 +13,7 @@ files {
     "src/graphics/**.c",
     "src/graphics/**.cpp",
     "include/imgui/*.cpp",
+    "include/imgui/addons/ImGuizmo/*.cpp",
     "include/imgui/backends/imgui_impl_glfw.cpp",
     "include/GL/src/glad.c"
 }

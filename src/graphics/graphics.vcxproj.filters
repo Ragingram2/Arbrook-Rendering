@@ -25,6 +25,12 @@
     <Filter Include="include\imgui">
       <UniqueIdentifier>{B37F74A5-1F40-F0DB-E87A-395954FA34B8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\imgui\addons">
+      <UniqueIdentifier>{DB531761-C7E2-A02A-7001-B5255C6FB1D0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\imgui\addons\ImGuizmo">
+      <UniqueIdentifier>{9B4C58A3-0765-3FCD-D011-CF663CE9D366}</UniqueIdentifier>
+    </Filter>
     <Filter Include="include\imgui\backends">
       <UniqueIdentifier>{3D53EC06-294D-1559-12BA-AB69FE527BC5}</UniqueIdentifier>
     </Filter>
@@ -318,6 +324,9 @@
     <ClInclude Include="pipeline\stages\lightrenderstage.hpp">
       <Filter>pipeline\stages</Filter>
     </ClInclude>
+    <ClInclude Include="pipeline\stages\pickingstage.hpp">
+      <Filter>pipeline\stages</Filter>
+    </ClInclude>
     <ClInclude Include="pipeline\stages\postprocessingstage.hpp">
       <Filter>pipeline\stages</Filter>
     </ClInclude>
@@ -337,11 +346,25 @@
     <ClInclude Include="systems\renderer.hpp">
       <Filter>systems</Filter>
     </ClInclude>
-    <ClInclude Include="pipeline\stages\pickingstage.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\include\GL\src\glad.c">
       <Filter>include\GL\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\include\imgui\addons\ImGuizmo\GraphEditor.cpp">
+      <Filter>include\imgui\addons\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\include\imgui\addons\ImGuizmo\ImCurveEdit.cpp">
+      <Filter>include\imgui\addons\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\include\imgui\addons\ImGuizmo\ImGradient.cpp">
+      <Filter>include\imgui\addons\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\include\imgui\addons\ImGuizmo\ImGuizmo.cpp">
+      <Filter>include\imgui\addons\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\include\imgui\addons\ImGuizmo\ImSequencer.cpp">
+      <Filter>include\imgui\addons\ImGuizmo</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\imgui\backends\imgui_impl_dx11.cpp">
       <Filter>include\imgui\backends</Filter>
@@ -397,16 +420,32 @@
     <ClCompile Include="pipeline\base\graphicsstage.cpp">
       <Filter>pipeline\base</Filter>
     </ClCompile>
+    <ClCompile Include="pipeline\stages\clearstage.cpp">
+      <Filter>pipeline\stages</Filter>
+    </ClCompile>
+    <ClCompile Include="pipeline\stages\guistage.cpp">
+      <Filter>pipeline\stages</Filter>
+    </ClCompile>
+    <ClCompile Include="pipeline\stages\lightrenderstage.cpp">
+      <Filter>pipeline\stages</Filter>
+    </ClCompile>
+    <ClCompile Include="pipeline\stages\pickingstage.cpp">
+      <Filter>pipeline\stages</Filter>
+    </ClCompile>
+    <ClCompile Include="pipeline\stages\renderstage.cpp">
+      <Filter>pipeline\stages</Filter>
+    </ClCompile>
+    <ClCompile Include="pipeline\stages\shadowmapstage.cpp">
+      <Filter>pipeline\stages</Filter>
+    </ClCompile>
+    <ClCompile Include="pipeline\stages\skyboxstage.cpp">
+      <Filter>pipeline\stages</Filter>
+    </ClCompile>
+    <ClCompile Include="pipeline\stages\submitstage.cpp">
+      <Filter>pipeline\stages</Filter>
+    </ClCompile>
     <ClCompile Include="systems\renderer.cpp">
       <Filter>systems</Filter>
     </ClCompile>
-    <ClCompile Include="pipeline\stages\clearstage.cpp" />
-    <ClCompile Include="pipeline\stages\guistage.cpp" />
-    <ClCompile Include="pipeline\stages\lightrenderstage.cpp" />
-    <ClCompile Include="pipeline\stages\renderstage.cpp" />
-    <ClCompile Include="pipeline\stages\shadowmapstage.cpp" />
-    <ClCompile Include="pipeline\stages\skyboxstage.cpp" />
-    <ClCompile Include="pipeline\stages\submitstage.cpp" />
-    <ClCompile Include="pipeline\stages\pickingstage.cpp" />
   </ItemGroup>
 </Project>

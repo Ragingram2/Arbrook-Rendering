@@ -1,6 +1,7 @@
 #pragma once
 #include <imgui/imgui.h> 
 #include <imgui/imgui_internal.h>
+#include <imgui/addons/ImGuizmo/ImGuizmo.h>
 
 #include <rsl/primitives>
 #include <rsl/utilities>
@@ -17,7 +18,7 @@
 namespace rythe::rendering
 {
 	namespace log = rsl::log;
-	using guiRenderFunc = void();
+	using guiRenderFunc = void(core::transform,camera);
 	struct gui_stage : public graphics_stage<gui_stage>
 	{
 	private:
@@ -27,7 +28,7 @@ namespace rythe::rendering
 		virtual void render(core::transform camTransf, camera& cam) override;
 		virtual rsl::priority_type priority() const override;
 
-		template <class T, void(T::* Func)()>
+		template <class T, void(T::* Func)(core::transform, camera)>
 		static void addGuiRender(T* ptr)
 		{
 			m_onGuiRender.push_back<T, Func>(*ptr);

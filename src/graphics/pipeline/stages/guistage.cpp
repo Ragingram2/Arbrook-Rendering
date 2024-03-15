@@ -2,7 +2,7 @@
 namespace rythe::rendering
 {
 	namespace log = rsl::log;
-	using guiRenderFunc = void();
+	using guiRenderFunc = void(core::transform, camera);
 
 	rsl::multicast_delegate<guiRenderFunc> gui_stage::m_onGuiRender;
 
@@ -44,8 +44,8 @@ namespace rythe::rendering
 #endif
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-
-		m_onGuiRender();
+		ImGuizmo::BeginFrame();
+		m_onGuiRender(camTransf, cam);
 
 		ImGui::Render();
 		auto* draw_data = ImGui::GetDrawData();
