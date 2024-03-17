@@ -42,6 +42,7 @@ namespace rythe::rendering
 	public:
 		virtual bool canLoad(fs::path filePath) override;
 		virtual ast::asset_handle<texture_source> load(rsl::id_type id, fs::path filePath, texture_source* data, const ast::import_settings<texture_source>& settings) override;
+		virtual void write(fs::path filePath, texture_source* data) override;
 		virtual void free(texture_source& asset) override;
 	};
 }

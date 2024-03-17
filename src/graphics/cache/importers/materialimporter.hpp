@@ -30,6 +30,7 @@ namespace rythe::rendering
 	public:
 		virtual bool canLoad(fs::path filePath) override;
 		virtual ast::asset_handle<material_source> load(rsl::id_type id, fs::path filePath, material_source* data, const ast::import_settings<material_source>& settings) override;
+		virtual void write(fs::path filePath, material_source* data) override;
 		virtual void free(material_source& asset) override;
 	private:
 		void initMat(material_source* data, const aiMaterial* _mat);

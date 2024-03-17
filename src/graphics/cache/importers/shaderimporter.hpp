@@ -25,8 +25,8 @@ namespace rythe::rendering
 		static constexpr const char* supportedFormats[] = { ".shader" };
 	public:
 		virtual bool canLoad(fs::path filePath) override;
-
 		virtual ast::asset_handle<shader_source> load(rsl::id_type id, fs::path filePath, shader_source* data, const ast::import_settings<shader_source>& settings) override;
+		virtual void write(fs::path filePath, shader_source* data) override;
 		virtual void free(shader_source& asset) override;
 	private:
 		//Think about this later

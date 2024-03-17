@@ -20,9 +20,9 @@ namespace rythe::rendering
 		}
 
 		std::unique_ptr<material> mat = std::make_unique<material>();
-		if (source->shaderId != 0)
+		if (source->shaderID != 0)
 		{
-			mat->setShader(ShaderCache::getShader(source->shaderId));
+			mat->setShader(ShaderCache::getShader(source->shaderID));
 		}
 		else if (!source->shaderName.empty())
 		{

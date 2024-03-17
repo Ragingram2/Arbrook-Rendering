@@ -156,9 +156,6 @@
     <ClInclude Include="data\texturesource.hpp">
       <Filter>data</Filter>
     </ClInclude>
-    <ClInclude Include="data\vertex.hpp">
-      <Filter>data</Filter>
-    </ClInclude>
     <ClInclude Include="data\vertexattribute.hpp">
       <Filter>data</Filter>
     </ClInclude>

@@ -217,7 +217,6 @@
     <ClInclude Include="data\texturehandle.hpp" />
     <ClInclude Include="data\textureparameters.hpp" />
     <ClInclude Include="data\texturesource.hpp" />
-    <ClInclude Include="data\vertex.hpp" />
     <ClInclude Include="data\vertexattribute.hpp" />
     <ClInclude Include="data\windowhandle.hpp" />
     <ClInclude Include="interface\DirectX\buffer.hpp" />

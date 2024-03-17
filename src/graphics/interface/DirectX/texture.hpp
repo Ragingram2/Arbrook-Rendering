@@ -10,10 +10,12 @@
 
 namespace rythe::rendering::internal
 {
+	class RenderInterface;
 	struct framebuffer;
 	struct texture
 	{
 		friend struct framebuffer;
+		friend class RenderInterface;
 	private:
 		ID3D11Texture2D* m_texture;
 		ID3D11DepthStencilView* m_depthStencilView = nullptr;

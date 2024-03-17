@@ -34,6 +34,14 @@ namespace rythe::rendering
 		return { id, data };
 	}
 
+	void ShaderImporter::write(fs::path filePath, shader_source* data)
+	{
+		//std::ofstream o(filePath);
+		//nlohmann::json j;
+		//ns::to_json(j, *data);
+		//o << std::setw(4) << j << std::endl;
+	}
+
 	void ShaderImporter::free(shader_source& asset) { }
 
 	shader_source ShaderImporter::loadShader(fs::path filepath)

@@ -28,6 +28,7 @@ namespace rythe::rendering
 	public:
 		virtual bool canLoad(fs::path filePath) override;
 		virtual ast::asset_handle<mesh> load(rsl::id_type id, fs::path filePath, mesh* data, const ast::import_settings<mesh>& settings) override;
+		virtual void write(fs::path filePath, mesh* data) override;
 		virtual void free(mesh& asset) override;
 	private:
 		void initMesh(mesh* data, const aiMesh* _mesh);

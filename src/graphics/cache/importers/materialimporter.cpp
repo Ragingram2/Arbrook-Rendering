@@ -33,13 +33,17 @@ namespace rythe::rendering
 		std::ifstream f(filePath);
 
 		nlohmann::json jsonData = nlohmann::json::parse(f);
-		data->filePath = filePath;
+		ns::from_json(jsonData, *data);
 		data->name = filePath.stem().string();
-		data->shaderId = jsonData["shaderID"];
-		data->shaderName = jsonData["shaderName"];
-		data->textureFilepaths = jsonData["textureFilepaths"].get<std::vector<std::string>>();
-
 		return { id, data };
+	}
+
+	void MaterialImporter::write(fs::path filePath, material_source* data)
+	{
+		std::ofstream o(filePath);
+		nlohmann::json j;
+		ns::to_json(j, *data);
+		o << std::setw(4) << j << std::endl;
 	}
 
 	void MaterialImporter::free(material_source&) {}

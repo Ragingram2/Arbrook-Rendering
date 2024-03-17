@@ -43,17 +43,5 @@ namespace rythe::rendering
 {
 	using texture_parameters = core::assets::import_settings<rendering::texture>;
 
-	constexpr core::assets::import_settings<rendering::texture> default_texture_params{
-		.targetType = rendering::TextureType::TEXTURE2D,
-		.wrapModeS = WrapMode::REPEAT,
-		.wrapModeT = WrapMode::REPEAT,
-		.wrapModeR = WrapMode::REPEAT,
-		.minFilterMode = FilterMode::LINEAR,
-		.magFilterMode = FilterMode::LINEAR,
-		.borderColor = math::vec4(0.0f),
-		.usage = UsageType::IMMUTABLE,
-		.textures = 1,
-		.mipLevels = 1,
-		.generateMipMaps = false,
-	};
+	constexpr core::assets::import_settings<rendering::texture> default_texture_params{};
 }

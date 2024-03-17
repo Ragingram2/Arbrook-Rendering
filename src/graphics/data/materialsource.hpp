@@ -5,6 +5,7 @@
 #include <filesystem>
 
 #include <rsl/primitives>
+#include <nlohmann/json.hpp>
 
 #include "graphics/data/material.hpp"
 
@@ -14,11 +15,29 @@ namespace rythe::rendering
 	struct material_source
 	{
 		std::string name;
-		fs::path filePath;
-
 		std::string shaderName;
-		rsl::uint shaderId = 0;
+		fs::path filePath;
+		rsl::id_type shaderID = 0;
 
 		std::vector<std::string> textureFilepaths;
 	};
+}
+
+namespace ns
+{
+	using json = nlohmann::json;
+	inline void to_json(json& j, const rythe::rendering::material_source& m)
+	{
+		j["shaderPath"] = m.filePath.string();
+		j["shaderID"] = m.shaderID;
+		j["textureFilepaths"] = json(m.textureFilepaths);
+	}
+
+	inline void from_json(const json& j, rythe::rendering::material_source& m)
+	{
+		m.filePath = fs::path(j["shaderPath"]);
+		m.shaderName = m.filePath.stem().string();
+		m.shaderID = j["shaderID"];
+		m.textureFilepaths = j["textureFilepaths"].get<std::vector<std::string>>();
+	}
 }

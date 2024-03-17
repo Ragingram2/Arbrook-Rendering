@@ -310,6 +310,42 @@ namespace rythe::rendering::internal
 			m_windowHandle->devcon->RSSetViewports(numViewPorts, &m_viewport);
 		}
 
+		math::vec4 readPixel(rendering::framebuffer& fbo, int x, int y, int width, int height)
+		{
+			texture_handle handle = fbo.getAttachment(rendering::AttachmentSlot::COLOR0);
+			D3D11_TEXTURE2D_DESC desc;
+			desc = handle->m_impl.m_texDesc;
+			desc.Usage = D3D11_USAGE_STAGING;
+			desc.BindFlags = 0;
+			desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+			desc.MiscFlags = 0;
+			ID3D11Texture2D* stagingTexture;
+			HRESULT hr = m_windowHandle->dev->CreateTexture2D(&desc, nullptr, &stagingTexture);
+			if (FAILED(hr))
+			{
+				log::error("Staging texture creation failed");
+				__debugbreak();
+			}
+
+			D3D11_BOX srcBox;
+			srcBox.left = x;
+			srcBox.right = srcBox.left + width;
+			srcBox.top = y;
+			srcBox.bottom = srcBox.top + height;
+			srcBox.front = 0;
+			srcBox.back = 1;
+
+			m_windowHandle->devcon->CopySubresourceRegion(stagingTexture, 0, 0, 0, 0, handle->m_impl.m_texture, NULL, &srcBox);
+
+			D3D11_MAPPED_SUBRESOURCE mappedResource;
+			ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
+			m_windowHandle->devcon->Map(stagingTexture, 0, D3D11_MAP_READ, 0, &mappedResource);
+			auto pixel = static_cast<rsl::uint32*>(mappedResource.pData);
+			m_windowHandle->devcon->Unmap(stagingTexture, 0);
+			stagingTexture->Release();
+			return math::vec4(pixel[0], pixel[1], pixel[2], pixel[3]);
+		}
+
 		void cullFace(CullMode mode = CullMode::NONE)
 		{
 			ZoneScopedN("[DX11 Renderinterface] cullFace()");

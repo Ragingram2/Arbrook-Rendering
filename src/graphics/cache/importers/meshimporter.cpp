@@ -56,6 +56,14 @@ namespace rythe::rendering
 		return { id, data };
 	}
 
+	void MeshImporter::write(fs::path filePath, mesh* data)
+	{
+		//std::ofstream o(filePath);
+		//nlohmann::json j;
+		//ns::to_json(j, *data);
+		//o << std::setw(4) << j << std::endl;
+	}
+
 	void MeshImporter::free(mesh&) {}
 
 	void MeshImporter::initMesh(mesh* data, const aiMesh* _mesh)

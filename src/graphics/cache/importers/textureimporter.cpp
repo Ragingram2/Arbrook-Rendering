@@ -43,8 +43,13 @@ namespace rythe::rendering
 		return { id, data };
 	}
 
-	void TextureImporter::free(texture_source& asset)
+	void TextureImporter::write(fs::path filePath, texture_source* data)
 	{
-
+		//std::ofstream o(filePath);
+		//nlohmann::json j;
+		//ns::to_json(j, *data);
+		//o << std::setw(4) << j << std::endl;
 	}
+
+	void TextureImporter::free(texture_source& asset) { }
 }

@@ -67,11 +67,10 @@ namespace rythe::rendering
 	{
 		auto& model = renderer.model;
 		auto meshHandle = renderer.model->meshHandle;
-		auto matHandle = renderer.material;
 		auto& layout = renderer.layout;
 
 		layout.release();
-		layout.initialize(1, matHandle->getShader());
+		layout.initialize(1, pickingShader);
 		layout.bind();
 
 		model->vertexBuffer = BufferCache::createVertexBuffer<math::vec4>(std::format("{}{}-Vertex Buffer", meshHandle->name, entId), 0, UsageType::STATICDRAW, meshHandle->vertices);

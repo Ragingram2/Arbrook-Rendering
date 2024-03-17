@@ -12,7 +12,7 @@
 #include "graphics/interface/OpenGL/oglincludes.hpp"
 #include "graphics/interface/OpenGL/enumtypes.hpp"
 #include "graphics/cache/windowprovider.hpp"
-#include "graphics/interface/OpenGL/framebuffer.hpp"
+#include "graphics/interface/definitions/framebuffer.hpp"
 
 namespace rythe::rendering::internal
 {
@@ -208,13 +208,15 @@ namespace rythe::rendering::internal
 			glDepthRange(minDepth, maxDepth);
 		}
 
-		math::vec4 readPixel(int x, int y, int width, int height)
+		math::vec4 readPixel(rendering::framebuffer& fbo, int x, int y, int width, int height)
 		{
+			fbo.bind();
 			unsigned char res[4];
 			GLint viewport[4];
 
 			glGetIntegerv(GL_VIEWPORT, viewport);
 			glReadPixels(x, viewport[3] - y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, &res);
+			fbo.unbind();
 
 			return math::vec4(res[0], res[1], res[2], res[3]);
 		}

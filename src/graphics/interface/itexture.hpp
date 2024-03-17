@@ -17,6 +17,7 @@ namespace rythe::rendering
 	{
 		struct texture;
 		struct framebuffer;
+		class RenderInterface;
 	}
 }
 
@@ -30,6 +31,7 @@ namespace rythe::rendering
 		friend struct Itexture<internal::texture>;
 		friend struct internal::framebuffer;
 		friend struct Iframebuffer<internal::framebuffer>;
+		friend class internal::RenderInterface;
 	private:
 		APIType m_impl;
 	public:
