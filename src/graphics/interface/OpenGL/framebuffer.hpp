@@ -75,5 +75,15 @@ namespace rythe::rendering::internal
 			}
 			unbind();
 		}
+
+		void rescale(int width, int height)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, m_id);
+			for (auto& [attachment, handle] : m_attachments)
+			{
+				handle->resize(width, height);
+				glFramebufferTexture(GL_FRAMEBUFFER, static_cast<GLenum>(attachment), handle->getId(), 0);
+			}
+		}
 	};
 }

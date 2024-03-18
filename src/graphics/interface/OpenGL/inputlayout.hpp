@@ -9,7 +9,6 @@
 
 #include "core/assets/assethandle.hpp"
 #include "graphics/data/shaderhandle.hpp"
-#include "graphics/data/vertex.hpp"
 #include "graphics/data/vertexattribute.hpp"
 #include "graphics/interface/definitions/shader.hpp"
 #include "graphics/interface/OpenGL/oglincludes.hpp"

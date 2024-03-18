@@ -44,7 +44,7 @@ namespace rythe::rendering
 		void setWrapMode(int axis, WrapMode mode) { m_impl.setWrapMode(axis, static_cast<internal::WrapMode>(mode)); }
 		void setMinFilterMode(FilterMode mode) { m_impl.setMinFilterMode(static_cast<internal::FilterMode>(mode)); }
 		void setMagFilterMode(FilterMode mode) { m_impl.setMagFilterMode(static_cast<internal::FilterMode>(mode)); }
-
+		void resize(float width, float height) { m_impl.resize(width, height); }
 		unsigned int getId() { return m_impl.id; }
 		const std::string& getName() { return m_impl.name; }
 

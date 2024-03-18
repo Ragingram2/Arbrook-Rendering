@@ -215,6 +215,11 @@ namespace rythe::rendering::internal
 			}
 
 		}
+
+		void resize(float width, float height)
+		{
+			//glBindTexture(texType, id);
+		}
 	private:
 
 		void createTexture(GLenum texType, GLenum internalFormat, unsigned char* textureData)

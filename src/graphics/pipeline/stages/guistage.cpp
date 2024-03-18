@@ -5,9 +5,10 @@ namespace rythe::rendering
 	using guiRenderFunc = void(core::transform, camera);
 
 	rsl::multicast_delegate<guiRenderFunc> gui_stage::m_onGuiRender;
-
+	framebuffer* mainFBO;
 	void gui_stage::setup(core::transform camTransf, camera& cam)
 	{
+		mainFBO = getFramebuffer("MainBuffer");
 		RI->makeCurrent();
 		auto* ctx = ImGui::CreateContext();
 		ImGui::StyleColorsDark();
@@ -46,7 +47,6 @@ namespace rythe::rendering
 		ImGui::NewFrame();
 		ImGuizmo::BeginFrame();
 		m_onGuiRender(camTransf, cam);
-
 		ImGui::Render();
 		auto* draw_data = ImGui::GetDrawData();
 #if RenderingAPI == RenderingAPI_OGL
@@ -55,6 +55,14 @@ namespace rythe::rendering
 		ImGui_ImplDX11_RenderDrawData(draw_data);
 #endif
 
+		ImGuiIO& io = ImGui::GetIO();
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			GLFWwindow* backup_current_context = glfwGetCurrentContext();
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+			glfwMakeContextCurrent(backup_current_context);
+		}
 		ImGui::EndFrame();
 		RI->swapBuffers();
 	}

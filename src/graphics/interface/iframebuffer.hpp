@@ -21,6 +21,8 @@ namespace rythe::rendering
 		bool verify() { return m_impl.verify(); }
 		void release() { m_impl.release(); }
 
+		void rescale(int width, int height) { m_impl.rescale(width, height); }
+
 	private:
 
 		APIType& getImpl() { return m_impl; }
