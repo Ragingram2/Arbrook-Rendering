@@ -31,7 +31,7 @@ namespace rythe::rendering
 		RI->cullFace(CullMode::NONE);
 		RI->updateDepthStencil();
 
-		RI->setClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+		RI->setClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		RI->clear(true);
 
 		screenShader->bind();

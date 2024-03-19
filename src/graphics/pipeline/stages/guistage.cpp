@@ -49,6 +49,7 @@ namespace rythe::rendering
 		m_onGuiRender(camTransf, cam);
 		ImGui::Render();
 		auto* draw_data = ImGui::GetDrawData();
+
 #if RenderingAPI == RenderingAPI_OGL
 		ImGui_ImplOpenGL3_RenderDrawData(draw_data);
 #elif RenderingAPI == RenderingAPI_DX11
