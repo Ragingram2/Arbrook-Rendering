@@ -17,6 +17,7 @@ namespace rythe::rendering::internal
 		friend struct framebuffer;
 		friend class RenderInterface;
 	private:
+		unsigned char* m_textureData;
 		ID3D11Texture2D* m_texture;
 		ID3D11DepthStencilView* m_depthStencilView = nullptr;
 		ID3D11ShaderResourceView* m_shaderResource = nullptr;
@@ -30,10 +31,11 @@ namespace rythe::rendering::internal
 		int channels;
 		math::ivec2 resolution;
 		unsigned int id;
+		void* internalHandle;
 		std::string name;
 		unsigned char* data;
 		texture_parameters params;
-		TextureSlot activeSlot;
+		TextureSlot slot;
 		texture() = default;
 		texture(unsigned int id, std::string name) : id(id), name(name) { }
 		texture(texture* other)
@@ -55,7 +57,7 @@ namespace rythe::rendering::internal
 
 		void bind(TextureSlot slot)
 		{
-			activeSlot = slot;
+			slot = slot;
 			ZoneScopedN("[DX11 Texture] bind()");
 			if (m_shaderResource == nullptr)
 			{
@@ -123,9 +125,16 @@ namespace rythe::rendering::internal
 			m_sampDesc.Filter = static_cast<D3D11_FILTER>(mode);
 		}
 
+
+
 		void loadData(unsigned char* textureData)
 		{
 			ZoneScopedN("[DX11 Texture] loadData()");
+			if (m_texture != nullptr)
+				m_texture->Release();
+			if (m_shaderResource != nullptr)
+				m_shaderResource->Release();
+			m_textureData = textureData;
 			ZeroMemory(&m_sampDesc, sizeof(m_sampDesc));
 			setMinFilterMode(static_cast<FilterMode>(params.minFilterMode));
 			setWrapMode(0, static_cast<WrapMode>(params.wrapModeR));
@@ -173,6 +182,8 @@ namespace rythe::rendering::internal
 			{
 				CHECKERROR(WindowProvider::activeWindow->dev->CreateTexture2D(&m_texDesc, NULL, &m_texture), "Texture creation Failed", WindowProvider::activeWindow->checkError());
 			}
+
+
 
 			D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
 			ZeroMemory(&shaderResourceViewDesc, sizeof(shaderResourceViewDesc));
@@ -228,6 +239,19 @@ namespace rythe::rendering::internal
 				break;
 			default:
 				break;
+			}
+
+			internalHandle = static_cast<void*>(m_shaderResource);
+		}
+
+		void resize(int width, int height)
+		{
+			resolution = math::vec2(width, height);
+
+			if (params.textures == 1)
+			{
+				bind(slot);
+				loadData(m_textureData);
 			}
 		}
 	};

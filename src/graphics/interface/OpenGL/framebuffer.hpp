@@ -10,6 +10,8 @@ namespace rythe::rendering::internal
 	{
 	private:
 		unsigned int m_id = 0;
+		bool m_draw = false;
+		bool m_read = false;
 		std::unordered_map<AttachmentSlot, texture_handle> m_attachments;
 	public:
 
@@ -30,6 +32,8 @@ namespace rythe::rendering::internal
 
 		void attach(AttachmentSlot attachment, texture_handle texture, bool draw, bool read)
 		{
+			m_draw = draw;
+			m_read = read;
 			glFramebufferTexture(GL_FRAMEBUFFER, static_cast<GLenum>(attachment), texture->getId(), 0);
 
 			if (attachment != AttachmentSlot::DEPTH_STENCIL)
@@ -82,8 +86,9 @@ namespace rythe::rendering::internal
 			for (auto& [attachment, handle] : m_attachments)
 			{
 				handle->resize(width, height);
-				glFramebufferTexture(GL_FRAMEBUFFER, static_cast<GLenum>(attachment), handle->getId(), 0);
+				attach(attachment, handle, m_draw, m_read);
 			}
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 	};
 }

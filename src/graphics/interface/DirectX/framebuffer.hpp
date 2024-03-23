@@ -11,6 +11,8 @@ namespace rythe::rendering::internal
 	{
 		friend class RenderInterface;
 	private:
+		bool m_draw = false;
+		bool m_read = false;
 		int m_renderTargetId;
 		std::unordered_map<AttachmentSlot, int> m_attachments;
 		std::vector<D3D11_RENDER_TARGET_VIEW_DESC> m_renderTargetDescs;
@@ -50,6 +52,8 @@ namespace rythe::rendering::internal
 
 		void attach(AttachmentSlot attachment, texture_handle handle, bool draw, bool read)
 		{
+			m_draw = draw;
+			m_read = read;
 			if (attachment == AttachmentSlot::DEPTH_STENCIL)
 			{
 				m_depthTexture = handle;
@@ -113,6 +117,15 @@ namespace rythe::rendering::internal
 			ID3D11RenderTargetView* nullRenderTargets[1] = { nullptr };
 			WindowProvider::activeWindow->devcon->OMSetRenderTargets(1, nullRenderTargets, nullptr);
 			WindowProvider::activeWindow->checkError();
+		}
+
+		void rescale(int width, int height)
+		{
+			for (auto& [attachment, id] : m_attachments)
+			{
+				m_renderTextures[id]->resize(width, height);
+				//attach(attachment, m_renderTextures[id], m_draw, m_read);
+			}
 		}
 	};
 }

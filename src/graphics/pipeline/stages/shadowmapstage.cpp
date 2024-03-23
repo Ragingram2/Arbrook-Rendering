@@ -65,8 +65,7 @@ namespace rythe::rendering
 			ast::asset_handle<model> model = renderer.model;
 			ast::asset_handle<mesh> mesh = model->meshHandle;
 
-			if (renderer.dirty)
-				initializeModel(ent->id, renderer, dirShadowMap);
+			initializeModel(ent->id, renderer, dirShadowMap);
 
 			auto& transf = ent.getComponent<core::transform>();
 
@@ -133,7 +132,7 @@ namespace rythe::rendering
 	void shadow_map_stage::initializeModel(rsl::uint entId, mesh_renderer& renderer, shader_handle handle)
 	{
 		auto meshHandle = renderer.model->meshHandle;
-		auto model = renderer.model;
+		auto& model = renderer.model;
 		auto& layout = renderer.layout;
 
 		layout.release();

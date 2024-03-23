@@ -25,12 +25,15 @@ namespace rythe::rendering::internal
 	namespace log = rsl::log;
 	struct texture
 	{
+	private:
+		unsigned char* m_textureData;
 	public:
 		GLenum texType;
 		GLenum usageType;
 		int channels;
 		math::ivec2 resolution;
 		unsigned int id = 0;
+		void* internalHandle;
 		std::string name;
 		texture_parameters params;
 		TextureSlot slot = TextureSlot::TEXTURE0;
@@ -59,6 +62,8 @@ namespace rythe::rendering::internal
 			setMinFilterMode(static_cast<FilterMode>(params.minFilterMode));
 			setMagFilterMode(static_cast<FilterMode>(params.magFilterMode));
 			setMipCount(params.mipLevels);
+
+			internalHandle = &id;
 		}
 
 		void bind(TextureSlot textureSlot)
@@ -77,8 +82,8 @@ namespace rythe::rendering::internal
 				auto pair = textureSlotNames[textureSlot];
 				glUniform1i(glGetUniformLocation(shaderId, pair.first), pair.second);
 			}
-			else
-				log::warn("Attempting to bind a texture to a texture slot without a bound shader");
+			//else
+			//	log::warn("Attempting to bind a texture to a texture slot without a bound shader");
 		}
 
 		void unbind(TextureSlot textureSlot)
@@ -142,6 +147,7 @@ namespace rythe::rendering::internal
 			ZoneScopedN("[OpenGL Texture] loadData()");
 
 			GLenum internalFormat = NULL;
+			//m_textureData = textureData;
 
 			switch (channels)
 			{
@@ -183,6 +189,7 @@ namespace rythe::rendering::internal
 			ZoneScopedN("[OpenGL Texture] loadData()");
 
 			GLenum internalFormat = NULL;
+			m_textureData = textureData;
 
 			switch (channels)
 			{
@@ -218,7 +225,12 @@ namespace rythe::rendering::internal
 
 		void resize(float width, float height)
 		{
-			//glBindTexture(texType, id);
+			resolution = math::ivec2(width, height);
+			if (params.textures == 1)
+			{
+				bind(slot);
+				loadData(m_textureData);
+			}
 		}
 	private:
 

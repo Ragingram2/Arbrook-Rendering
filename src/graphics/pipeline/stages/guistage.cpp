@@ -13,6 +13,7 @@ namespace rythe::rendering
 		auto* ctx = ImGui::CreateContext();
 		ImGui::StyleColorsDark();
 		ctx->IO.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		//ctx->IO.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		ImGui::SetCurrentContext(ctx);
 #if RenderingAPI == RenderingAPI_OGL
 		if (!ImGui_ImplGlfw_InitForOpenGL(RI->getGlfwWindow(), true))
@@ -55,15 +56,14 @@ namespace rythe::rendering
 #elif RenderingAPI == RenderingAPI_DX11
 		ImGui_ImplDX11_RenderDrawData(draw_data);
 #endif
-
-		ImGuiIO& io = ImGui::GetIO();
-		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			GLFWwindow* backup_current_context = glfwGetCurrentContext();
-			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault();
-			glfwMakeContextCurrent(backup_current_context);
-		}
+		//ImGuiIO& io = ImGui::GetIO();
+		//if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		//{
+		//	GLFWwindow* backup_current_context = glfwGetCurrentContext();
+		//	ImGui::UpdatePlatformWindows();
+		//	ImGui::RenderPlatformWindowsDefault();
+		//	glfwMakeContextCurrent(backup_current_context);
+		//}
 		ImGui::EndFrame();
 		RI->swapBuffers();
 	}

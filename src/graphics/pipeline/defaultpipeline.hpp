@@ -24,8 +24,8 @@ namespace rythe::rendering
 			attachStage<shadow_map_stage>();
 			attachStage<render_stage>();
 			//attachStage<post_processing_stage>();
-			attachStage<gui_stage>();
 			attachStage<submit_stage>();
+			attachStage<gui_stage>();
 
 			//test_ppfx::addRenderPass<render_stage, &render_stage::noShaderRenderPass>(getStage<render_stage>());
 			//post_processing_stage::addEffect<test_ppfx>();

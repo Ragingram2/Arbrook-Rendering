@@ -46,6 +46,7 @@ namespace rythe::rendering
 		void setMagFilterMode(FilterMode mode) { m_impl.setMagFilterMode(static_cast<internal::FilterMode>(mode)); }
 		void resize(float width, float height) { m_impl.resize(width, height); }
 		unsigned int getId() { return m_impl.id; }
+		void* getInternalHandle() { return m_impl.internalHandle; }
 		const std::string& getName() { return m_impl.name; }
 
 	private:

@@ -34,16 +34,16 @@ namespace rythe::rendering
 		RI->setClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		RI->clear(true);
 
-		screenShader->bind();
-		colorTexture->bind(TextureSlot::TEXTURE0);
-		screenQuad->bind();
-		layout.bind();
-		RI->drawIndexed(PrimitiveType::TRIANGLESLIST, screenQuad->meshHandle->indexCount, 0, 0);
-		WindowProvider::activeWindow->checkError();
-		layout.unbind();
-		screenQuad->unbind();
-		colorTexture->unbind(TextureSlot::TEXTURE0);
-		screenShader->unbind();
+		//screenShader->bind();
+		//colorTexture->bind(TextureSlot::TEXTURE0);
+		//screenQuad->bind();
+		//layout.bind();
+		//RI->drawIndexed(PrimitiveType::TRIANGLESLIST, screenQuad->meshHandle->indexCount, 0, 0);
+		//WindowProvider::activeWindow->checkError();
+		//layout.unbind();
+		//screenQuad->unbind();
+		//colorTexture->unbind(TextureSlot::TEXTURE0);
+		//screenShader->unbind();
 	}
 
 	rsl::priority_type submit_stage::priority() const { return SUBMIT_PRIORITY; }
