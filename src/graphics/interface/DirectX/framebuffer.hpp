@@ -54,8 +54,12 @@ namespace rythe::rendering::internal
 		{
 			m_draw = draw;
 			m_read = read;
+
 			if (attachment == AttachmentSlot::DEPTH_STENCIL)
 			{
+				if (m_depthStencilView != nullptr)
+					m_depthStencilView->Release();
+
 				m_depthTexture = handle;
 				m_depthStencilView = handle->m_impl.m_depthStencilView;
 			}
@@ -79,6 +83,18 @@ namespace rythe::rendering::internal
 					m_renderTextures[m_attachments[attachment]] = handle;
 					m_shaderResources[m_attachments[attachment]] = handle->m_impl.m_shaderResource;
 					m_samplerStates[m_attachments[attachment]] = handle->m_impl.m_texSamplerState;
+				}
+
+
+				//if (m_renderTargetViews.size() > 0 && m_renderTargetViews[m_attachments[attachment]] != nullptr)
+				//{
+				//	m_renderTargetViews[m_attachments[attachment]]->Release();
+				//	m_renderTargetViews[m_attachments[attachment]] = nullptr;
+				//}
+				if (m_shaderResources.size() > 0 && m_shaderResources[m_attachments[attachment]] != nullptr)
+				{
+					m_shaderResources[m_attachments[attachment]]->Release();
+					m_shaderResources[m_attachments[attachment]] = nullptr;
 				}
 
 				CHECKERROR(WindowProvider::activeWindow->dev->CreateRenderTargetView(handle->m_impl.m_texture, &desc, &m_renderTargetViews[m_attachments[attachment]]), "Render Target View", WindowProvider::activeWindow->checkError());
@@ -108,11 +124,6 @@ namespace rythe::rendering::internal
 
 		void release() const
 		{
-			//for (auto handle : m_renderTextures)
-			//{
-			//	handle->unbind(static_cast<rendering::TextureSlot>(handle->m_impl.activeSlot));
-			//}
-
 			WindowProvider::activeWindow->checkError();
 			ID3D11RenderTargetView* nullRenderTargets[1] = { nullptr };
 			WindowProvider::activeWindow->devcon->OMSetRenderTargets(1, nullRenderTargets, nullptr);
@@ -121,10 +132,17 @@ namespace rythe::rendering::internal
 
 		void rescale(int width, int height)
 		{
+			if (m_depthTexture != nullptr)
+				m_depthTexture->resize(width, height);
 			for (auto& [attachment, id] : m_attachments)
 			{
-				m_renderTextures[id]->resize(width, height);
-				//attach(attachment, m_renderTextures[id], m_draw, m_read);
+				if (m_renderTextures[id] != nullptr)
+					m_renderTextures[id]->resize(width, height);
+
+				if (attachment == AttachmentSlot::DEPTH_STENCIL)
+					attach(attachment, m_depthTexture, m_draw, m_read);
+				else
+					attach(attachment, m_renderTextures[id], m_draw, m_read);
 			}
 		}
 	};

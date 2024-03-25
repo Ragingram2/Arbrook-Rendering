@@ -57,7 +57,7 @@ namespace rythe::rendering::internal
 
 		void bind(TextureSlot slot)
 		{
-			slot = slot;
+			this->slot = slot;
 			ZoneScopedN("[DX11 Texture] bind()");
 			if (m_shaderResource == nullptr)
 			{
