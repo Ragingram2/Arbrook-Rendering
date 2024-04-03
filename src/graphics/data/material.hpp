@@ -11,6 +11,52 @@ namespace rythe::rendering
 		float shininess = 32.0f;
 	};
 
+	struct material;
+
+	struct material_parameter_base
+	{
+	protected:
+		std::string m_name;
+		rsl::id_type m_id;
+		rsl::id_type m_typeId;
+		rsl::id_type m_location;
+		material_parameter_base(const std::string& name, rsl::id_type location, rsl::id_type typeId)
+			: m_name(name),
+			m_id(rsl::nameHash(name)),
+			m_typeId(typeId),
+			m_location(location) { }
+
+	public:
+		rsl::id_type type() { return m_typeId; }
+		std::string getName() const { return m_name; }
+
+		virtual void apply(shader_handle& shader) = 0;
+	};
+
+	template<typename T>
+	struct material_parameter : public material_parameter_base
+	{
+		friend struct materal;
+	private:
+		T m_value;
+
+		virtual void apply(shader_handle& shader) override
+		{
+			//shader.get_uniform<T>(m_id).set_value(m_value);
+		}
+
+	public:
+		material_parameter(const std::string& name, rsl::id_type location)
+			: material_parameter_base(name, location, rsl::typeHash<T>()),
+			m_value()
+		{
+		}
+
+		void set_value(const T& value) { m_value = value; }
+		T get_value() const { return m_value; }
+
+	};
+
 	struct material
 	{
 	private:

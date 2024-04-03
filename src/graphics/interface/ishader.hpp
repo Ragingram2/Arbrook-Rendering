@@ -34,7 +34,7 @@ namespace rythe::rendering
 		void unbind() { m_impl.unbind(); }
 		void addBuffer(buffer_handle handle) { m_impl.addBuffer(handle); }
 		template<typename elementType>
-		void setUniform(const std::string& bufferName, elementType data[]) { m_impl.setUniform(bufferName, data); }
+		void setUniform(const std::string& bufferName, int location, elementType data[]) { m_impl.setUniform(bufferName, location, data); }
 		void release() { m_impl.release(); }
 		void clearBuffers() { m_impl.clearBuffers(); }
 

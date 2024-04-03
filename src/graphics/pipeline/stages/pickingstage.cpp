@@ -35,8 +35,8 @@ namespace rythe::rendering
 				initializeModel(ent->id, renderer);
 
 			data[0].model = transf.to_world();
-			pickingShader->setUniform("CameraBuffer", &data);
-			pickingShader->setUniform("EntityData", &vecId);
+			pickingShader->setUniform("CameraBuffer", 0, &data);
+			pickingShader->setUniform("EntityData", 1, &vecId);
 			pickingShader->bind();
 			renderer.layout.bind();
 			model->bind();
@@ -60,7 +60,7 @@ namespace rythe::rendering
 		RI->setViewport(1, 0, 0, Screen_Width, Screen_Height);
 	}
 
-	rsl::priority_type picking_stage::priority() const { return OPAQUE_PRIORITY-9; }
+	rsl::priority_type picking_stage::priority() const { return OPAQUE_PRIORITY - 9; }
 
 
 	void picking_stage::initializeModel(rsl::uint entId, mesh_renderer& renderer)

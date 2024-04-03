@@ -23,4 +23,5 @@ namespace rythe::rendering
 		bool operator ==(Ishader<internal::shader>* data) { return m_data == data; }
 		bool operator !=(Ishader<internal::shader>* data) { return !operator==(data); }
 	};
+
 }

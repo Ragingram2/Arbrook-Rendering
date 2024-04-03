@@ -7,6 +7,7 @@
 #include "core/logging/logging.hpp"
 #include "graphics/data/shadersource.hpp"
 #include "graphics/data/bufferhandle.hpp"
+#include "graphics/data/shaderinfo.hpp"
 #include "graphics/interface/OpenGL/oglincludes.hpp"
 #include "graphics/interface/OpenGL/shadercompiler.hpp"
 #include "graphics/interface/config.hpp"
@@ -22,6 +23,8 @@ namespace rythe::rendering::internal
 		bool compiled = false;
 	private:
 		std::unordered_map<std::string, buffer_handle> m_constBuffers;
+		//std::unordered_map<rsl::id_type, std::unique_ptr<shader_parameter_base>> m_uniforms;
+		std::unordered_map<int, rsl::id_type> m_idOfLocation;
 	public:
 		shader() = default;
 		shader(shader* other)
@@ -80,6 +83,7 @@ namespace rythe::rendering::internal
 			glDeleteShader(gs);
 			glDeleteShader(fs);
 
+			//process_io();
 		}
 
 		void bind()
@@ -109,9 +113,10 @@ namespace rythe::rendering::internal
 		}
 
 		template<typename elementType>
-		void setUniform(const std::string& bufferName, elementType data[])
+		void setUniform(const std::string& bufferName, int location, elementType data[])
 		{
 			ZoneScopedN("[OpenGL Shader] setUniform()");
+			glUseProgram(programId);
 			if (m_constBuffers.count(bufferName) != 0)
 			{
 				m_constBuffers[bufferName]->bufferData<elementType>(data);
@@ -120,7 +125,7 @@ namespace rythe::rendering::internal
 			auto buffer = BufferCache::getBuffer(bufferName);
 			if (buffer == nullptr)
 			{
-				addBuffer(buffer);
+				addBuffer(BufferCache::createConstantBuffer<elementType>(bufferName, location, rendering::UsageType::STATICDRAW));
 				m_constBuffers[bufferName]->bufferData<elementType>(data);
 				return;
 			}
@@ -156,6 +161,100 @@ namespace rythe::rendering::internal
 			ZoneScopedN("[OpenGL Shader] clearBuffers()");
 			m_constBuffers.clear();
 		}
+
+	private:
+		//void process_io()
+		//{
+		//	GLint numActiveUniforms = 0;
+		//	glGetProgramiv(programId, GL_ACTIVE_UNIFORMS, &numActiveUniforms);
+
+		//	GLint maxUniformNameLength = 0;
+		//	glGetProgramiv(programId, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxUniformNameLength);
+
+		//	GLchar* uniformNameBuffer = new GLchar[maxUniformNameLength];
+
+		//	rsl::uint textureUnit = 1;
+
+		//	for (int uniformId = 0; uniformId < numActiveUniforms; uniformId++)
+		//	{
+		//		GLint arraySize = 0; // Use this later for uniform arrays.
+		//		GLenum type = 0;
+		//		GLsizei nameLength = 0;
+		//		glGetActiveUniform(programId, uniformId, (GLsizei)maxUniformNameLength, &nameLength, &arraySize, &type, uniformNameBuffer);
+
+		//		std::string_view name(uniformNameBuffer, nameLength + 1);
+
+		//		if (name.find('[') != std::string_view::npos)             // We don't support uniform arrays yet.
+		//			continue;
+
+		//		int location = glGetUniformLocation(programId, uniformNameBuffer);
+		//		shader_parameter_base* uniform = nullptr;
+		//		switch (type)
+		//		{
+		//		case GL_SAMPLER_2D:
+		//			uniform = new rendering::uniform<texture_handle>(name, type, location, static_cast<rendering::TextureSlot>(textureUnit));
+		//			textureUnit++;
+		//			break;
+		//		case GL_UNSIGNED_INT:
+		//			uniform = new rendering::uniform<rsl::uint>(name, type, location);
+		//			break;
+		//		case GL_FLOAT:
+		//			uniform = new rendering::uniform<float>(name, type, location);
+		//			break;
+		//		case GL_FLOAT_VEC2:
+		//			uniform = new rendering::uniform<math::float2>(name, type, location);
+		//			break;
+		//		case GL_FLOAT_VEC3:
+		//			uniform = new rendering::uniform<rsl::math::float3>(name, type, location);
+		//			break;
+		//		case GL_FLOAT_VEC4:
+		//			uniform = new rendering::uniform<math::float4>(name, type, location);
+		//			break;
+		//		case GL_INT:
+		//			uniform = new rendering::uniform<int>(name, type, location);
+		//			break;
+		//		case GL_INT_VEC2:
+		//			uniform = new rendering::uniform<math::ivec2>( name, type, location);
+		//			break;
+		//		case GL_INT_VEC3:
+		//			uniform = new rendering::uniform<math::ivec3>( name, type, location);
+		//			break;
+		//		case GL_INT_VEC4:
+		//			uniform = new rendering::uniform<math::ivec4>( name, type, location);
+		//			break;
+		//		case GL_BOOL:
+		//			uniform = new rendering::uniform<bool>(name, type, location);
+		//			break;
+		//		case GL_BOOL_VEC2:
+		//			uniform = new rendering::uniform<math::bvec2>(name, type, location);
+		//			break;
+		//		case GL_BOOL_VEC3:
+		//			uniform = new rendering::uniform<math::bvec3>(name, type, location);
+		//			break;
+		//		case GL_BOOL_VEC4:
+		//			uniform = new rendering::uniform<math::bvec4>( name, type, location);
+		//			break;
+		//		case GL_FLOAT_MAT2:
+		//			uniform = new rendering::uniform<math::float2x2>(name, type, location);
+		//			break;
+		//		case GL_FLOAT_MAT3:
+		//			uniform = new rendering::uniform<math::float3x3>( name, type, location);
+		//			break;
+		//		case GL_FLOAT_MAT4:
+		//			uniform = new rendering::uniform<math::float4x4>(name, type, location);
+		//			break;
+		//		default:
+		//			continue;
+		//		}
+
+		//		// Insert uniform into the uniform list.
+		//		auto hashid = rsl::nameHash(name);
+		//		m_uniforms[hashid] = std::unique_ptr<shader_parameter_base>(uniform);
+		//		m_idOfLocation[location] = hashid;
+		//	}
+
+		//	delete[] uniformNameBuffer;
+		//}
 	};
 
 }

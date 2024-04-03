@@ -70,7 +70,7 @@ namespace rythe::rendering
 			auto& transf = ent.getComponent<core::transform>();
 
 			data[0].model = transf.to_world();
-			dirShadowMap->setUniform("CameraBuffer", data);
+			dirShadowMap->setUniform("CameraBuffer", 0, data);
 
 			model->bind();
 			renderer.layout.bind();
@@ -95,7 +95,7 @@ namespace rythe::rendering
 			RI->clear(false, DepthClearBit::DEPTH_STENCIL);
 			pointShadowMap->bind();
 			lightInfo.index = i;
-			pointShadowMap->setUniform("LightInfo", &lightInfo);
+			pointShadowMap->setUniform("LightInfo", 4, &lightInfo);
 			camera_data data[] = { camera_data{.viewPosition = camTransf.position, .projection = cam.projection, .view = cam.view, .model = math::mat4(1.0f)} };
 			for (auto& ent : m_filter)
 			{
@@ -111,7 +111,7 @@ namespace rythe::rendering
 				auto& transf = ent.getComponent<core::transform>();
 
 				data[0].model = transf.to_world();
-				pointShadowMap->setUniform("CameraBuffer", data);
+				pointShadowMap->setUniform("CameraBuffer", 0, data);
 				model->bind();
 				renderer.layout.bind();
 				if (model->indexBuffer != nullptr)
@@ -143,6 +143,23 @@ namespace rythe::rendering
 		layout.setAttributePtr(model->vertexBuffer, "POSITION", 0, FormatType::RGBA32F, 0, sizeof(math::vec4), 0);
 
 		model->indexBuffer = BufferCache::createIndexBuffer(std::format("{}{}-Depth-Index Buffer", meshHandle->name, entId), UsageType::STATICDRAW, meshHandle->indices);
+		if (meshHandle->normals.size() > 0)
+		{
+			model->normalBuffer = BufferCache::createVertexBuffer<math::vec3>(std::format("{}{}-Normal Buffer", meshHandle->name, entId), 1, UsageType::STATICDRAW, meshHandle->normals);
+			layout.setAttributePtr(model->normalBuffer, "NORMAL", 0, FormatType::RGB32F, 1, sizeof(math::vec3), 0);
+		}
+
+		if (meshHandle->texCoords.size() > 0)
+		{
+			model->uvBuffer = BufferCache::createVertexBuffer<math::vec2>(std::format("{}{}-UV Buffer", meshHandle->name, entId), 2, UsageType::STATICDRAW, meshHandle->texCoords);
+			layout.setAttributePtr(model->uvBuffer, "TEXCOORD", 0, FormatType::RG32F, 2, sizeof(math::vec2), 0);
+		}
+
+		if (meshHandle->tangents.size() > 0)
+		{
+			model->tangentBuffer = BufferCache::createVertexBuffer<math::vec3>(std::format("{}{}-Tangent Buffer", meshHandle->name, entId), 3, UsageType::STATICDRAW, meshHandle->tangents);
+			layout.setAttributePtr(model->tangentBuffer, "TANGENT", 0, FormatType::RGB32F, 3, sizeof(math::vec3), 0);
+		}
 		layout.submitAttributes();
 	}
 
