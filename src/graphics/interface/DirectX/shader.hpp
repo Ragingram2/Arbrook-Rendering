@@ -122,12 +122,20 @@ namespace rythe::rendering::internal
 		}
 
 		template<typename elementType>
-		void setUniform(const std::string& bufferName, elementType data[])
+		void setUniform(const std::string& bufferName, int location, elementType data[])
 		{
 			ZoneScopedN("[DX11 Shader] setUniform()");
 			if (m_constBuffers.count(bufferName) != 0)
 			{
 				m_constBuffers[bufferName]->bufferData(data);
+				return;
+			}
+
+			auto buffer = BufferCache::getBuffer(bufferName);
+			if (buffer == nullptr)
+			{
+				addBuffer(BufferCache::createConstantBuffer<elementType>(bufferName, location, rendering::UsageType::STATICDRAW));
+				m_constBuffers[bufferName]->bufferData<elementType>(data);
 				return;
 			}
 
