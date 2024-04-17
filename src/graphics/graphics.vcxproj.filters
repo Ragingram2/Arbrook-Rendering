@@ -84,6 +84,9 @@
     <ClInclude Include="cache\modelcache.hpp">
       <Filter>cache</Filter>
     </ClInclude>
+    <ClInclude Include="cache\shadercache.hpp">
+      <Filter>cache</Filter>
+    </ClInclude>
     <ClInclude Include="cache\windowprovider.hpp">
       <Filter>cache</Filter>
     </ClInclude>
@@ -118,6 +121,9 @@
       <Filter>data</Filter>
     </ClInclude>
     <ClInclude Include="data\renderingtest.hpp">
+      <Filter>data</Filter>
+    </ClInclude>
+    <ClInclude Include="data\shaderhandle.hpp">
       <Filter>data</Filter>
     </ClInclude>
     <ClInclude Include="data\shadersource.hpp">
@@ -289,8 +295,6 @@
     <ClInclude Include="systems\rendertestsystem.hpp">
       <Filter>systems</Filter>
     </ClInclude>
-    <ClInclude Include="cache\shadercache.hpp" />
-    <ClInclude Include="data\shaderhandle.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\include\GL\src\glad.c">
@@ -338,6 +342,9 @@
     <ClCompile Include="cache\modelcache.cpp">
       <Filter>cache</Filter>
     </ClCompile>
+    <ClCompile Include="cache\shadercache.cpp">
+      <Filter>cache</Filter>
+    </ClCompile>
     <ClCompile Include="pipeline\base\graphicsstage.cpp">
       <Filter>pipeline\base</Filter>
     </ClCompile>
@@ -350,6 +357,5 @@
     <ClCompile Include="systems\rendertestsystem.cpp">
       <Filter>systems</Filter>
     </ClCompile>
-    <ClCompile Include="cache\shadercache.cpp" />
   </ItemGroup>
 </Project>
