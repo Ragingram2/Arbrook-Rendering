@@ -20,20 +20,106 @@ namespace rythe::rendering
 		for (auto& ent : m_filter)
 		{
 			auto& renderer = ent.getComponent<mesh_renderer>();
-			ast::asset_handle<material> mat = renderer.material;
-
-			renderer.material->addTexture(TextureSlot::TEXTURE4, depthTexture);
-			renderer.material->addTexture(TextureSlot::TEXTURE5, depthCube);
 
 			initializeModel(ent->id, renderer);
 			renderer.dirty = false;
-			auto pos = std::find(m_shaders.begin(), m_shaders.end(), mat->getShader());
-			if (pos == m_shaders.end())
-				m_shaders.push_back(mat->getShader());
+		}
+	}
+
+	void render_stage::render(core::transform camTransf, camera& cam)
+	{
+		ZoneScopedN("[Renderer] [Render Stage] Render");
+		camera_data data[] = { camera_data{.viewPosition = camTransf.position, .projection = cam.projection, .view = cam.view, .model = math::mat4(1.0f)} };
+		for (auto& ent : m_filter)
+		{
+			auto& renderer = ent.getComponent<mesh_renderer>();
+			ast::asset_handle<model> model = renderer.model;
+			ast::asset_handle<mesh> mesh = renderer.model->meshHandle;
+			if (renderer.dirty)
+			{
+				initializeModel(ent->id, renderer);
+				renderer.dirty = false;
+			}
+			auto& transf = ent.getComponent<core::transform>();
+			data[0].model = transf.to_world();
+
+			renderer.layout.bind();
+			model->bind();
+			if (model->indexBuffer != nullptr)
+				for (unsigned int i = 0; i < mesh->meshes.size(); i++)
+				{
+					auto& submesh = mesh->meshes[i];
+					auto mat = renderer.mainMaterial;
+					auto found = std::find_if(renderer.materials.begin(), renderer.materials.end(), [&mat](auto& p) {return p.second == mat; });
+					if (renderer.materials.size() > 0 && found != renderer.materials.end())
+					{
+						ast::asset_handle<material> subMat = renderer.materials[submesh.materialIdx];
+						subMat->bind();
+						subMat->getShader()->setUniform("MaterialBuffer", SV_MATERIALS, &subMat->data);
+						subMat->getShader()->setUniform("CameraBuffer", SV_CAMERA, data);
+						RI->drawIndexed(PrimitiveType::TRIANGLESLIST, submesh.count, submesh.indexOffset, submesh.vertexOffset);
+						subMat->unbind();
+					}
+					else
+					{
+						ast::asset_handle<material> subMat = renderer.mainMaterial;
+						subMat->bind();
+						subMat->getShader()->setUniform("MaterialBuffer", SV_MATERIALS, &subMat->data);
+						subMat->getShader()->setUniform("CameraBuffer", SV_CAMERA, data);
+						RI->drawIndexed(PrimitiveType::TRIANGLESLIST, submesh.count, submesh.indexOffset, submesh.vertexOffset);
+						subMat->unbind();
+					}
+					WindowProvider::activeWindow->checkError();
+				}
+			else
+			{
+				renderer.mainMaterial->bind();
+				renderer.mainMaterial->getShader()->setUniform("MaterialBuffer", SV_MATERIALS, &renderer.mainMaterial->data);
+				renderer.mainMaterial->getShader()->setUniform("CameraBuffer", SV_CAMERA, data);
+				RI->drawArrays(PrimitiveType::TRIANGLESLIST, 0, mesh->vertices.size());
+				renderer.mainMaterial->unbind();
+			}
+
+			renderer.layout.unbind();
+			model->unbind();
+		}
+		m_onRender(camTransf, cam);
+	}
+
+	rsl::priority_type render_stage::priority() const { return OPAQUE_PRIORITY; }
+
+	void render_stage::initializeModel(rsl::uint entId, mesh_renderer& renderer)
+	{
+		auto& model = renderer.model;
+
+		auto meshHandle = renderer.model->meshHandle;
+		auto matHandle = renderer.materials.size() > 0 ? renderer.materials[meshHandle->meshes[0].materialIdx] : renderer.mainMaterial;
+		auto& layout = renderer.layout;
+
+		if (renderer.mainMaterial)
+		{
+			auto handle = renderer.mainMaterial->getShader();
+			if (pointLightBuffer != nullptr)
+				handle->addBuffer(pointLightBuffer);
+			if (directionalLightBuffer != nullptr)
+				handle->addBuffer(directionalLightBuffer);
+			if (cameraBuffer != nullptr)
+				handle->addBuffer(cameraBuffer);
+			if (materialBuffer != nullptr)
+				handle->addBuffer(materialBuffer);
+			if (lightInfoBuffer != nullptr)
+				handle->addBuffer(lightInfoBuffer);
+
+			//if (depthTexture)
+			renderer.mainMaterial->addTexture(TextureSlot::TEXTURE4, depthTexture);
+			//if (depthCube)
+			renderer.mainMaterial->addTexture(TextureSlot::TEXTURE5, depthCube);
 		}
 
-		for (auto handle : m_shaders)
+		for (auto [id, matId] : model->meshHandle->materialIds)
 		{
+			renderer.materials[id] = MaterialCache::getMaterial(matId);
+			auto handle = renderer.materials[id]->getShader();
 			if (pointLightBuffer != nullptr)
 				handle->addBuffer(pointLightBuffer);
 			if (directionalLightBuffer != nullptr)
@@ -45,67 +131,15 @@ namespace rythe::rendering
 			if (lightInfoBuffer != nullptr)
 				handle->addBuffer(lightInfoBuffer);
 		}
-	}
 
-	void render_stage::render(core::transform camTransf, camera& cam)
-	{
-		ZoneScopedN("[Renderer] [Render Stage] Render");
-		camera_data data[] = { camera_data{.viewPosition = camTransf.position, .projection = cam.projection, .view = cam.view, .model = math::mat4(1.0f)} };
-		for (auto& ent : m_filter)
+		for (auto [id, mat] : renderer.materials)
 		{
-			auto& renderer = ent.getComponent<mesh_renderer>();
-			ast::asset_handle<material> material = renderer.material;
-			shader_handle shader = renderer.material->getShader();
-			ast::asset_handle<model> model = renderer.model;
-			ast::asset_handle<mesh> mesh = renderer.model->meshHandle;
-			if (renderer.dirty)
-			{
-				initializeModel(ent->id, renderer);
-
-				renderer.dirty = false;
-				auto pos = std::find(m_shaders.begin(), m_shaders.end(), shader);
-				if (pos == m_shaders.end())
-				{
-					m_shaders.push_back(shader);
-					shader->addBuffer(pointLightBuffer);
-					shader->addBuffer(directionalLightBuffer);
-					shader->addBuffer(cameraBuffer);
-					shader->addBuffer(materialBuffer);
-					shader->addBuffer(lightInfoBuffer);
-				}
-			}
-			auto& transf = ent.getComponent<core::transform>();
-			data[0].model = transf.to_world();
-			cameraBuffer->bufferData(data, 1);
-			materialBuffer->bufferData(&material->data, 1);
-			material->bind();
-			renderer.layout.bind();
-			model->bind();
-			if (model->indexBuffer != nullptr)
-				for (unsigned int i = 0; i < mesh->meshes.size(); i++)
-				{
-					auto& submesh = mesh->meshes[i];
-					RI->drawIndexed(PrimitiveType::TRIANGLESLIST, submesh.count, submesh.indexOffset, submesh.vertexOffset);
-					WindowProvider::activeWindow->checkError();
-				}
-			else
-				RI->drawArrays(PrimitiveType::TRIANGLESLIST, 0, mesh->vertices.size());
-
-			renderer.layout.unbind();
-			material->unbind();
-			model->unbind();
+			//if (depthTexture)
+			mat->addTexture(TextureSlot::TEXTURE4, depthTexture);
+			//if (depthCube)
+			mat->addTexture(TextureSlot::TEXTURE5, depthCube);
 		}
-		m_onRender(camTransf, cam);
-	}
 
-	rsl::priority_type render_stage::priority() const { return OPAQUE_PRIORITY; }
-
-	void render_stage::initializeModel(rsl::uint entId, mesh_renderer& renderer)
-	{
-		auto& model = renderer.model;
-		auto meshHandle = renderer.model->meshHandle;
-		auto matHandle = renderer.material;
-		auto& layout = renderer.layout;
 
 		layout.release();
 		layout.initialize(1, matHandle->getShader());
@@ -114,7 +148,7 @@ namespace rythe::rendering
 		model->vertexBuffer = BufferCache::createVertexBuffer<math::vec4>(std::format("{}{}-Vertex Buffer", meshHandle->name, entId), 0, UsageType::STATICDRAW, meshHandle->vertices);
 		renderer.layout.setAttributePtr(model->vertexBuffer, "POSITION", 0, FormatType::RGBA32F, 0, sizeof(math::vec4), 0);
 
-		model->indexBuffer = BufferCache::createIndexBuffer(std::format("{}-Index Buffer", meshHandle->name), UsageType::STATICDRAW, meshHandle->indices);
+		model->indexBuffer = BufferCache::createIndexBuffer(std::format("{}{}-Index Buffer", meshHandle->name, entId), UsageType::STATICDRAW, meshHandle->indices);
 
 		if (meshHandle->normals.size() > 0)
 		{

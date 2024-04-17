@@ -43,6 +43,11 @@ namespace rythe::rendering
 		return { id, data };
 	}
 
+	ast::asset_handle<texture_source> TextureImporter::loadFromMemory(rsl::id_type id, texture_source* data, const ast::import_settings<texture_source>& settings)
+	{
+		return { id, data };
+	}
+
 	void TextureImporter::write(fs::path filePath, texture_source* data)
 	{
 		//std::ofstream o(filePath);

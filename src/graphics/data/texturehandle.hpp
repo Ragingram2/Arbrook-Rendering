@@ -15,6 +15,7 @@ namespace rythe::rendering
 
 		Itexture<internal::texture>* operator->() { return m_data; }
 		operator Itexture<internal::texture>& () const { return *m_data; }
+		operator bool() const { return m_data != nullptr; }
 
 		bool operator == (texture_handle handle) { return m_data == handle.m_data; }
 		bool operator != (texture_handle handle) { return !operator==(handle); }

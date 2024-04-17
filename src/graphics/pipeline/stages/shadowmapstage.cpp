@@ -25,6 +25,14 @@ namespace rythe::rendering
 		dirShadowMap->addBuffer(materialBuffer);
 		dirShadowMap->addBuffer(directionalLightBuffer);
 		dirShadowMap->addBuffer(lightInfoBuffer);
+
+		for (auto& ent : m_filter)
+		{
+			auto& renderer = ent.getComponent<mesh_renderer>();
+			if (!renderer.castShadows) continue;
+
+				initializeModel(ent->id, renderer, dirShadowMap);
+		}
 	}
 
 	void shadow_map_stage::render(core::transform camTransf, camera& cam)
@@ -65,12 +73,13 @@ namespace rythe::rendering
 			ast::asset_handle<model> model = renderer.model;
 			ast::asset_handle<mesh> mesh = model->meshHandle;
 
-			initializeModel(ent->id, renderer, dirShadowMap);
+			if (renderer.dirty)
+				initializeModel(ent->id, renderer, dirShadowMap);
 
 			auto& transf = ent.getComponent<core::transform>();
 
 			data[0].model = transf.to_world();
-			dirShadowMap->setUniform("CameraBuffer", 0, data);
+			dirShadowMap->setUniform("CameraBuffer", SV_CAMERA, data);
 
 			model->bind();
 			renderer.layout.bind();
@@ -92,10 +101,10 @@ namespace rythe::rendering
 	{
 		for (int i = 0; i < lightInfo.count; i++)
 		{
-			RI->clear(false, DepthClearBit::DEPTH_STENCIL);
+			//RI->clear(false, DepthClearBit::DEPTH_STENCIL);
 			pointShadowMap->bind();
 			lightInfo.index = i;
-			pointShadowMap->setUniform("LightInfo", 4, &lightInfo);
+			pointShadowMap->setUniform("LightInfo", SV_MATERIALS + 1, &lightInfo);
 			camera_data data[] = { camera_data{.viewPosition = camTransf.position, .projection = cam.projection, .view = cam.view, .model = math::mat4(1.0f)} };
 			for (auto& ent : m_filter)
 			{
@@ -111,7 +120,7 @@ namespace rythe::rendering
 				auto& transf = ent.getComponent<core::transform>();
 
 				data[0].model = transf.to_world();
-				pointShadowMap->setUniform("CameraBuffer", 0, data);
+				pointShadowMap->setUniform("CameraBuffer", SV_CAMERA, data);
 				model->bind();
 				renderer.layout.bind();
 				if (model->indexBuffer != nullptr)

@@ -37,6 +37,10 @@ namespace rythe::rendering
 		data->name = filePath.stem().string();
 		return { id, data };
 	}
+	ast::asset_handle<material_source> MaterialImporter::loadFromMemory(rsl::id_type id, material_source* data, const ast::import_settings<material_source>& settings)
+	{
+		return { id, data };
+	}
 
 	void MaterialImporter::write(fs::path filePath, material_source* data)
 	{

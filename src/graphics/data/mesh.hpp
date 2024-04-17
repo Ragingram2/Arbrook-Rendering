@@ -15,7 +15,7 @@ namespace rythe::rendering
 		rsl::size_type count;
 		rsl::size_type vertexOffset;
 		rsl::size_type indexOffset;
-		rsl::int32 materialIdx;
+		rsl::id_type materialIdx;
 	};
 
 	struct mesh
@@ -30,7 +30,7 @@ namespace rythe::rendering
 		std::vector<math::vec2> texCoords;
 		std::vector<math::vec3> tangents;
 		std::vector<unsigned int> indices;
-		std::vector<rsl::uint> materialIndices;
+		std::unordered_map<rsl::id_type,rsl::id_type> materialIds;
 		std::vector<sub_mesh> meshes;
 
 		mesh() = default;

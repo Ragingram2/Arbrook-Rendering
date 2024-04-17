@@ -30,6 +30,7 @@ namespace rythe::rendering
 		static ast::asset_handle<material> loadMaterial(const std::string& name);
 		static ast::asset_handle<material> loadMaterialFromFile(const std::string& name, fs::path shaderPath);
 		static void loadMaterials(std::vector<ast::asset_handle<material_source>> assets);
+		static ast::asset_handle<material> getMaterial(rsl::id_type id);
 		static ast::asset_handle<material> getMaterial(const std::string& name);
 		static void deleteMaterial(const std::string& name);
 		static void deleteMaterial(rsl::id_type nameHash);

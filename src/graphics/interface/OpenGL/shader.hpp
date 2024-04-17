@@ -116,10 +116,11 @@ namespace rythe::rendering::internal
 		void setUniform(const std::string& bufferName, int location, elementType data[])
 		{
 			ZoneScopedN("[OpenGL Shader] setUniform()");
-			glUseProgram(programId);
+			//glUseProgram(programId);
 			if (m_constBuffers.count(bufferName) != 0)
 			{
 				m_constBuffers[bufferName]->bufferData<elementType>(data);
+				//glUseProgram(0);
 				return;
 			}
 			auto buffer = BufferCache::getBuffer(bufferName);
@@ -127,11 +128,19 @@ namespace rythe::rendering::internal
 			{
 				addBuffer(BufferCache::createConstantBuffer<elementType>(bufferName, location, rendering::UsageType::STATICDRAW));
 				m_constBuffers[bufferName]->bufferData<elementType>(data);
+				//glUseProgram(0);
+				return;
+			}
+			else
+			{
+				addBuffer(buffer);
+				m_constBuffers[bufferName]->bufferData<elementType>(data);
+				//glUseProgram(0);
 				return;
 			}
 
 			log::error("No data was buffered, because the buffer {} was not added or does not exist", bufferName);
-			glUseProgram(0);
+			//glUseProgram(0);
 		}
 
 		void addBuffer(buffer_handle handle)

@@ -34,13 +34,22 @@ namespace rythe::rendering
 		}
 
 		auto slot = TextureSlot::TEXTURE0;
-		for (fs::path path : source->textureFilepaths)
+		for (fs::path path : source->textures)
 		{
-			auto texName = path.stem().string();
-			mat->addTexture(slot, TextureCache::createTexture2D(ast::AssetCache<texture_source>::createAsset(texName, path, default_texture_import_params)));
+			if (path.has_extension())
+			{
+				auto texName = path.stem().string();
+				mat->addTexture(slot, TextureCache::createTexture2D(ast::AssetCache<texture_source>::createAsset(texName, path, default_texture_import_params)));
+			}
+			else
+			{
+				auto texName = path.stem().string();
+				//log::debug(texName);
+				mat->addTexture(slot, TextureCache::getTexture(texName));
+			}
 			slot++;
 		}
-		mat->name = name;
+		mat->name = std::move(name);
 		m_materials.emplace(id, std::move(mat));
 		m_names.emplace(id, name);
 		return { id,  m_materials[id].get() };
@@ -92,6 +101,15 @@ namespace rythe::rendering
 		{
 			loadMaterial(source->name, source);
 		}
+	}
+
+	ast::asset_handle<material> MaterialCache::getMaterial(rsl::id_type id)
+	{
+		if (m_materials.contains(id))
+		{
+			return { id, m_materials[id].get() };
+		}
+		return { 0, nullptr };
 	}
 
 	ast::asset_handle<material> MaterialCache::getMaterial(const std::string& name)

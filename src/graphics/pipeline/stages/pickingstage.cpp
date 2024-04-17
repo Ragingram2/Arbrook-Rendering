@@ -35,7 +35,7 @@ namespace rythe::rendering
 				initializeModel(ent->id, renderer);
 
 			data[0].model = transf.to_world();
-			pickingShader->setUniform("CameraBuffer", 0, &data);
+			pickingShader->setUniform("CameraBuffer", SV_CAMERA, &data);
 			pickingShader->setUniform("EntityData", 1, &vecId);
 			pickingShader->bind();
 			renderer.layout.bind();

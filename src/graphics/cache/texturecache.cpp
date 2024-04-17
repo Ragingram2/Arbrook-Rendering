@@ -23,7 +23,7 @@ namespace rythe::rendering
 		tex->m_impl.channels = textureData != nullptr ? textureData->channels : 4;
 		tex->m_impl.resolution = overrideResolution;
 		tex->m_impl.initialize(static_cast<internal::TextureType>(targetType), params);
-		tex->loadData(textureData != nullptr ? textureData->data : nullptr);
+		tex->loadData(textureData != nullptr ? std::move(textureData->data) : nullptr);
 		m_names.emplace(id, name);
 		return { tex.get() };
 	}
@@ -45,7 +45,7 @@ namespace rythe::rendering
 		if (textureData != nullptr)
 			textureData->name = name;
 		auto& tex = m_textures.emplace(id, std::make_unique<texture>()).first->second;
-		tex->m_impl.name = name;
+		tex->m_impl.name = std::move(name);
 		tex->m_impl.channels = textureData != nullptr ? textureData->channels : 4;
 		switch (tex->m_impl.channels)
 		{
@@ -56,7 +56,7 @@ namespace rythe::rendering
 		}
 		tex->m_impl.resolution = overrideResolution;
 		tex->m_impl.initialize(internal::TextureType::TEXTURE2D, params);
-		tex->loadData(textureData != nullptr ? textureData->data : nullptr);
+		tex->loadData(textureData != nullptr ? std::move(textureData->data) : nullptr);
 		m_names.emplace(id, name);
 		return { tex.get() };
 	}
@@ -93,7 +93,7 @@ namespace rythe::rendering
 		tex->m_impl.channels = textureData != nullptr ? textureData->channels : 4;
 		tex->m_impl.resolution = overrideResolution;
 		tex->m_impl.initialize(internal::TextureType::CUBEMAP, params);
-		tex->loadData(textureData != nullptr ? textureData->data : nullptr);
+		tex->loadData(textureData != nullptr ? std::move(textureData->data) : nullptr);
 		m_names.emplace(id, name);
 		return { tex.get() };
 	}

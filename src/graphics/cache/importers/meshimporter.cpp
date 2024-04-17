@@ -1,4 +1,8 @@
 #include "graphics/cache/importers/meshimporter.hpp"
+#include "graphics/cache/materialcache.hpp"
+#include "graphics/data/materialsource.hpp"
+#include "graphics/cache/texturecache.hpp"
+#include <stb/stb_image.h>
 
 namespace fs = std::filesystem;
 namespace ast = rythe::core::assets;
@@ -41,18 +45,39 @@ namespace rythe::rendering
 		{
 			data->meshes.emplace_back();
 			data->meshes[i].materialIdx = scene->mMeshes[i]->mMaterialIndex;
+			data->meshes[i].name = scene->mMeshes[i]->mName.C_Str();
 			data->meshes[i].count = scene->mMeshes[i]->mNumFaces * 3;
 			data->meshes[i].vertexOffset = data->vertexCount;
 			data->meshes[i].indexOffset = data->indexCount;
 
 			data->vertexCount += scene->mMeshes[i]->mNumVertices;
 			data->indexCount += data->meshes[i].count;
+
+			if (scene->mNumMaterials < 1) continue;
+
+			aiMaterial* material = scene->mMaterials[scene->mMeshes[i]->mMaterialIndex];
+			auto matAssets = ast::AssetCache<material_source>::getAssets();
+			material_source mat_source;
+			mat_source.name = std::format("{}-{}-material", data->name, data->meshes[i].name);
+			mat_source.filePath = "resources/shaders/lit.shader";
+			mat_source.shaderName = "lit";
+			initMaterial(scene, material, aiTextureType_DIFFUSE, mat_source);
+			auto matAsset = ast::AssetCache<material_source>::createAssetFromMemory(mat_source.name, &mat_source, ast::import_settings<material_source>{});
+			auto matHandle = MaterialCache::loadMaterial(mat_source.name, matAsset);
+			matAssets = ast::AssetCache<material_source>::getAssets();
+			data->materialIds[data->meshes[i].materialIdx] = matHandle.m_id;
 		}
 
 		for (unsigned int i = 0; i < data->meshes.size(); i++)
 		{
 			initMesh(data, scene->mMeshes[i]);
 		}
+
+		return { id, data };
+	}
+
+	ast::asset_handle<mesh> MeshImporter::loadFromMemory(rsl::id_type id, mesh* data, const ast::import_settings<mesh>& settings)
+	{
 		return { id, data };
 	}
 
@@ -104,5 +129,30 @@ namespace rythe::rendering
 					data->indices.push_back(s_indices[j]);
 				}
 			}
+	}
+	void MeshImporter::initMaterial(const aiScene* scene, aiMaterial* mat, aiTextureType type, material_source& mat_source)
+	{
+		auto texCount = mat->GetTextureCount(type);
+		for (unsigned int j = 0; j < texCount; j++)
+		{
+			aiString strPath;
+			mat->GetTexture(type, j, &strPath);
+			if ('*' == strPath.data[0])//embedded texture
+			{
+				auto idx = std::stoi(std::format("{}{}", strPath.data[1], strPath.data[2]));
+				auto texture = scene->mTextures[idx];
+				texture_source tex_source;
+				tex_source.name = texture->mFilename.C_Str();
+				if (texture->mHeight == 0)
+					tex_source.data = stbi_load_from_memory(reinterpret_cast<unsigned char*>(texture->pcData), texture->mWidth, &tex_source.resolution.x, &tex_source.resolution.y, &tex_source.channels, 0);
+				else
+					tex_source.data = stbi_load_from_memory(reinterpret_cast<unsigned char*>(texture->pcData), texture->mWidth * texture->mHeight, &tex_source.resolution.x, &tex_source.resolution.y, &tex_source.channels, 0);
+				auto textureAsset = ast::AssetCache<texture_source>::createAssetFromMemory(tex_source.name, &tex_source, ast::import_settings<texture_source>{});
+				auto texHandle = TextureCache::createTexture2D(tex_source.name, textureAsset);
+				auto textureAssets = ast::AssetCache<texture_source>::getAssets();
+				mat_source.textures.push_back(texHandle->getName());
+				stbi_image_free(tex_source.data);
+			}
+		}
 	}
 }

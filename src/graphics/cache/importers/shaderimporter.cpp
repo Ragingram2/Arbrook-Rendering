@@ -34,6 +34,11 @@ namespace rythe::rendering
 		return { id, data };
 	}
 
+	ast::asset_handle<shader_source> ShaderImporter::loadFromMemory(rsl::id_type id, shader_source* data, const ast::import_settings<shader_source>& settings)
+	{
+		return { id,data };
+	}
+
 	void ShaderImporter::write(fs::path filePath, shader_source* data)
 	{
 		//std::ofstream o(filePath);
