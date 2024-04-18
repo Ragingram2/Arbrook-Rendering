@@ -144,6 +144,9 @@
     <ClInclude Include="data\shaderhandle.hpp">
       <Filter>data</Filter>
     </ClInclude>
+    <ClInclude Include="data\shaderinfo.hpp">
+      <Filter>data</Filter>
+    </ClInclude>
     <ClInclude Include="data\shadersource.hpp">
       <Filter>data</Filter>
     </ClInclude>
@@ -343,7 +346,6 @@
     <ClInclude Include="systems\renderer.hpp">
       <Filter>systems</Filter>
     </ClInclude>
-    <ClInclude Include="data\shaderinfo.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\include\GL\src\glad.c">
