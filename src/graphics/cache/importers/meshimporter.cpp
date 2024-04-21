@@ -57,13 +57,20 @@ namespace rythe::rendering
 
 			aiMaterial* material = scene->mMaterials[scene->mMeshes[i]->mMaterialIndex];
 			auto matAssets = ast::AssetCache<material_source>::getAssets();
-			material_source mat_source;
-			mat_source.name = std::format("{}-{}-material", data->name, data->meshes[i].name);
-			mat_source.filePath = "resources/shaders/lit.shader";
-			mat_source.shaderName = "lit";
-			initMaterial(scene, material, aiTextureType_DIFFUSE, mat_source);
-			auto matAsset = ast::AssetCache<material_source>::createAssetFromMemory(mat_source.name, &mat_source, ast::import_settings<material_source>{});
-			auto matHandle = MaterialCache::loadMaterial(mat_source.name, matAsset);
+			auto matName = std::format("{}-{}-material", data->name, data->meshes[i].name);
+			auto filePath = "resources/shaders/lit.shader";
+			auto shaderName = "lit";
+			//material_source mat_source;
+			//mat_source.name = std::format("{}-{}-material", data->name, data->meshes[i].name);
+			//mat_source.filePath = "resources/shaders/lit.shader";
+			//mat_source.shaderName = "lit";
+			std::vector<std::string> textures;
+			auto diffuseTextures = initMaterial(scene, material, aiTextureType_DIFFUSE);
+			textures.insert(textures.end(), diffuseTextures.begin(), diffuseTextures.end());
+			auto mat_source = material_source{ .name = matName, .filePath = filePath,.shaderName = shaderName,.textures = textures };
+
+			auto matAsset = ast::AssetCache<material_source>::createAssetFromMemory(matName, mat_source, ast::import_settings<material_source>{});
+			auto matHandle = MaterialCache::loadMaterial(matName, matAsset);
 			matAssets = ast::AssetCache<material_source>::getAssets();
 			data->materialIds[data->meshes[i].materialIdx] = matHandle.m_id;
 		}
@@ -130,8 +137,9 @@ namespace rythe::rendering
 				}
 			}
 	}
-	void MeshImporter::initMaterial(const aiScene* scene, aiMaterial* mat, aiTextureType type, material_source& mat_source)
+	std::vector<std::string> MeshImporter::initMaterial(const aiScene* scene, aiMaterial* mat, aiTextureType type)
 	{
+		std::vector<std::string> textures;
 		auto texCount = mat->GetTextureCount(type);
 		for (unsigned int j = 0; j < texCount; j++)
 		{
@@ -141,18 +149,21 @@ namespace rythe::rendering
 			{
 				auto idx = std::stoi(std::format("{}{}", strPath.data[1], strPath.data[2]));
 				auto texture = scene->mTextures[idx];
-				texture_source tex_source;
-				tex_source.name = texture->mFilename.C_Str();
+				auto textureName = texture->mFilename.C_Str();
+				math::ivec2 resolution = math::ivec2(0, 0);
+				int channels = 0;
+				unsigned char* textureData = nullptr;
 				if (texture->mHeight == 0)
-					tex_source.data = stbi_load_from_memory(reinterpret_cast<unsigned char*>(texture->pcData), texture->mWidth, &tex_source.resolution.x, &tex_source.resolution.y, &tex_source.channels, 0);
+					textureData = stbi_load_from_memory(reinterpret_cast<unsigned char*>(texture->pcData), texture->mWidth, &resolution.x, &resolution.y, &channels, 0);
 				else
-					tex_source.data = stbi_load_from_memory(reinterpret_cast<unsigned char*>(texture->pcData), texture->mWidth * texture->mHeight, &tex_source.resolution.x, &tex_source.resolution.y, &tex_source.channels, 0);
-				auto textureAsset = ast::AssetCache<texture_source>::createAssetFromMemory(tex_source.name, &tex_source, ast::import_settings<texture_source>{});
-				auto texHandle = TextureCache::createTexture2D(tex_source.name, textureAsset);
-				auto textureAssets = ast::AssetCache<texture_source>::getAssets();
-				mat_source.textures.push_back(texHandle->getName());
-				stbi_image_free(tex_source.data);
+					textureData = stbi_load_from_memory(reinterpret_cast<unsigned char*>(texture->pcData), texture->mWidth * texture->mHeight, &resolution.x, &resolution.y, &channels, 0);
+				auto tex_source = texture_source{ .name = textureName, .resolution = resolution,.channels = channels, .data = textureData };
+				auto textureAsset = ast::AssetCache<texture_source>::createAssetFromMemory(textureName, tex_source, ast::import_settings<texture_source>{});
+				auto texHandle = TextureCache::createTexture2D(textureName, textureAsset);
+				textures.push_back(texHandle->getName());
+				stbi_image_free(textureData);
 			}
 		}
+		return textures;
 	}
 }

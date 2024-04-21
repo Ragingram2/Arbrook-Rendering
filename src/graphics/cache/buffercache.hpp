@@ -41,7 +41,7 @@ namespace rythe::rendering
 	template<typename elementType>
 	inline buffer_handle BufferCache::createConstantBuffer(const std::string& name, int bindId, UsageType usage, const std::vector<elementType>& data)
 	{
-		auto handle = createBuffer(name, BufferType::CONSTANT_BUFFER,usage, data);
+		auto handle = createBuffer(name, BufferType::CONSTANT_BUFFER, usage, data);
 		handle->getImpl().bindId = bindId;
 		return handle;
 	}

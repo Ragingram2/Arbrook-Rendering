@@ -101,7 +101,7 @@ namespace rythe::rendering::internal
 				}
 				clearAttributes();
 			}
-			glBindVertexArray(0);
+			unbind();
 		}
 
 		void clearAttributes()

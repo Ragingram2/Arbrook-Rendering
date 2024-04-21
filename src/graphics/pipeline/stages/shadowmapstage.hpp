@@ -39,6 +39,6 @@ namespace rythe::rendering
 
 		void pointLightPass(core::transform& camTransf, camera& cam);
 
-		void initializeModel(rsl::uint entId, mesh_renderer& renderer, shader_handle handle);
+		void initializeModel(mesh_renderer& renderer, shader_handle handle);
 	};
 }

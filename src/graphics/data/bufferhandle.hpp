@@ -15,6 +15,7 @@ namespace rythe::rendering
 
 		Ibuffer<internal::buffer>* operator->() { return m_data; }
 		operator Ibuffer<internal::buffer>& () const { return *m_data; }
+		operator bool() const { return m_data != nullptr; }
 
 		bool operator == (buffer_handle handle) { return m_data == handle.m_data; }
 		bool operator != (buffer_handle handle) { return !operator==(handle); }

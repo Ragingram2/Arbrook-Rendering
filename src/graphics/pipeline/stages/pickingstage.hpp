@@ -22,7 +22,7 @@ namespace rythe::rendering
 		virtual void render(core::transform, camera&) override;
 		virtual rsl::priority_type priority() const override;
 
-		void initializeModel(rsl::uint, mesh_renderer&);
+		void initializeModel(mesh_renderer&);
 		math::ivec4 convertToBase256(rsl::id_type);
 
 	};

@@ -36,7 +36,7 @@ namespace rythe::rendering::internal
 		UsageType m_usage;
 		unsigned int m_slot;
 		unsigned int m_offset;
-		unsigned int m_size;
+		unsigned int m_size = 0;
 		unsigned int m_elementSize;
 	public:
 
@@ -55,13 +55,19 @@ namespace rythe::rendering::internal
 		void bind()
 		{
 			ZoneScopedN("[OpenGL Buffer] bind()");
-			glBindBuffer(static_cast<GLenum>(m_type), id);
+			if (m_type == BufferType::CONSTANT_BUFFER)
+				glBindBufferBase(GL_UNIFORM_BUFFER, bindId, id);
+			else
+				glBindBuffer(static_cast<GLenum>(m_type), id);
 		}
 
 		void unbind()
 		{
 			ZoneScopedN("[OpenGL Buffer] unbind()");
-			glBindBuffer(static_cast<GLenum>(m_type), 0);
+			if (m_type == BufferType::CONSTANT_BUFFER)
+				glBindBufferBase(GL_UNIFORM_BUFFER, bindId, 0);
+			else
+				glBindBuffer(static_cast<GLenum>(m_type), 0);
 		}
 
 		template<typename elementType>
@@ -81,16 +87,16 @@ namespace rythe::rendering::internal
 				return;
 			}
 
-			bind();
-
 			if (m_type == BufferType::CONSTANT_BUFFER || m_usage == UsageType::IMMUTABLE)
 			{
 				ZoneScopedN("[OpenGL Buffer] [bufferData()] Buffering Immutable data");
+				bind();
 				glBufferSubData(static_cast<GLenum>(m_type), 0, m_size * sizeof(elementType), data);
 			}
 			else
 			{
 				ZoneScopedN("[OpenGL Buffer] [bufferData()] Buffering data");
+				bind();
 				glBufferData(static_cast<GLenum>(m_type), m_size * sizeof(elementType), data, static_cast<GLenum>(m_usage));
 			}
 		}
@@ -110,9 +116,9 @@ namespace rythe::rendering::internal
 			{
 				ZoneScopedN("[OpenGL Buffer] [createBuffer()] Generate new Buffer");
 				glGenBuffers(1, &id);
+				bind();
 			}
 
-			bind();
 			if (m_usage == UsageType::IMMUTABLE)
 			{
 				ZoneScopedN("[OpenGL Buffer] [createBuffer()] Buffering Immutable data");

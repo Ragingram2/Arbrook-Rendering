@@ -33,6 +33,7 @@ namespace rythe::rendering
 
 	struct light
 	{
+		bool enabled = true;
 		LightType type;
 		int index = -1;
 		point_light_data point_data;

@@ -9,12 +9,13 @@ namespace rythe::rendering
 {
 	struct mesh_renderer
 	{
+		bool enabled = true;
 		bool dirty = true;
 		bool instanced = false;
 		bool castShadows = true;
 		inputlayout layout;
-		std::unordered_map<rsl::id_type, ast::asset_handle<material>> materials;
-		ast::asset_handle<material> mainMaterial {0, nullptr};
-		ast::asset_handle<model> model {0,nullptr};
+		std::unordered_map<rsl::id_type, material> materials;
+		material mainMaterial;
+		model model;
 	};
 }

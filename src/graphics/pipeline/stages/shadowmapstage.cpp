@@ -29,9 +29,9 @@ namespace rythe::rendering
 		for (auto& ent : m_filter)
 		{
 			auto& renderer = ent.getComponent<mesh_renderer>();
+			if (!renderer.enabled) continue;
 			if (!renderer.castShadows) continue;
-
-				initializeModel(ent->id, renderer, dirShadowMap);
+			initializeModel(renderer, dirShadowMap);
 		}
 	}
 
@@ -63,84 +63,96 @@ namespace rythe::rendering
 
 	void shadow_map_stage::directionalLightPass(core::transform& camTransf, camera& cam)
 	{
-		dirShadowMap->bind();
+
 		camera_data data[] = { camera_data{.viewPosition = camTransf.position, .projection = cam.projection, .view = cam.view, .model = math::mat4(1.0f)} };
 		for (auto& ent : m_filter)
 		{
 			auto& renderer = ent.getComponent<mesh_renderer>();
+			if (!renderer.enabled) continue;
 			if (!renderer.castShadows) continue;
 
-			ast::asset_handle<model> model = renderer.model;
-			ast::asset_handle<mesh> mesh = model->meshHandle;
+			model& model = renderer.model;
+			ast::asset_handle<mesh> mesh = model.meshHandle;
 
 			if (renderer.dirty)
-				initializeModel(ent->id, renderer, dirShadowMap);
+				initializeModel(renderer, dirShadowMap);
 
 			auto& transf = ent.getComponent<core::transform>();
 
 			data[0].model = transf.to_world();
 			dirShadowMap->setUniform("CameraBuffer", SV_CAMERA, data);
-
-			model->bind();
+			dirShadowMap->bind();
 			renderer.layout.bind();
-			if (model->indexBuffer != nullptr)
+			model.bind();
+			if (model.indexBuffer != nullptr)
+			{
 				for (unsigned int i = 0; i < mesh->meshes.size(); i++)
 				{
 					auto& submesh = mesh->meshes[i];
 					RI->drawIndexed(PrimitiveType::TRIANGLESLIST, submesh.count, submesh.indexOffset, submesh.vertexOffset);
 				}
+			}
 			else
+			{
 				RI->drawArrays(PrimitiveType::TRIANGLESLIST, 0, mesh->vertices.size());
+			}
+			model.unbind();
 			renderer.layout.unbind();
-			model->unbind();
+			dirShadowMap->unbind();
 		}
-		dirShadowMap->unbind();
+
 	}
 
 	void shadow_map_stage::pointLightPass(core::transform& camTransf, camera& cam)
 	{
 		for (int i = 0; i < lightInfo.count; i++)
 		{
-			//RI->clear(false, DepthClearBit::DEPTH_STENCIL);
-			pointShadowMap->bind();
+			RI->clear(false, DepthClearBit::DEPTH_STENCIL);
+
 			lightInfo.index = i;
 			pointShadowMap->setUniform("LightInfo", SV_MATERIALS + 1, &lightInfo);
 			camera_data data[] = { camera_data{.viewPosition = camTransf.position, .projection = cam.projection, .view = cam.view, .model = math::mat4(1.0f)} };
 			for (auto& ent : m_filter)
 			{
 				auto& renderer = ent.getComponent<mesh_renderer>();
+				if (!ent->enabled || !renderer.enabled) continue;
 				if (!renderer.castShadows) continue;
 
-				ast::asset_handle<model> model = renderer.model;
-				ast::asset_handle<mesh> mesh = model->meshHandle;
+				model& model = renderer.model;
+				ast::asset_handle<mesh> mesh = model.meshHandle;
 
 				if (renderer.dirty)
-					initializeModel(ent->id, renderer, pointShadowMap);
+					initializeModel(renderer, pointShadowMap);
 
 				auto& transf = ent.getComponent<core::transform>();
 
 				data[0].model = transf.to_world();
 				pointShadowMap->setUniform("CameraBuffer", SV_CAMERA, data);
-				model->bind();
+				pointShadowMap->bind();
 				renderer.layout.bind();
-				if (model->indexBuffer != nullptr)
+				model.bind();
+				if (model.indexBuffer != nullptr)
+				{
 					for (unsigned int i = 0; i < mesh->meshes.size(); i++)
 					{
 						auto& submesh = mesh->meshes[i];
 						RI->drawIndexed(PrimitiveType::TRIANGLESLIST, submesh.count, submesh.indexOffset, submesh.vertexOffset);
 					}
+				}
 				else
+				{
 					RI->drawArrays(PrimitiveType::TRIANGLESLIST, 0, mesh->vertices.size());
+				}
+
 				renderer.layout.unbind();
-				model->unbind();
+				model.unbind();
 			}
 			pointShadowMap->unbind();
 		}
 	}
 
-	void shadow_map_stage::initializeModel(rsl::uint entId, mesh_renderer& renderer, shader_handle handle)
+	void shadow_map_stage::initializeModel(mesh_renderer& renderer, shader_handle handle)
 	{
-		auto meshHandle = renderer.model->meshHandle;
 		auto& model = renderer.model;
 		auto& layout = renderer.layout;
 
@@ -148,27 +160,29 @@ namespace rythe::rendering
 		layout.initialize(1, handle);
 		layout.bind();
 
-		model->vertexBuffer = BufferCache::createVertexBuffer<math::vec4>(std::format("{}{}-Depth-Vertex Buffer", meshHandle->name, entId), 0, UsageType::STATICDRAW, meshHandle->vertices);
-		layout.setAttributePtr(model->vertexBuffer, "POSITION", 0, FormatType::RGBA32F, 0, sizeof(math::vec4), 0);
+		//model.vertexBuffer = BufferCache::createVertexBuffer<math::vec4>(std::format("{}-Vertex Buffer", model.meshHandle->name), 0, UsageType::STATICDRAW, model.meshHandle->vertices);
+		//model.indexBuffer = BufferCache::createIndexBuffer(std::format("{}-Index Buffer", model.meshHandle->name), UsageType::STATICDRAW, model.meshHandle->indices);
 
-		model->indexBuffer = BufferCache::createIndexBuffer(std::format("{}{}-Depth-Index Buffer", meshHandle->name, entId), UsageType::STATICDRAW, meshHandle->indices);
-		if (meshHandle->normals.size() > 0)
-		{
-			model->normalBuffer = BufferCache::createVertexBuffer<math::vec3>(std::format("{}{}-Normal Buffer", meshHandle->name, entId), 1, UsageType::STATICDRAW, meshHandle->normals);
-			layout.setAttributePtr(model->normalBuffer, "NORMAL", 0, FormatType::RGB32F, 1, sizeof(math::vec3), 0);
-		}
+		//if (model.meshHandle->normals.size() > 0)
+		//	model.normalBuffer = BufferCache::createVertexBuffer<math::vec3>(std::format("{}-Normal Buffer", model.meshHandle->name), 1, UsageType::STATICDRAW, model.meshHandle->normals);
 
-		if (meshHandle->texCoords.size() > 0)
-		{
-			model->uvBuffer = BufferCache::createVertexBuffer<math::vec2>(std::format("{}{}-UV Buffer", meshHandle->name, entId), 2, UsageType::STATICDRAW, meshHandle->texCoords);
-			layout.setAttributePtr(model->uvBuffer, "TEXCOORD", 0, FormatType::RG32F, 2, sizeof(math::vec2), 0);
-		}
+		//if (model.meshHandle->texCoords.size() > 0)
+		//	model.uvBuffer = BufferCache::createVertexBuffer<math::vec2>(std::format("{}-UV Buffer", model.meshHandle->name), 2, UsageType::STATICDRAW, model.meshHandle->texCoords);
 
-		if (meshHandle->tangents.size() > 0)
-		{
-			model->tangentBuffer = BufferCache::createVertexBuffer<math::vec3>(std::format("{}{}-Tangent Buffer", meshHandle->name, entId), 3, UsageType::STATICDRAW, meshHandle->tangents);
-			layout.setAttributePtr(model->tangentBuffer, "TANGENT", 0, FormatType::RGB32F, 3, sizeof(math::vec3), 0);
-		}
+		//if (model.meshHandle->tangents.size() > 0)
+		//	model.tangentBuffer = BufferCache::createVertexBuffer<math::vec3>(std::format("{}-Tangent Buffer", model.meshHandle->name), 3, UsageType::STATICDRAW, model.meshHandle->tangents);
+
+		layout.setAttributePtr(model.vertexBuffer, "POSITION", 0, FormatType::RGBA32F, 0, sizeof(math::vec4), 0);
+
+		if (model.normalBuffer)
+			layout.setAttributePtr(model.normalBuffer, "NORMAL", 0, FormatType::RGB32F, 1, sizeof(math::vec3), 0);
+
+		if (model.uvBuffer)
+			layout.setAttributePtr(model.uvBuffer, "TEXCOORD", 0, FormatType::RG32F, 2, sizeof(math::vec2), 0);
+
+		if (model.tangentBuffer)
+			layout.setAttributePtr(model.tangentBuffer, "TANGENT", 0, FormatType::RGB32F, 3, sizeof(math::vec3), 0);
+
 		layout.submitAttributes();
 	}
 

@@ -13,11 +13,11 @@ namespace rythe::rendering
 	{
 		buffer_handle cameraBuffer;
 		ast::asset_handle<material> skyboxMat;
-		ast::asset_handle<model> cubeHandle;
+		model cubeHandle;
 		inputlayout layout;
 		virtual void setup(core::transform camTransf, camera& cam) override;
 		virtual void render(core::transform camTransf, camera& cam) override;
 		virtual rsl::priority_type priority() const override;
-		void initializeSkyboxModel(rsl::uint entId, ast::asset_handle<material> mat);
+		void initializeSkyboxModel();
 	};
 }

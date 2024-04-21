@@ -33,12 +33,12 @@ namespace rythe::rendering
 			depthFBO->initialize();
 			depthFBO->bind();
 
-			auto colorHandle = TextureCache::createTexture("shadowMap-color", TextureType::RENDER_TARGET, { 0, nullptr }, math::ivec2(Shadow_Width, Shadow_Height), texture_parameters
-				{
-					.usage = rendering::UsageType::DEFAULT,
-					.minFilterMode = rendering::FilterMode::LINEAR,
-					.magFilterMode = rendering::FilterMode::LINEAR
-				});
+			//auto colorHandle = TextureCache::createTexture("shadowMap-color", TextureType::RENDER_TARGET, { 0, nullptr }, math::ivec2(Shadow_Width, Shadow_Height), texture_parameters
+			//	{
+			//		.usage = rendering::UsageType::DEFAULT,
+			//		.minFilterMode = rendering::FilterMode::LINEAR,
+			//		.magFilterMode = rendering::FilterMode::LINEAR
+			//	});
 
 
 			depthHandle = TextureCache::createTexture("shadowMap-depth", TextureType::DEPTH_STENCIL, { 0, nullptr }, math::ivec2(Shadow_Width, Shadow_Height), texture_parameters
@@ -53,7 +53,7 @@ namespace rythe::rendering
 					.borderColor = math::vec4(1.0f)
 				});
 
-			depthFBO->attach(AttachmentSlot::COLOR0, colorHandle, true, true);
+			//depthFBO->attach(AttachmentSlot::COLOR0, colorHandle, true, true);
 			depthFBO->attach(AttachmentSlot::DEPTH_STENCIL, depthHandle, false, false);
 			depthFBO->unbind();
 		}
@@ -105,6 +105,13 @@ namespace rythe::rendering
 			mainFBO->attach(AttachmentSlot::DEPTH_STENCIL, mainDepthHandle, true, true);
 			mainFBO->unbind();
 		}
+
+		for (auto ent : m_filter)
+		{
+			mesh_renderer& renderer = ent.getComponent<mesh_renderer>();
+			if (!ent->enabled || !renderer.enabled) continue;
+			initializeModel(renderer);
+		}
 	}
 
 	void clear_stage::render(core::transform camTransf, camera& cam)
@@ -121,7 +128,50 @@ namespace rythe::rendering
 
 		RI->setClearColor(0x64 / 255.0f, 0x95 / 255.0f, 0xED / 255.0f, 1.0f);
 		RI->clear(true, DepthClearBit::DEPTH);
+
+		for (auto ent : m_filter)
+		{
+			mesh_renderer& renderer = ent.getComponent<mesh_renderer>();
+			if (!ent->enabled || !renderer.enabled) continue;
+
+			if (renderer.dirty)
+				initializeModel(renderer);
+		}
 	}
 
 	rsl::priority_type clear_stage::priority() const { return CLEAR_PRIORITY; }
+
+	void clear_stage::initializeModel(mesh_renderer& renderer)
+	{
+		auto& model = renderer.model;
+		auto meshHandle = renderer.model.meshHandle;
+
+		if (renderer.mainMaterial)
+		{
+			renderer.mainMaterial.addTexture(TextureSlot::TEXTURE4, depthHandle);
+			renderer.mainMaterial.addTexture(TextureSlot::TEXTURE5, depthCubeMap);
+
+			for (auto [id, matId] : model.meshHandle->materialIds)
+			{
+				auto mat = MaterialCache::getMaterial(matId);
+				renderer.materials[id] = MaterialCache::getMaterial(matId);
+				renderer.materials[id].addTexture(TextureSlot::TEXTURE4, depthHandle);
+				renderer.materials[id].addTexture(TextureSlot::TEXTURE5, depthCubeMap);
+			}
+		}
+
+		model.vertexBuffer = BufferCache::createVertexBuffer<math::vec4>(std::format("{}-Vertex Buffer", meshHandle->name), 0, UsageType::STATICDRAW, meshHandle->vertices);
+
+		model.indexBuffer = BufferCache::createIndexBuffer(std::format("{}-Index Buffer", meshHandle->name), UsageType::STATICDRAW, meshHandle->indices);
+
+		if (meshHandle->normals.size() > 0)
+			model.normalBuffer = BufferCache::createVertexBuffer<math::vec3>(std::format("{}-Normal Buffer", meshHandle->name), 1, UsageType::STATICDRAW, meshHandle->normals);
+
+		if (meshHandle->texCoords.size() > 0)
+			model.uvBuffer = BufferCache::createVertexBuffer<math::vec2>(std::format("{}-UV Buffer", meshHandle->name), 2, UsageType::STATICDRAW, meshHandle->texCoords);
+
+		if (meshHandle->tangents.size() > 0)
+			model.tangentBuffer = BufferCache::createVertexBuffer<math::vec3>(std::format("{}-Tangent Buffer", meshHandle->name), 3, UsageType::STATICDRAW, meshHandle->tangents);
+
+	}
 }

@@ -32,7 +32,6 @@ namespace rythe::rendering::internal
 			programId = other->programId;
 			name = other->name;
 		}
-		operator unsigned int() const { return programId; }
 
 		void initialize(const std::string& name, const shader_source& source)
 		{
@@ -95,32 +94,29 @@ namespace rythe::rendering::internal
 			{
 				ZoneScopedN("[OpenGL Shader] [bind()] binding the attached buffers");
 				handle->bind();
-				glBindBufferBase(GL_UNIFORM_BUFFER, handle->m_impl.bindId, handle->getId());
+
 			}
 		}
 
 		void unbind()
 		{
 			ZoneScopedN("[OpenGL Shader] unbind()");
-			glUseProgram(0);
 
 			for (auto [name, handle] : m_constBuffers)
 			{
 				ZoneScopedN("[OpenGL Shader] [unbind()] unbinding the attached buffers");
 				handle->unbind();
-				glBindBufferBase(GL_UNIFORM_BUFFER, handle->m_impl.bindId, 0);
 			}
+			glUseProgram(0);
 		}
 
 		template<typename elementType>
 		void setUniform(const std::string& bufferName, int location, elementType data[])
 		{
 			ZoneScopedN("[OpenGL Shader] setUniform()");
-			//glUseProgram(programId);
 			if (m_constBuffers.count(bufferName) != 0)
 			{
 				m_constBuffers[bufferName]->bufferData<elementType>(data);
-				//glUseProgram(0);
 				return;
 			}
 			auto buffer = BufferCache::getBuffer(bufferName);
@@ -128,19 +124,16 @@ namespace rythe::rendering::internal
 			{
 				addBuffer(BufferCache::createConstantBuffer<elementType>(bufferName, location, rendering::UsageType::STATICDRAW));
 				m_constBuffers[bufferName]->bufferData<elementType>(data);
-				//glUseProgram(0);
 				return;
 			}
 			else
 			{
 				addBuffer(buffer);
 				m_constBuffers[bufferName]->bufferData<elementType>(data);
-				//glUseProgram(0);
 				return;
 			}
 
 			log::error("No data was buffered, because the buffer {} was not added or does not exist", bufferName);
-			//glUseProgram(0);
 		}
 
 		void addBuffer(buffer_handle handle)

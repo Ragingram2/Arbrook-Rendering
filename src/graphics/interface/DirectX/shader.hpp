@@ -127,7 +127,9 @@ namespace rythe::rendering::internal
 			ZoneScopedN("[DX11 Shader] setUniform()");
 			if (m_constBuffers.count(bufferName) != 0)
 			{
+				//m_constBuffers[bufferName]->bind();
 				m_constBuffers[bufferName]->bufferData(data);
+				//m_constBuffers[bufferName]->unbind();
 				return;
 			}
 
@@ -135,7 +137,9 @@ namespace rythe::rendering::internal
 			if (buffer == nullptr)
 			{
 				addBuffer(BufferCache::createConstantBuffer<elementType>(bufferName, location, rendering::UsageType::STATICDRAW));
+				//m_constBuffers[bufferName]->bind();
 				m_constBuffers[bufferName]->bufferData<elementType>(data);
+				//m_constBuffers[bufferName]->unbind();
 				return;
 			}
 

@@ -6,6 +6,7 @@ namespace rythe::rendering
 {
 	struct skybox_renderer
 	{
+		bool enabled = true;
 		texture_handle skyboxTex;
 	};
 }

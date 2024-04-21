@@ -39,15 +39,21 @@ namespace rythe::rendering
 			if (path.has_extension())
 			{
 				auto texName = path.stem().string();
+				//log::debug("[{}] attaching texture {} from path {}", name, texName, path.string());
 				mat->addTexture(slot, TextureCache::createTexture2D(ast::AssetCache<texture_source>::createAsset(texName, path, default_texture_import_params)));
+				slot++;
+			}
+			else if (!path.string().empty())
+			{
+				auto texName = path.stem().string();
+				//log::debug("[{}] attaching texture {} from name {}", name, texName, path.string());
+				mat->addTexture(slot, TextureCache::getTexture(texName));
+				slot++;
 			}
 			else
 			{
-				auto texName = path.stem().string();
-				//log::debug(texName);
-				mat->addTexture(slot, TextureCache::getTexture(texName));
+				log::warn("Path \"{}\" read from material \"{}\" was empty, is this expected?", path.string(), name);
 			}
-			slot++;
 		}
 		mat->name = std::move(name);
 		m_materials.emplace(id, std::move(mat));

@@ -35,7 +35,7 @@ namespace rythe::rendering
 		virtual void render(core::transform camTransf, camera& cam) override;
 		virtual rsl::priority_type priority() const override;
 
-		void initializeModel(rsl::uint entId, mesh_renderer& renderer);
+		void initializeModel(mesh_renderer& renderer);
 
 		template <class T, void(T::* Func)(core::transform, camera)>
 		static void addRender(T* ptr)

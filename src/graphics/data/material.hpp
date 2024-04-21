@@ -68,7 +68,17 @@ namespace rythe::rendering
 		material_data data;
 
 		material() = default;
-		material(const material& mat) : name(mat.name), data(mat.data), m_textures(mat.m_textures), m_shader(mat.m_shader) {}
+		material(const material& mat) : m_shader(mat.m_shader), m_textures(mat.m_textures), name(mat.name), data(mat.data) {}
+
+		material& operator= (const material& mat)
+		{
+			m_shader = mat.m_shader;
+			m_textures = mat.m_textures;
+			name = mat.name;
+			data = mat.data;
+			return *this;
+		}
+		operator bool() const { return (bool)m_shader; }
 
 		void bind()
 		{
@@ -93,9 +103,21 @@ namespace rythe::rendering
 			m_shader = handle;
 		}
 
+		template<typename elementType>
+		void setUniform(const std::string& name, int location, elementType data[])
+		{
+			if (m_shader != nullptr)
+				m_shader->setUniform(name, location, data);
+			else
+				log::error("No shader is connected to this material, cannot set the uniform \"{}\"", name);
+		}
+
 		void addTexture(TextureSlot slot, texture_handle handle)
 		{
-			m_textures.emplace(slot, handle);
+			if (m_textures.contains(slot))
+				m_textures[slot] = handle;
+			else
+				m_textures.emplace(slot, handle);
 		}
 
 		void unbind()

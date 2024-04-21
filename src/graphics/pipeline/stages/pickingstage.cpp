@@ -28,19 +28,20 @@ namespace rythe::rendering
 			auto vecId = convertToBase256(ent->id);
 			auto& renderer = ent.getComponent<mesh_renderer>();
 			auto& transf = ent.getComponent<core::transform>();
-			ast::asset_handle<model> model = renderer.model;
-			ast::asset_handle<mesh> mesh = renderer.model->meshHandle;
+			model& model = renderer.model;
+			ast::asset_handle<mesh> mesh = renderer.model.meshHandle;
+			if (!ent->enabled || !renderer.enabled) continue;
 
 			if (renderer.dirty)
-				initializeModel(ent->id, renderer);
+				initializeModel(renderer);
 
 			data[0].model = transf.to_world();
 			pickingShader->setUniform("CameraBuffer", SV_CAMERA, &data);
 			pickingShader->setUniform("EntityData", 1, &vecId);
 			pickingShader->bind();
 			renderer.layout.bind();
-			model->bind();
-			if (model->indexBuffer != nullptr)
+			model.bind();
+			if (model.indexBuffer != nullptr)
 				for (unsigned int i = 0; i < mesh->meshes.size(); i++)
 				{
 					auto& submesh = mesh->meshes[i];
@@ -50,7 +51,7 @@ namespace rythe::rendering
 			else
 				RI->drawArrays(PrimitiveType::TRIANGLESLIST, 0, mesh->vertices.size());
 
-			model->unbind();
+			model.unbind();
 			renderer.layout.unbind();
 			pickingShader->unbind();
 		}
@@ -63,20 +64,25 @@ namespace rythe::rendering
 	rsl::priority_type picking_stage::priority() const { return OPAQUE_PRIORITY - 9; }
 
 
-	void picking_stage::initializeModel(rsl::uint entId, mesh_renderer& renderer)
+	void picking_stage::initializeModel(mesh_renderer& renderer)
 	{
 		auto& model = renderer.model;
-		auto meshHandle = renderer.model->meshHandle;
 		auto& layout = renderer.layout;
 
 		layout.release();
 		layout.initialize(1, pickingShader);
 		layout.bind();
 
-		model->vertexBuffer = BufferCache::createVertexBuffer<math::vec4>(std::format("{}{}-Vertex Buffer", meshHandle->name, entId), 0, UsageType::STATICDRAW, meshHandle->vertices);
-		renderer.layout.setAttributePtr(model->vertexBuffer, "POSITION", 0, FormatType::RGBA32F, 0, sizeof(math::vec4), 0);
+		layout.setAttributePtr(model.vertexBuffer, "POSITION", 0, FormatType::RGBA32F, 0, sizeof(math::vec4), 0);
 
-		model->indexBuffer = BufferCache::createIndexBuffer(std::format("{}-Index Buffer", meshHandle->name), UsageType::STATICDRAW, meshHandle->indices);
+		if (model.normalBuffer)
+			layout.setAttributePtr(model.normalBuffer, "NORMAL", 0, FormatType::RGB32F, 1, sizeof(math::vec3), 0);
+
+		if (model.uvBuffer)
+			layout.setAttributePtr(model.uvBuffer, "TEXCOORD", 0, FormatType::RG32F, 2, sizeof(math::vec2), 0);
+
+		if (model.tangentBuffer)
+			layout.setAttributePtr(model.tangentBuffer, "TANGENT", 0, FormatType::RGB32F, 3, sizeof(math::vec3), 0);
 
 		layout.submitAttributes();
 	}
