@@ -18,10 +18,15 @@ namespace rythe::rendering::internal
 		friend class RenderInterface;
 	private:
 		unsigned char* m_textureData;
-		ID3D11Texture2D* m_texture;
+		/*ID3D11Texture2D* m_texture;
 		ID3D11DepthStencilView* m_depthStencilView = nullptr;
 		ID3D11ShaderResourceView* m_shaderResource = nullptr;
-		ID3D11SamplerState* m_texSamplerState = nullptr;
+		ID3D11SamplerState* m_texSamplerState = nullptr;*/
+		DXTexture2D m_texture;
+		DXDepthStencilView m_depthStencilView = nullptr;
+		DXShaderResourceView m_shaderResource = nullptr;
+		DXSamplerState m_texSamplerState = nullptr;
+
 		D3D11_SAMPLER_DESC m_sampDesc;
 		D3D11_TEXTURE2D_DESC m_texDesc;
 		D3D11_BIND_FLAG m_texType;
@@ -64,14 +69,14 @@ namespace rythe::rendering::internal
 				log::warn("Shader Resource is null, this is ok if this was intended, but this has the same effect as unbinding a texture here");
 			}
 
-			WindowProvider::activeWindow->devcon->VSSetShaderResources(static_cast<UINT>(slot), 1, &m_shaderResource);
-			WindowProvider::activeWindow->devcon->VSSetSamplers(static_cast<UINT>(slot), 1, &m_texSamplerState);
+			WindowProvider::activeWindow->devcon->VSSetShaderResources(static_cast<UINT>(slot), 1, m_shaderResource.GetAddressOf());
+			WindowProvider::activeWindow->devcon->VSSetSamplers(static_cast<UINT>(slot), 1, m_texSamplerState.GetAddressOf());
 
-			WindowProvider::activeWindow->devcon->GSSetShaderResources(static_cast<UINT>(slot), 1, &m_shaderResource);
-			WindowProvider::activeWindow->devcon->GSSetSamplers(static_cast<UINT>(slot), 1, &m_texSamplerState);
+			WindowProvider::activeWindow->devcon->GSSetShaderResources(static_cast<UINT>(slot), 1, m_shaderResource.GetAddressOf());
+			WindowProvider::activeWindow->devcon->GSSetSamplers(static_cast<UINT>(slot), 1, m_texSamplerState.GetAddressOf());
 
-			WindowProvider::activeWindow->devcon->PSSetShaderResources(static_cast<UINT>(slot), 1, &m_shaderResource);
-			WindowProvider::activeWindow->devcon->PSSetSamplers(static_cast<UINT>(slot), 1, &m_texSamplerState);
+			WindowProvider::activeWindow->devcon->PSSetShaderResources(static_cast<UINT>(slot), 1, m_shaderResource.GetAddressOf());
+			WindowProvider::activeWindow->devcon->PSSetSamplers(static_cast<UINT>(slot), 1, m_texSamplerState.GetAddressOf());
 		}
 
 		void unbind(TextureSlot slot)
@@ -130,10 +135,16 @@ namespace rythe::rendering::internal
 		void loadData(unsigned char* textureData)
 		{
 			ZoneScopedN("[DX11 Texture] loadData()");
-			if (m_texture != nullptr)
-				m_texture->Release();
-			if (m_shaderResource != nullptr)
-				m_shaderResource->Release();
+			//if (m_texture != nullptr)
+			m_texture.Reset();
+			m_shaderResource.Reset();
+			//if (m_shaderResource != nullptr)
+			//{
+			//	unbind(slot);
+			//	internalHandle = nullptr;
+			//
+			//}
+
 			m_textureData = textureData;
 			ZeroMemory(&m_sampDesc, sizeof(m_sampDesc));
 			setMinFilterMode(static_cast<FilterMode>(params.minFilterMode));
@@ -197,7 +208,7 @@ namespace rythe::rendering::internal
 				shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 				shaderResourceViewDesc.Texture2D.MipLevels = m_texDesc.MipLevels;
 				shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-				CHECKERROR(WindowProvider::activeWindow->dev->CreateShaderResourceView(m_texture, &shaderResourceViewDesc, &m_shaderResource), "Failed to create the Shader Resource View", WindowProvider::activeWindow->checkError());
+				CHECKERROR(WindowProvider::activeWindow->dev->CreateShaderResourceView(m_texture.Get(), &shaderResourceViewDesc, &m_shaderResource), "Failed to create the Shader Resource View", WindowProvider::activeWindow->checkError());
 				break;
 			case TextureType::CUBEMAP:
 				if (params.usage == rendering::UsageType::DEPTH_COMPONENT)
@@ -210,18 +221,18 @@ namespace rythe::rendering::internal
 					m_depthStencilViewDesc.Texture2DArray.MipSlice = 0;
 					m_depthStencilViewDesc.Texture2DArray.ArraySize = m_texDesc.ArraySize;
 					m_depthStencilViewDesc.Texture2DArray.FirstArraySlice = 0;
-					CHECKERROR(WindowProvider::activeWindow->dev->CreateDepthStencilView(m_texture, &m_depthStencilViewDesc, &m_depthStencilView), "Creating Depth Stencil View failed", WindowProvider::activeWindow->checkError());
+					CHECKERROR(WindowProvider::activeWindow->dev->CreateDepthStencilView(m_texture.Get(), &m_depthStencilViewDesc, &m_depthStencilView), "Creating Depth Stencil View failed", WindowProvider::activeWindow->checkError());
 
 					shaderResourceViewDesc.Texture2DArray.MostDetailedMip = 0;
 					shaderResourceViewDesc.Texture2DArray.MipLevels = m_texDesc.MipLevels;
 					shaderResourceViewDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 					shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-					CHECKERROR(WindowProvider::activeWindow->dev->CreateShaderResourceView(m_texture, &shaderResourceViewDesc, &m_shaderResource), "Failed to create the Shader Resource View", WindowProvider::activeWindow->checkError());
+					CHECKERROR(WindowProvider::activeWindow->dev->CreateShaderResourceView(m_texture.Get(), &shaderResourceViewDesc, &m_shaderResource), "Failed to create the Shader Resource View", WindowProvider::activeWindow->checkError());
 				}
 				else
 				{
 					shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-					CHECKERROR(WindowProvider::activeWindow->dev->CreateShaderResourceView(m_texture, &shaderResourceViewDesc, &m_shaderResource), "Failed to create the Shader Resource View", WindowProvider::activeWindow->checkError());
+					CHECKERROR(WindowProvider::activeWindow->dev->CreateShaderResourceView(m_texture.Get(), &shaderResourceViewDesc, &m_shaderResource), "Failed to create the Shader Resource View", WindowProvider::activeWindow->checkError());
 				}
 				break;
 			case TextureType::DEPTH_STENCIL:
@@ -229,19 +240,19 @@ namespace rythe::rendering::internal
 				ZeroMemory(&m_depthStencilViewDesc, sizeof(m_depthStencilViewDesc));
 				m_depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 				m_depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-				CHECKERROR(WindowProvider::activeWindow->dev->CreateDepthStencilView(m_texture, &m_depthStencilViewDesc, &m_depthStencilView), "Creating Depth Stencil View failed", WindowProvider::activeWindow->checkError());
+				CHECKERROR(WindowProvider::activeWindow->dev->CreateDepthStencilView(m_texture.Get(), &m_depthStencilViewDesc, &m_depthStencilView), "Creating Depth Stencil View failed", WindowProvider::activeWindow->checkError());
 
 				shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 				shaderResourceViewDesc.Texture2D.MipLevels = m_texDesc.MipLevels;
 				shaderResourceViewDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 				shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-				CHECKERROR(WindowProvider::activeWindow->dev->CreateShaderResourceView(m_texture, &shaderResourceViewDesc, &m_shaderResource), "Failed to create the Shader Resource View", WindowProvider::activeWindow->checkError());
+				CHECKERROR(WindowProvider::activeWindow->dev->CreateShaderResourceView(m_texture.Get(), &shaderResourceViewDesc, &m_shaderResource), "Failed to create the Shader Resource View", WindowProvider::activeWindow->checkError());
 				break;
 			default:
 				break;
 			}
 
-			internalHandle = static_cast<void*>(m_shaderResource);
+			internalHandle = static_cast<void*>(m_shaderResource.Get());
 		}
 
 		void resize(int width, int height)
@@ -250,7 +261,7 @@ namespace rythe::rendering::internal
 
 			if (params.textures == 1)
 			{
-				bind(slot);
+				//bind(slot);
 				loadData(m_textureData);
 			}
 		}

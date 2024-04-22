@@ -15,7 +15,7 @@ namespace rythe::rendering
 		rsl::id_type id = rsl::nameHash(name);
 		if (m_materials.contains(id))
 		{
-			log::warn("Material {} already exists, ignoring creation request and returning existing material", name);
+			//log::warn("Material {} already exists, ignoring creation request and returning existing material", name);
 			return { id, m_materials[id].get() };
 		}
 
@@ -39,14 +39,12 @@ namespace rythe::rendering
 			if (path.has_extension())
 			{
 				auto texName = path.stem().string();
-				//log::debug("[{}] attaching texture {} from path {}", name, texName, path.string());
 				mat->addTexture(slot, TextureCache::createTexture2D(ast::AssetCache<texture_source>::createAsset(texName, path, default_texture_import_params)));
 				slot++;
 			}
 			else if (!path.string().empty())
 			{
 				auto texName = path.stem().string();
-				//log::debug("[{}] attaching texture {} from name {}", name, texName, path.string());
 				mat->addTexture(slot, TextureCache::getTexture(texName));
 				slot++;
 			}
@@ -66,7 +64,7 @@ namespace rythe::rendering
 		rsl::id_type id = rsl::nameHash(name);
 		if (m_materials.contains(id))
 		{
-			log::warn("Material {} already exists, ignoring creation request and returning existing material", name);
+			//log::warn("Material {} already exists, ignoring creation request and returning existing material", name);
 			return { id, m_materials[id].get() };
 		}
 

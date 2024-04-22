@@ -89,6 +89,7 @@ namespace rythe::rendering::internal
 		void unbind(TextureSlot textureSlot)
 		{
 			ZoneScopedN("[OpenGL Texture] unbind()");
+			glActiveTexture(static_cast<GLenum>(textureSlot));
 			glBindTexture(texType, 0);
 		}
 

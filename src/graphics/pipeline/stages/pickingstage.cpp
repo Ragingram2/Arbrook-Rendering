@@ -21,7 +21,6 @@ namespace rythe::rendering
 		pickingFBO->bind();
 		RI->setClearColor(math::vec4(0.0));
 		RI->clear(true, DepthClearBit::DEPTH_STENCIL);
-		//RI->setViewport(1, 0, 0, Screen_Width, Screen_Height);
 		camera_data data[] = { camera_data{.viewPosition = camTransf.position, .projection = cam.projection, .view = cam.view, .model = math::mat4(1.0f)} };
 		for (auto& ent : m_filter)
 		{

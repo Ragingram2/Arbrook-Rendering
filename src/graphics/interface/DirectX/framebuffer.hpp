@@ -17,18 +17,18 @@ namespace rythe::rendering::internal
 		std::unordered_map<AttachmentSlot, int> m_attachments;
 		std::vector<D3D11_RENDER_TARGET_VIEW_DESC> m_renderTargetDescs;
 		std::vector<ID3D11RenderTargetView*> m_renderTargetViews;
-		std::vector<ID3D11ShaderResourceView*> m_shaderResources;
-		std::vector<ID3D11SamplerState*> m_samplerStates;
+		std::vector<DXShaderResourceView> m_shaderResources;
+		std::vector<DXSamplerState> m_samplerStates;
 		std::vector<texture_handle> m_renderTextures;
 
-		ID3D11DepthStencilView* m_depthStencilView = nullptr;
+		DXDepthStencilView m_depthStencilView = nullptr;
 		texture_handle m_depthTexture = nullptr;
 
-		ID3D11RenderTargetView* m_defaultView = nullptr;
-		ID3D11DepthStencilView* m_defaultDepthStencilView = nullptr;
-		ID3D11Texture2D* m_backBuffer = nullptr;
-		ID3D11ShaderResourceView* m_shaderResource = nullptr;
-		ID3D11SamplerState* m_backBufferSamplerState = nullptr;
+		DXRenderTargetView m_defaultView = nullptr;
+		DXDepthStencilView m_defaultDepthStencilView = nullptr;
+		DXTexture2D m_backBuffer = nullptr;
+		DXShaderResourceView m_shaderResource = nullptr;
+		DXSamplerState m_backBufferSamplerState = nullptr;
 	public:
 		void initialize()
 		{
@@ -40,13 +40,13 @@ namespace rythe::rendering::internal
 
 		void bind()
 		{
-			WindowProvider::activeWindow->devcon->OMSetRenderTargets(m_renderTargetViews.size(), m_renderTargetViews.data(), m_depthStencilView);
+			WindowProvider::activeWindow->devcon->OMSetRenderTargets(m_renderTargetViews.size(), m_renderTargetViews.data(), m_depthStencilView.Get());
 			WindowProvider::activeWindow->checkError();
 		}
 
 		void unbind()
 		{
-			WindowProvider::activeWindow->devcon->OMSetRenderTargets(1, &m_defaultView, m_defaultDepthStencilView);
+			WindowProvider::activeWindow->devcon->OMSetRenderTargets(1, &m_defaultView, m_defaultDepthStencilView.Get());
 			WindowProvider::activeWindow->checkError();
 		}
 
@@ -97,7 +97,7 @@ namespace rythe::rendering::internal
 					m_shaderResources[m_attachments[attachment]] = nullptr;
 				}
 
-				CHECKERROR(WindowProvider::activeWindow->dev->CreateRenderTargetView(handle->m_impl.m_texture, &desc, &m_renderTargetViews[m_attachments[attachment]]), "Render Target View", WindowProvider::activeWindow->checkError());
+				CHECKERROR(WindowProvider::activeWindow->dev->CreateRenderTargetView(handle->m_impl.m_texture.Get(), &desc, &m_renderTargetViews[m_attachments[attachment]]), "Render Target View", WindowProvider::activeWindow->checkError());
 			}
 		}
 

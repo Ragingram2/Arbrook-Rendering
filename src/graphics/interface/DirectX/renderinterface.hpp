@@ -335,7 +335,7 @@ namespace rythe::rendering::internal
 			srcBox.front = 0;
 			srcBox.back = 1;
 
-			m_windowHandle->devcon->CopySubresourceRegion(stagingTexture, 0, 0, 0, 0, handle->m_impl.m_texture, NULL, &srcBox);
+			m_windowHandle->devcon->CopySubresourceRegion(stagingTexture, 0, 0, 0, 0, handle->m_impl.m_texture.Get(), NULL, &srcBox);
 
 			D3D11_MAPPED_SUBRESOURCE mappedResource;
 			ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));

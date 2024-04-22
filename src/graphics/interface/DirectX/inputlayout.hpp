@@ -38,8 +38,8 @@ namespace rythe::rendering::internal
 	private:
 		std::vector<D3D11_INPUT_ELEMENT_DESC> elementDesc;
 		std::unordered_map<std::string, vertexattribute> m_vertexAttribs;
-		ID3D11InputLayout* m_layout = nullptr;
-		ID3DBlob* m_vsBlob = nullptr;
+		DXInputLayout m_layout = nullptr;
+		DXBlob m_vsBlob = nullptr;
 		window_handle m_windowHandle{nullptr};
 	public:
 		inputlayout& operator=(const inputlayout& other)
@@ -62,7 +62,7 @@ namespace rythe::rendering::internal
 		void bind()
 		{
 			ZoneScopedN("[DX11 Inputlayout] bind()");
-			m_windowHandle->devcon->IASetInputLayout(m_layout);
+			m_windowHandle->devcon->IASetInputLayout(m_layout.Get());
 		}
 
 		void unbind()
@@ -108,8 +108,7 @@ namespace rythe::rendering::internal
 			{
 				return;
 			}
-			m_layout->Release();
-			m_layout = nullptr;
+			m_layout.Reset();
 			clearAttributes();
 		}
 	};

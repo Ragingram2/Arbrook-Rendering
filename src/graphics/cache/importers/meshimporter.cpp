@@ -23,7 +23,7 @@ namespace rythe::rendering
 
 	ast::asset_handle<mesh> MeshImporter::load(rsl::id_type id, fs::path filePath, mesh* data, const ast::import_settings<mesh>& settings)
 	{
-		const aiScene* scene = m_importer.ReadFile(filePath.string(), aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType | aiProcess_FlipWindingOrder);
+		const aiScene* scene = m_importer.ReadFile(filePath.string(), /*aiProcess_GenSmoothNormals |*/ aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType | aiProcess_FlipWindingOrder);
 		if (!scene)
 		{
 			log::error("Problem in loading mesh file");
@@ -57,17 +57,22 @@ namespace rythe::rendering
 
 			aiMaterial* material = scene->mMaterials[scene->mMeshes[i]->mMaterialIndex];
 			auto matAssets = ast::AssetCache<material_source>::getAssets();
-			auto matName = std::format("{}-{}-material", data->name, data->meshes[i].name);
+			auto matName = i == 0 ? std::format("{}-material", data->name) : std::format("{}{}-material", data->name, i);
 			auto filePath = "resources/shaders/lit.shader";
 			auto shaderName = "lit";
-			//material_source mat_source;
-			//mat_source.name = std::format("{}-{}-material", data->name, data->meshes[i].name);
-			//mat_source.filePath = "resources/shaders/lit.shader";
-			//mat_source.shaderName = "lit";
 			std::vector<std::string> textures;
 			auto diffuseTextures = initMaterial(scene, material, aiTextureType_DIFFUSE);
 			textures.insert(textures.end(), diffuseTextures.begin(), diffuseTextures.end());
-			auto mat_source = material_source{ .name = matName, .filePath = filePath,.shaderName = shaderName,.textures = textures };
+			if (textures.size() < 1)
+			{
+				auto colorTextures = initMaterial(scene, material, aiTextureType_BASE_COLOR);
+				textures.insert(textures.end(), colorTextures.begin(), colorTextures.end());
+			}
+			auto specularTextures = initMaterial(scene, material, aiTextureType_SPECULAR);
+			textures.insert(textures.end(), specularTextures.begin(), specularTextures.end());
+			auto normalTextures = initMaterial(scene, material, aiTextureType_NORMALS);
+			textures.insert(textures.end(), normalTextures.begin(), normalTextures.end());
+			auto mat_source = material_source{ .name = matName, .filePath = filePath, .shaderName = shaderName,.textures = textures };
 
 			auto matAsset = ast::AssetCache<material_source>::createAssetFromMemory(matName, mat_source, ast::import_settings<material_source>{});
 			auto matHandle = MaterialCache::loadMaterial(matName, matAsset);
@@ -145,11 +150,14 @@ namespace rythe::rendering
 		{
 			aiString strPath;
 			mat->GetTexture(type, j, &strPath);
+
+			//log::debug(idx);
 			if ('*' == strPath.data[0])//embedded texture
 			{
 				auto idx = std::stoi(std::format("{}{}", strPath.data[1], strPath.data[2]));
 				auto texture = scene->mTextures[idx];
-				auto textureName = texture->mFilename.C_Str();
+				auto textureName = std::format("{}-{}", mat->GetName().C_Str(), texture->mFilename.C_Str());
+				//log::debug("Loading Texture \"{}\" for material \"{}\"", texture->mFilename.C_Str(), mat->GetName().C_Str());
 				math::ivec2 resolution = math::ivec2(0, 0);
 				int channels = 0;
 				unsigned char* textureData = nullptr;

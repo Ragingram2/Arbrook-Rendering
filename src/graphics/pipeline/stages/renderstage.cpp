@@ -62,6 +62,7 @@ namespace rythe::rendering
 						subMat.setUniform("CameraBuffer", SV_CAMERA, data);
 						subMat.bind();
 						RI->drawIndexed(PrimitiveType::TRIANGLESLIST, submesh.count, submesh.indexOffset, submesh.vertexOffset);
+						WindowProvider::activeWindow->checkError();
 						subMat.unbind();
 					}
 					else
@@ -71,6 +72,7 @@ namespace rythe::rendering
 						subMat.setUniform("CameraBuffer", SV_CAMERA, data);
 						subMat.bind();
 						RI->drawIndexed(PrimitiveType::TRIANGLESLIST, submesh.count, submesh.indexOffset, submesh.vertexOffset);
+						WindowProvider::activeWindow->checkError();
 						subMat.unbind();
 					}
 					WindowProvider::activeWindow->checkError();
@@ -96,7 +98,6 @@ namespace rythe::rendering
 	{
 		auto& model = renderer.model;
 		auto meshHandle = renderer.model.meshHandle;
-		/*	auto matHandle = renderer.materials.size() > 0 ? renderer.materials[meshHandle->meshes[0].materialIdx] : renderer.mainMaterial;*/
 		auto& layout = renderer.layout;
 
 		if (renderer.mainMaterial)
@@ -132,20 +133,6 @@ namespace rythe::rendering
 		layout.release();
 		layout.initialize(1, renderer.mainMaterial.getShader());
 		layout.bind();
-
-		//model.vertexBuffer = BufferCache::createVertexBuffer<math::vec4>(std::format("{}-Vertex Buffer", meshHandle->name), 0, UsageType::STATICDRAW, meshHandle->vertices);
-
-		//model.indexBuffer = BufferCache::createIndexBuffer(std::format("{}-Index Buffer", meshHandle->name), UsageType::STATICDRAW, meshHandle->indices);
-
-		//if (meshHandle->normals.size() > 0)
-		//	model.normalBuffer = BufferCache::createVertexBuffer<math::vec3>(std::format("{}-Normal Buffer", meshHandle->name), 1, UsageType::STATICDRAW, meshHandle->normals);
-
-		//if (meshHandle->texCoords.size() > 0)
-		//	model.uvBuffer = BufferCache::createVertexBuffer<math::vec2>(std::format("{}-UV Buffer", meshHandle->name), 2, UsageType::STATICDRAW, meshHandle->texCoords);
-
-		//if (meshHandle->tangents.size() > 0)
-		//	model.tangentBuffer = BufferCache::createVertexBuffer<math::vec3>(std::format("{}-Tangent Buffer", meshHandle->name), 3, UsageType::STATICDRAW, meshHandle->tangents);
-
 
 		layout.setAttributePtr(model.vertexBuffer, "POSITION", 0, FormatType::RGBA32F, 0, sizeof(math::vec4), 0);
 

@@ -14,6 +14,8 @@ namespace rythe::rendering
 
 		cubeHandle.indexBuffer = BufferCache::createIndexBuffer(std::format("{}-Index Buffer", cubeHandle.meshHandle->name), UsageType::STATICDRAW, cubeHandle.meshHandle->indices);
 
+		cubeHandle.uvBuffer = BufferCache::createVertexBuffer<math::vec2>(std::format("{}-UV Buffer", cubeHandle.meshHandle->name), 2, UsageType::STATICDRAW, cubeHandle.meshHandle->texCoords);
+
 		for (auto& ent : m_filter)
 		{
 			auto renderer = ent.getComponent<skybox_renderer>();
@@ -29,7 +31,7 @@ namespace rythe::rendering
 		ZoneScopedN("[Renderer] [Skybox Stage] Render");
 		if (m_filter.size() < 1)
 			return;
-
+		WindowProvider::activeWindow->checkError();
 		for (auto& ent : m_filter)
 		{
 			auto renderer = ent.getComponent<skybox_renderer>();
@@ -41,9 +43,7 @@ namespace rythe::rendering
 		RI->setDepthFunction(DepthFuncs::LESS_EQUAL);
 		RI->updateDepthStencil();
 		RI->cullFace(CullMode::FRONT);
-		
 		skyboxMat->setUniform("CameraBuffer", SV_CAMERA, &data);
-
 		skyboxMat->bind();
 		layout.bind();
 		cubeHandle.bind();
@@ -70,6 +70,9 @@ namespace rythe::rendering
 		layout.bind();
 
 		layout.setAttributePtr(cubeHandle.vertexBuffer, "POSITION", 0, FormatType::RGBA32F, 0, sizeof(math::vec4), 0);
+		if (cubeHandle.uvBuffer)
+			layout.setAttributePtr(cubeHandle.uvBuffer, "TEXCOORD", 0, FormatType::RG32F, 1, sizeof(math::vec2), 0);
+
 		layout.submitAttributes();
 	}
 

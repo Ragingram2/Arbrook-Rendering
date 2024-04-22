@@ -34,6 +34,8 @@ namespace rythe::rendering
 		RI->setClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		RI->clear(true);
 
+		WindowProvider::activeWindow->checkError();
+
 		//screenShader->bind();
 		//colorTexture->bind(TextureSlot::TEXTURE0);
 		//screenQuad->bind();
