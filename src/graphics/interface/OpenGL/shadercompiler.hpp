@@ -142,7 +142,7 @@ namespace rythe::rendering::internal
 			ZoneScopedN("[OpenGL ShaderCompiler] compileToSpirV()");
 			std::vector<unsigned int> spirVBin;
 
-			EShMessages message = (EShMessages)(EShMsgDefault | EShMsgReadHlsl | EShMsgHlslLegalization | EShMsgSpvRules | EShMsgHlslEnable16BitTypes | EOptionHumanReadableSpv);
+			EShMessages message = (EShMessages)(EShMsgDefault | EShMsgReadHlsl | EShMsgHlslLegalization | EShMsgSpvRules | EShMsgHlslEnable16BitTypes | EOptionHumanReadableSpv | EOptionDebug);
 
 			const int defaultVersion = 100;
 
@@ -172,6 +172,7 @@ namespace rythe::rendering::internal
 			_shader->setEnvTarget(m_targetLanguage, m_targetVersion);
 			_shader->setEnvTargetHlslFunctionality1();
 			_shader->setEnvInputVulkanRulesRelaxed();
+			//_shader->setDebugInfo(true);
 
 			std::string file = std::format("{}-{}", fileName, shaderType);
 			std::string str;
@@ -219,29 +220,27 @@ namespace rythe::rendering::internal
 
 			glsl.build_combined_image_samplers();
 
-			const char* textures[8] =
-			{
-				"Texture0",
-				"Texture1",
-				"Texture2",
-				"Texture3",
-				"Texture4",
-				"Texture5",
-				"Texture6",
-				"Texture7"
-			};
 			auto samplers = glsl.get_combined_image_samplers();
 			for (auto& resource : samplers)
 			{
 				uint32_t binding = glsl.get_decoration(resource.image_id, spv::DecorationBinding);
 
 				glsl.set_decoration(resource.combined_id, spv::DecorationBinding, binding);
-				glsl.set_name(resource.combined_id, textures[binding]);
+				glsl.set_name(resource.combined_id, "Texture" + std::to_string(binding));
+			}
+
+			auto shaderResources = glsl.get_shader_resources();
+			auto ubos = shaderResources.uniform_buffers;
+			for (auto ubo : ubos)
+			{
+				glsl.set_name(ubo.type_id, glsl.get_name(ubo.base_type_id));
+				glsl.set_name(ubo.id, glsl.get_name(ubo.base_type_id));
 			}
 
 			spirv_cross::CompilerGLSL::Options options;
 			options.version = 460;
 			options.es = false;
+			options.vulkan_semantics = true;
 			options.emit_push_constant_as_uniform_buffer = true;
 			options.enable_row_major_load_workaround = true;
 

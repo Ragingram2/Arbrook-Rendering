@@ -58,8 +58,8 @@ namespace rythe::rendering
 					if (renderer.materials.size() > 0 && found != renderer.materials.end())
 					{
 						material subMat = renderer.materials[submesh.materialIdx];
-						subMat.setUniform("MaterialBuffer", SV_MATERIALS, &subMat.data);
-						subMat.setUniform("CameraBuffer", SV_CAMERA, data);
+						subMat.setUniform("MaterialBuffer", &subMat.data, SV_MATERIALS);
+						subMat.setUniform("CameraBuffer", data, SV_CAMERA);
 						subMat.bind();
 						RI->drawIndexed(PrimitiveType::TRIANGLESLIST, submesh.count, submesh.indexOffset, submesh.vertexOffset);
 						WindowProvider::activeWindow->checkError();
@@ -68,8 +68,8 @@ namespace rythe::rendering
 					else
 					{
 						material subMat = renderer.mainMaterial;
-						subMat.setUniform("MaterialBuffer", SV_MATERIALS, &subMat.data);
-						subMat.setUniform("CameraBuffer", SV_CAMERA, data);
+						subMat.setUniform("MaterialBuffer", &subMat.data, SV_MATERIALS);
+						subMat.setUniform("CameraBuffer", data, SV_CAMERA);
 						subMat.bind();
 						RI->drawIndexed(PrimitiveType::TRIANGLESLIST, submesh.count, submesh.indexOffset, submesh.vertexOffset);
 						WindowProvider::activeWindow->checkError();
@@ -79,8 +79,8 @@ namespace rythe::rendering
 				}
 			else
 			{
-				renderer.mainMaterial.getShader()->setUniform("MaterialBuffer", SV_MATERIALS, &renderer.mainMaterial.data);
-				renderer.mainMaterial.getShader()->setUniform("CameraBuffer", SV_CAMERA, data);
+				//renderer.mainMaterial.setUniform("MaterialBuffer", &renderer.mainMaterial.data, SV_MATERIALS);
+				renderer.mainMaterial.setUniform("CameraBuffer", data, SV_CAMERA);
 				renderer.mainMaterial.bind();
 				RI->drawArrays(PrimitiveType::TRIANGLESLIST, 0, mesh->vertices.size());
 				renderer.mainMaterial.unbind();

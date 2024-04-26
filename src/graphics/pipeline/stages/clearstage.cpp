@@ -151,14 +151,14 @@ namespace rythe::rendering
 
 		if (renderer.mainMaterial)
 		{
-			renderer.mainMaterial.addTexture(TextureSlot::TEXTURE4, depthHandle);
-			renderer.mainMaterial.addTexture(TextureSlot::TEXTURE5, depthCubeMap);
+			renderer.mainMaterial.addTexture(TextureSlot::TEXTURE0, depthHandle);
+			renderer.mainMaterial.addTexture(TextureSlot::TEXTURE1, depthCubeMap);
 
 			for (auto [id, matId] : model.meshHandle->materialIds)
 			{
 				renderer.materials[id] = MaterialCache::getMaterial(matId);
-				renderer.materials[id].addTexture(TextureSlot::TEXTURE4, depthHandle);
-				renderer.materials[id].addTexture(TextureSlot::TEXTURE5, depthCubeMap);
+				renderer.materials[id].addTexture(TextureSlot::TEXTURE0, depthHandle);
+				renderer.materials[id].addTexture(TextureSlot::TEXTURE1, depthCubeMap);
 			}
 		}
 

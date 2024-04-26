@@ -1,4 +1,6 @@
 #pragma once
+#include <any>
+
 #include "graphics/data/shaderhandle.hpp"
 #include "graphics/data/texturehandle.hpp"
 #include "graphics/interface/definitions/shader.hpp"
@@ -11,64 +13,51 @@ namespace rythe::rendering
 		float shininess = 32.0f;
 	};
 
-	struct material;
+	enum class ParamType
+	{
+		None,
+		Texture,
+		Uniform
+	};
+
+	struct uniform
+	{
+		//std::unordered_map<std::string, std::variant<int, float, double, bool, unsigned int, math::ivec2, math::vec2, math::dvec2, math::bvec2, math::uvec2, math::ivec3, math::vec3, math::dvec3, math::bvec3, math::uvec3, math::ivec4, math::vec4, math::dvec4, math::bvec4, math::uvec4, math::mat2, math::mat3, math::mat4, math::dmat2, math::dmat3, math::dmat4 >> data;
+		std::any data;
+	};
 
 	struct material_parameter_base
 	{
-	protected:
-		std::string m_name;
-		rsl::id_type m_id;
-		rsl::id_type m_typeId;
-		rsl::id_type m_location;
-		material_parameter_base(const std::string& name, rsl::id_type location, rsl::id_type typeId)
-			: m_name(name),
-			m_id(rsl::nameHash(name)),
-			m_typeId(typeId),
-			m_location(location) { }
-
-	public:
-		rsl::id_type type() { return m_typeId; }
-		std::string getName() const { return m_name; }
-
-		virtual void apply(shader_handle& shader) = 0;
+		rsl::id_type bufferRegister = 0;
+		ParamType type = ParamType::None;
 	};
 
-	template<typename T>
-	struct material_parameter : public material_parameter_base
+	template<typename valueType>
+	struct material_parameter : material_parameter_base
 	{
-		friend struct materal;
-	private:
-		T m_value;
-
-		virtual void apply(shader_handle& shader) override
-		{
-			//shader.get_uniform<T>(m_id).set_value(m_value);
-		}
-
-	public:
-		material_parameter(const std::string& name, rsl::id_type location)
-			: material_parameter_base(name, location, rsl::typeHash<T>()),
-			m_value()
-		{
-		}
-
-		void set_value(const T& value) { m_value = value; }
-		T get_value() const { return m_value; }
-
+		valueType value;
 	};
+
+	template<>
+	struct material_parameter<std::string> : material_parameter_base
+	{
+		std::string value;
+	};
+
 
 	struct material
 	{
 	private:
 		shader_handle m_shader;
 		std::unordered_map<TextureSlot, texture_handle> m_textures;
+		std::unordered_map<std::string, material_parameter<uniform>> m_uniforms;
 
 	public:
 		std::string name;
 		material_data data;
 
 		material() = default;
-		material(const material& mat) : m_shader(mat.m_shader), m_textures(mat.m_textures), name(mat.name), data(mat.data) {}
+		material(const material& mat) : m_shader(mat.m_shader), m_textures(mat.m_textures), m_uniforms(mat.m_uniforms), name(mat.name), data(mat.data) {}
 
 		material& operator= (const material& mat)
 		{
@@ -91,6 +80,10 @@ namespace rythe::rendering
 			{
 				handle->bind(slot);
 			}
+			for (auto [name, param] : m_uniforms)
+			{
+				m_shader->setUniform(name, param.bufferRegister, &param.value.data);
+			}
 		}
 
 		shader_handle getShader()
@@ -104,20 +97,40 @@ namespace rythe::rendering
 		}
 
 		template<typename elementType>
-		void setUniform(const std::string& name, int location, elementType data[])
+		void setUniform(const std::string& name, elementType data[], int location = 0)
 		{
-			if (m_shader != nullptr)
+			if (m_shader == nullptr)
+			{
+				log::error("No shader is connected to this material, cannot set uniform \"{}\"", name);
+				return;
+			}
+
+			if (!m_uniforms.contains(name))
+			{
+				//if the uniform name is not in the list, this is usually because the uniform we are setting is actually a vertex buffer (camera buffer, light buffer etc)
 				m_shader->setUniform(name, location, data);
+			}
 			else
-				log::error("No shader is connected to this material, cannot set the uniform \"{}\"", name);
+			{
+				m_uniforms[name].value.data = data;
+				//m_shader->setUniform(name, m_uniforms[name].bufferRegister, data);
+			}
 		}
 
 		void addTexture(TextureSlot slot, texture_handle handle)
 		{
-			if (m_textures.contains(slot))
-				m_textures[slot] = handle;
-			else
+			if (!m_textures.contains(slot))
 				m_textures.emplace(slot, handle);
+			else
+				m_textures[slot] = handle;
+		}
+
+		void addUniform(const std::string& name, material_parameter<uniform> value)
+		{
+			if (!m_uniforms.contains(name))
+				m_uniforms.emplace(name, value);
+			else
+				m_uniforms[name] = value;
 		}
 
 		void unbind()

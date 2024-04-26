@@ -1,4 +1,5 @@
 #pragma once
+#include <rsl/primitives>
 #include "graphics/interface/config.hpp"
 #include EnumTypes_HPP_PATH
 
@@ -196,6 +197,16 @@ namespace rythe::rendering
 	inline TextureSlot operator++(TextureSlot& t,int)
 	{
 		return t = static_cast<TextureSlot>(static_cast<int>(t) + 1);
+	}
+
+	inline TextureSlot operator+(TextureSlot& t, int num)
+	{
+		return static_cast<TextureSlot>(static_cast<int>(t) + num);
+	}
+
+	inline TextureSlot operator+(TextureSlot& t, rsl::id_type id)
+	{
+		return static_cast<TextureSlot>(static_cast<rsl::id_type>(t) + id);
 	}
 
 	enum class AttachmentSlot

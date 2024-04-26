@@ -60,19 +60,56 @@ namespace rythe::rendering
 			auto matName = i == 0 ? std::format("{}-material", data->name) : std::format("{}{}-material", data->name, i);
 			auto filePath = "resources/shaders/lit.shader";
 			auto shaderName = "lit";
-			std::vector<std::string> textures;
+			auto mat_source = material_source{ .name = matName, .shaderPath = filePath, .shaderName = shaderName };
 			auto diffuseTextures = initMaterial(scene, material, aiTextureType_DIFFUSE);
-			textures.insert(textures.end(), diffuseTextures.begin(), diffuseTextures.end());
-			if (textures.size() < 1)
+			for (auto texture : diffuseTextures)
 			{
-				auto colorTextures = initMaterial(scene, material, aiTextureType_BASE_COLOR);
-				textures.insert(textures.end(), colorTextures.begin(), colorTextures.end());
+				texture->bufferRegister = 2;
+				texture->type = ParamType::Texture;
+				mat_source.parameters.emplace("Diffuse", texture);
 			}
 			auto specularTextures = initMaterial(scene, material, aiTextureType_SPECULAR);
-			textures.insert(textures.end(), specularTextures.begin(), specularTextures.end());
+			for (auto texture : specularTextures)
+			{
+				texture->bufferRegister = 3;
+				texture->type = ParamType::Texture;
+				mat_source.parameters.emplace("Specular", texture);
+			}
 			auto normalTextures = initMaterial(scene, material, aiTextureType_NORMALS);
-			textures.insert(textures.end(), normalTextures.begin(), normalTextures.end());
-			auto mat_source = material_source{ .name = matName, .filePath = filePath, .shaderName = shaderName,.textures = textures };
+			for (auto texture : normalTextures)
+			{
+				texture->bufferRegister = 4;
+				texture->type = ParamType::Texture;
+				mat_source.parameters.emplace("Normals", texture);
+			}
+			auto heightTextures = initMaterial(scene, material, aiTextureType_HEIGHT);
+			for (auto texture : heightTextures)
+			{
+				texture->bufferRegister = 5;
+				texture->type = ParamType::Texture;
+				mat_source.parameters.emplace("Height", texture);
+			}
+			auto metalTextures = initMaterial(scene, material, aiTextureType_METALNESS);
+			for (auto texture : specularTextures)
+			{
+				texture->bufferRegister = 6;
+				texture->type = ParamType::Texture;
+				mat_source.parameters.emplace("Metalness", texture);
+			}
+			auto ambientTextures = initMaterial(scene, material, aiTextureType_AMBIENT_OCCLUSION);
+			for (auto texture : specularTextures)
+			{
+				texture->bufferRegister = 7;
+				texture->type = ParamType::Texture;
+				mat_source.parameters.emplace("AmbientOcclusion", texture);
+			}
+			auto emissiveTextures = initMaterial(scene, material, aiTextureType_EMISSIVE);
+			for (auto texture : specularTextures)
+			{
+				texture->bufferRegister = 8;
+				texture->type = ParamType::Texture;
+				mat_source.parameters.emplace("Emissive", texture);
+			}
 
 			auto matAsset = ast::AssetCache<material_source>::createAssetFromMemory(matName, mat_source, ast::import_settings<material_source>{});
 			auto matHandle = MaterialCache::loadMaterial(matName, matAsset);
@@ -142,22 +179,19 @@ namespace rythe::rendering
 				}
 			}
 	}
-	std::vector<std::string> MeshImporter::initMaterial(const aiScene* scene, aiMaterial* mat, aiTextureType type)
+	std::vector<material_parameter<std::string>*> MeshImporter::initMaterial(const aiScene* scene, aiMaterial* mat, aiTextureType type)
 	{
-		std::vector<std::string> textures;
+		std::vector<material_parameter<std::string>*> textures;
 		auto texCount = mat->GetTextureCount(type);
 		for (unsigned int j = 0; j < texCount; j++)
 		{
 			aiString strPath;
 			mat->GetTexture(type, j, &strPath);
-
-			//log::debug(idx);
 			if ('*' == strPath.data[0])//embedded texture
 			{
 				auto idx = std::stoi(std::format("{}{}", strPath.data[1], strPath.data[2]));
 				auto texture = scene->mTextures[idx];
 				auto textureName = std::format("{}-{}", mat->GetName().C_Str(), texture->mFilename.C_Str());
-				//log::debug("Loading Texture \"{}\" for material \"{}\"", texture->mFilename.C_Str(), mat->GetName().C_Str());
 				math::ivec2 resolution = math::ivec2(0, 0);
 				int channels = 0;
 				unsigned char* textureData = nullptr;
@@ -168,7 +202,7 @@ namespace rythe::rendering
 				auto tex_source = texture_source{ .name = textureName, .resolution = resolution,.channels = channels, .data = textureData };
 				auto textureAsset = ast::AssetCache<texture_source>::createAssetFromMemory(textureName, tex_source, ast::import_settings<texture_source>{});
 				auto texHandle = TextureCache::createTexture2D(textureName, textureAsset);
-				textures.push_back(texHandle->getName());
+				textures.emplace_back(new material_parameter<std::string>{.value = texHandle->getName()});
 				stbi_image_free(textureData);
 			}
 		}

@@ -15,16 +15,11 @@ namespace rythe::rendering
 		rsl::id_type id = rsl::nameHash(name);
 		if (m_materials.contains(id))
 		{
-			//log::warn("Material {} already exists, ignoring creation request and returning existing material", name);
 			return { id, m_materials[id].get() };
 		}
 
 		std::unique_ptr<material> mat = std::make_unique<material>();
-		if (source->shaderID != 0)
-		{
-			mat->setShader(ShaderCache::getShader(source->shaderID));
-		}
-		else if (!source->shaderName.empty())
+		if (!source->shaderName.empty())
 		{
 			mat->setShader(ShaderCache::getShader(source->shaderName));
 		}
@@ -33,24 +28,28 @@ namespace rythe::rendering
 			mat->setShader(ShaderCache::getShader("error"));
 		}
 
-		auto slot = TextureSlot::TEXTURE0;
-		for (fs::path path : source->textures)
+		auto slot = TextureSlot::TEXTURE2;
+		for (auto& [key, param] : source->parameters)
 		{
-			if (path.has_extension())
+			if (param->type == ParamType::Texture)
 			{
+				auto textureParam = static_cast<material_parameter<std::string>*>(param);
+				auto path = fs::path(textureParam->value);
 				auto texName = path.stem().string();
-				mat->addTexture(slot, TextureCache::createTexture2D(ast::AssetCache<texture_source>::createAsset(texName, path, default_texture_import_params)));
-				slot++;
+				if (path.has_extension())
+				{
+					mat->addTexture(slot + param->bufferRegister, TextureCache::createTexture2D(ast::AssetCache<texture_source>::createAsset(texName, textureParam->value, default_texture_import_params)));
+				}
+				else if (!path.has_extension() && !path.has_parent_path())
+				{
+					mat->addTexture(slot + param->bufferRegister, TextureCache::getTexture(texName));
+				}
 			}
-			else if (!path.string().empty())
+			else if (param->type == ParamType::Uniform)
 			{
-				auto texName = path.stem().string();
-				mat->addTexture(slot, TextureCache::getTexture(texName));
-				slot++;
-			}
-			else
-			{
-				log::warn("Path \"{}\" read from material \"{}\" was empty, is this expected?", path.string(), name);
+				auto uniformParam = static_cast<material_parameter<uniform>*>(param);
+				
+
 			}
 		}
 		mat->name = std::move(name);
@@ -64,7 +63,6 @@ namespace rythe::rendering
 		rsl::id_type id = rsl::nameHash(name);
 		if (m_materials.contains(id))
 		{
-			//log::warn("Material {} already exists, ignoring creation request and returning existing material", name);
 			return { id, m_materials[id].get() };
 		}
 

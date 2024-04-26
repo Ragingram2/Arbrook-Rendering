@@ -43,7 +43,7 @@ namespace rythe::rendering
 		RI->setDepthFunction(DepthFuncs::LESS_EQUAL);
 		RI->updateDepthStencil();
 		RI->cullFace(CullMode::FRONT);
-		skyboxMat->setUniform("CameraBuffer", SV_CAMERA, &data);
+		skyboxMat->setUniform("CameraBuffer", &data, SV_CAMERA);
 		skyboxMat->bind();
 		layout.bind();
 		cubeHandle.bind();
