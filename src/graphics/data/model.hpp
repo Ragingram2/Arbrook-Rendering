@@ -66,5 +66,9 @@ namespace rythe::rendering
 				tangentBuffer->unbind();
 		}
 	};
+	struct modelImpl
+	{
+		model* model;
+	};
 
 }

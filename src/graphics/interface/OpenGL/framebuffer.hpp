@@ -83,6 +83,7 @@ namespace rythe::rendering::internal
 		void rescale(int width, int height)
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, m_id);
+			//Renderer::RI->setViewport(1, 0, 0, width, height);
 			for (auto& [attachment, handle] : m_attachments)
 			{
 				handle->resize(width, height);

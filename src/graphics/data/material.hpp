@@ -52,6 +52,7 @@ namespace rythe::rendering
 	};
 
 
+
 	struct material
 	{
 	private:
@@ -141,6 +142,11 @@ namespace rythe::rendering
 				handle->unbind(slot);
 			}
 		}
+	};
+
+	struct materialImpl
+	{
+		material* mat;
 	};
 
 }

@@ -57,7 +57,8 @@ namespace rythe::rendering
 		pickingFBO->unbind();
 
 		mainFBO->bind();
-		RI->setViewport(1, 0, 0, Screen_Width, Screen_Height);
+		auto fboRes = mainFBO->getAttachment(AttachmentSlot::COLOR0)->getImpl().resolution;
+		RI->setViewport(1, 0, 0, fboRes.x, fboRes.y);
 	}
 
 	rsl::priority_type picking_stage::priority() const { return OPAQUE_PRIORITY - 9; }

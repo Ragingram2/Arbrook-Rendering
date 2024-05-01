@@ -122,7 +122,8 @@ namespace rythe::rendering
 		WindowProvider::activeWindow->checkError();
 		mainFBO->bind();
 		WindowProvider::activeWindow->checkError();
-		RI->setViewport(1, 0, 0, Screen_Width, Screen_Height);
+		auto fboRes = mainFBO->getAttachment(AttachmentSlot::COLOR0)->getImpl().resolution;
+		RI->setViewport(1, 0, 0, fboRes.x, fboRes.y);
 		RI->depthTest(true);
 		RI->depthWrite(true);
 		RI->setDepthFunction(DepthFuncs::LESS);

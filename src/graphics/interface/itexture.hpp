@@ -48,8 +48,6 @@ namespace rythe::rendering
 		unsigned int getId() { return m_impl.id; }
 		void* getInternalHandle() { return m_impl.internalHandle; }
 		const std::string& getName() { return m_impl.name; }
-
-	private:
 		APIType& getImpl() { return m_impl; }
 	};
 }

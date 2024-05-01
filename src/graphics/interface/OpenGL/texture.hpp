@@ -19,7 +19,9 @@ namespace rythe::rendering::internal
 	{TextureSlot::TEXTURE5,std::make_pair("Texture5",5)},
 	{TextureSlot::TEXTURE6,std::make_pair("Texture6",6)},
 	{ TextureSlot::TEXTURE7,std::make_pair("Texture7",7) },
-	{ TextureSlot::TEXTURE8,std::make_pair("Texture8",8) }
+	{ TextureSlot::TEXTURE8,std::make_pair("Texture8",8) },
+		{ TextureSlot::TEXTURE8,std::make_pair("Texture9",9) },
+		{ TextureSlot::TEXTURE8,std::make_pair("Texture10",10) }
 	};
 
 	namespace log = rsl::log;
