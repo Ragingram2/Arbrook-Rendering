@@ -10,7 +10,14 @@ namespace rythe::rendering
 {
 	struct material_data
 	{
-		float shininess = 32.0f;
+		math::vec4 diffuseColor;
+		unsigned int hasDiffuse = 0;
+		unsigned int hasSpecular = 0;
+		unsigned int hasNormal = 0;
+		unsigned int hasHeight = 0;
+		unsigned int hasMetallic = 0;
+		unsigned int hasAmbientOcclusion = 0;
+		unsigned int hasEmissive = 0;
 	};
 
 	enum class ParamType
@@ -22,7 +29,6 @@ namespace rythe::rendering
 
 	struct uniform
 	{
-		//std::unordered_map<std::string, std::variant<int, float, double, bool, unsigned int, math::ivec2, math::vec2, math::dvec2, math::bvec2, math::uvec2, math::ivec3, math::vec3, math::dvec3, math::bvec3, math::uvec3, math::ivec4, math::vec4, math::dvec4, math::bvec4, math::uvec4, math::mat2, math::mat3, math::mat4, math::dmat2, math::dmat3, math::dmat4 >> data;
 		std::any data;
 	};
 
@@ -30,6 +36,7 @@ namespace rythe::rendering
 	{
 		rsl::id_type bufferRegister = 0;
 		ParamType type = ParamType::None;
+		std::string name;
 	};
 
 	template<typename valueType>
@@ -49,24 +56,13 @@ namespace rythe::rendering
 	{
 	private:
 		shader_handle m_shader;
-		std::unordered_map<TextureSlot, texture_handle> m_textures;
-		std::unordered_map<std::string, material_parameter<uniform>> m_uniforms;
+		std::unordered_map<TextureSlot, texture_handle> m_textures = std::unordered_map<TextureSlot,texture_handle>();
+		std::unordered_map<std::string, material_parameter<uniform>> m_uniforms = std::unordered_map<std::string, material_parameter<uniform>>();
 
 	public:
 		std::string name;
 		material_data data;
 
-		material() = default;
-		material(const material& mat) : m_shader(mat.m_shader), m_textures(mat.m_textures), m_uniforms(mat.m_uniforms), name(mat.name), data(mat.data) {}
-
-		material& operator= (const material& mat)
-		{
-			m_shader = mat.m_shader;
-			m_textures = mat.m_textures;
-			name = mat.name;
-			data = mat.data;
-			return *this;
-		}
 		operator bool() const { return (bool)m_shader; }
 
 		void bind()

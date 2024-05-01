@@ -26,7 +26,7 @@ namespace rythe::rendering
 	void submit_stage::render(core::transform camTransf, camera& cam)
 	{
 		mainFBO->unbind();
-		auto colorTexture = mainFBO->getAttachment(AttachmentSlot::COLOR0);
+		//auto colorTexture = mainFBO->getAttachment(AttachmentSlot::COLOR0);
 		RI->depthTest(false);
 		RI->cullFace(CullMode::NONE);
 		RI->updateDepthStencil();

@@ -28,6 +28,11 @@ namespace rythe::rendering
 			mat->setShader(ShaderCache::getShader("error"));
 		}
 
+		mat->data = material_data
+		{
+			.diffuseColor = math::vec4(1.0,1.0,1.0,1.0)
+		};
+
 		auto slot = TextureSlot::TEXTURE2;
 		for (auto& [key, param] : source->parameters)
 		{
@@ -35,21 +40,43 @@ namespace rythe::rendering
 			{
 				auto textureParam = static_cast<material_parameter<std::string>*>(param);
 				auto path = fs::path(textureParam->value);
-				auto texName = path.stem().string();
-				if (path.has_extension())
+				if (path.has_extension() && (path.extension() == "png" || path.extension() == "jpg"))
 				{
-					mat->addTexture(slot + param->bufferRegister, TextureCache::createTexture2D(ast::AssetCache<texture_source>::createAsset(texName, textureParam->value, default_texture_import_params)));
+					auto textureSlot = slot + param->bufferRegister;
+					mat->addTexture(textureSlot, TextureCache::createTexture2D(ast::AssetCache<texture_source>::createAsset(path.stem().string(), textureParam->value, default_texture_import_params)));
 				}
-				else if (!path.has_extension() && !path.has_parent_path())
+				else
 				{
-					mat->addTexture(slot + param->bufferRegister, TextureCache::getTexture(texName));
+					auto textureSlot = slot + param->bufferRegister;
+					mat->addTexture(textureSlot, TextureCache::getTexture(path.string()));
 				}
+
+				if (key == "Diffuse")
+					mat->data.hasDiffuse = 1;
+
+				if (key == "Specular")
+					mat->data.hasSpecular = 1;
+
+				if (key == "Normal")
+					mat->data.hasNormal = 1;
+
+				if (key == "Height")
+					mat->data.hasHeight = 1;
+
+				if (key == "Metallic")
+					mat->data.hasMetallic = 1;
+
+				if (key == "AmbientOcclusion")
+					mat->data.hasAmbientOcclusion = 1;
+
+				if (key == "Emissive")
+					mat->data.hasEmissive = 1;
+
 			}
 			else if (param->type == ParamType::Uniform)
 			{
 				auto uniformParam = static_cast<material_parameter<uniform>*>(param);
-				
-
+				mat->addUniform(uniformParam->name, *uniformParam);
 			}
 		}
 		mat->name = std::move(name);

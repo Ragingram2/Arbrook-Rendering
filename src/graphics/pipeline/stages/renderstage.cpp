@@ -79,7 +79,7 @@ namespace rythe::rendering
 				}
 			else
 			{
-				//renderer.mainMaterial.setUniform("MaterialBuffer", &renderer.mainMaterial.data, SV_MATERIALS);
+				renderer.mainMaterial.setUniform("MaterialBuffer", &renderer.mainMaterial.data, SV_MATERIALS);
 				renderer.mainMaterial.setUniform("CameraBuffer", data, SV_CAMERA);
 				renderer.mainMaterial.bind();
 				RI->drawArrays(PrimitiveType::TRIANGLESLIST, 0, mesh->vertices.size());

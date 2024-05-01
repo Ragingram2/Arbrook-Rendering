@@ -7,7 +7,7 @@ namespace rythe::rendering
 		pointLightBuffer = BufferCache::createConstantBuffer<point_light_buffer>("PointLightBuffer", SV_PT_LIGHTS, UsageType::STATICDRAW);
 		directionalLightBuffer = BufferCache::createConstantBuffer<dir_light_buffer>("DirectionalLightBuffer", SV_DIR_LIGHTS, UsageType::STATICDRAW);
 
-		lightProjection = math::orthographic(-30.0f, 30.0f, -30.0f, 30.0f, -10.0f, 40.0f);
+		lightProjection = math::orthographic(-500.0f, 500.0f, -500.0f, 500.0f, -10.0f, 100.0f);
 		shadowProjection = math::perspective(90.0f, Shadow_Width / Shadow_Height, 1.0f, far_plane);
 	}
 

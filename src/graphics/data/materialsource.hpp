@@ -56,6 +56,7 @@ namespace ns
 		{
 			if (elem["type"] == "Scalar")
 			{
+				mp->name = elem["name"];
 				if (elem["value"].is_number_float())
 					mp->value.data = elem["value"].get<float>();
 				else if (elem["value"].is_number_integer())
@@ -68,6 +69,7 @@ namespace ns
 			else if (elem["value"].is_object())
 			{
 				auto val = elem["value"];
+				mp->name = elem["name"];
 				if (val["type"] == "Float4")
 				{
 					math::vec4 value;

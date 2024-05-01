@@ -31,7 +31,7 @@ namespace rythe::rendering
 		math::mat4 shadowProjection;
 		std::vector<math::mat4> shadowTransforms;
 
-		float far_plane = 50.0f;
+		float far_plane = 500.0f;
 
 		virtual void setup(core::transform camTransf, camera& cam) override;
 		virtual void render(core::transform camTransf, camera& cam) override;

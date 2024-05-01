@@ -12,8 +12,8 @@
 #define Screen_Width 1280.f
 #define Screen_Height 720.f
 
-#define Shadow_Width 1024.0f
-#define Shadow_Height 1024.0f
+#define Shadow_Width 4096.0f
+#define Shadow_Height 4096.0f
 
 #define MAX_POINT_LIGHT_COUNT 8
 

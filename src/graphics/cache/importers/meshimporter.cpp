@@ -23,7 +23,7 @@ namespace rythe::rendering
 
 	ast::asset_handle<mesh> MeshImporter::load(rsl::id_type id, fs::path filePath, mesh* data, const ast::import_settings<mesh>& settings)
 	{
-		const aiScene* scene = m_importer.ReadFile(filePath.string(), /*aiProcess_GenSmoothNormals |*/ aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType | aiProcess_FlipWindingOrder);
+		const aiScene* scene = m_importer.ReadFile(filePath.string(), aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType | aiProcess_FlipWindingOrder | aiProcess_PreTransformVertices);
 		if (!scene)
 		{
 			log::error("Problem in loading mesh file");
@@ -64,55 +64,67 @@ namespace rythe::rendering
 			auto diffuseTextures = initMaterial(scene, material, aiTextureType_DIFFUSE);
 			for (auto texture : diffuseTextures)
 			{
-				texture->bufferRegister = 2;
+				texture->bufferRegister = 0;
 				texture->type = ParamType::Texture;
 				mat_source.parameters.emplace("Diffuse", texture);
 			}
 			auto specularTextures = initMaterial(scene, material, aiTextureType_SPECULAR);
 			for (auto texture : specularTextures)
 			{
-				texture->bufferRegister = 3;
+				texture->bufferRegister = 1;
 				texture->type = ParamType::Texture;
 				mat_source.parameters.emplace("Specular", texture);
 			}
 			auto normalTextures = initMaterial(scene, material, aiTextureType_NORMALS);
 			for (auto texture : normalTextures)
 			{
-				texture->bufferRegister = 4;
+				texture->bufferRegister = 2;
 				texture->type = ParamType::Texture;
 				mat_source.parameters.emplace("Normals", texture);
 			}
-			auto heightTextures = initMaterial(scene, material, aiTextureType_HEIGHT);
+			auto heightTextures = initMaterial(scene, material, aiTextureType_DISPLACEMENT);
 			for (auto texture : heightTextures)
 			{
-				texture->bufferRegister = 5;
+				texture->bufferRegister = 3;
 				texture->type = ParamType::Texture;
 				mat_source.parameters.emplace("Height", texture);
 			}
 			auto metalTextures = initMaterial(scene, material, aiTextureType_METALNESS);
-			for (auto texture : specularTextures)
+			for (auto texture : metalTextures)
 			{
-				texture->bufferRegister = 6;
+				texture->bufferRegister = 4;
 				texture->type = ParamType::Texture;
 				mat_source.parameters.emplace("Metalness", texture);
 			}
 			auto ambientTextures = initMaterial(scene, material, aiTextureType_AMBIENT_OCCLUSION);
-			for (auto texture : specularTextures)
+			for (auto texture : ambientTextures)
 			{
-				texture->bufferRegister = 7;
+				texture->bufferRegister = 5;
 				texture->type = ParamType::Texture;
 				mat_source.parameters.emplace("AmbientOcclusion", texture);
 			}
 			auto emissiveTextures = initMaterial(scene, material, aiTextureType_EMISSIVE);
-			for (auto texture : specularTextures)
+			for (auto texture : emissiveTextures)
 			{
-				texture->bufferRegister = 8;
+				texture->bufferRegister = 6;
 				texture->type = ParamType::Texture;
 				mat_source.parameters.emplace("Emissive", texture);
 			}
 
 			auto matAsset = ast::AssetCache<material_source>::createAssetFromMemory(matName, mat_source, ast::import_settings<material_source>{});
 			auto matHandle = MaterialCache::loadMaterial(matName, matAsset);
+			matHandle->data = material_data
+			{
+				.diffuseColor = math::vec4(1.0,1.0,1.0,1.0),
+				.hasDiffuse = (unsigned int)(diffuseTextures.size() > 0),
+				.hasSpecular = (unsigned int)(specularTextures.size() > 0),
+				.hasNormal = (unsigned int)(normalTextures.size() > 0),
+				.hasHeight = (unsigned int)(heightTextures.size() > 0),
+				.hasMetallic = (unsigned int)(metalTextures.size() > 0),
+				.hasAmbientOcclusion = (unsigned int)(ambientTextures.size() > 0),
+				.hasEmissive = (unsigned int)(emissiveTextures.size() > 0),
+
+			};
 			matAssets = ast::AssetCache<material_source>::getAssets();
 			data->materialIds[data->meshes[i].materialIdx] = matHandle.m_id;
 		}
@@ -202,7 +214,7 @@ namespace rythe::rendering
 				auto tex_source = texture_source{ .name = textureName, .resolution = resolution,.channels = channels, .data = textureData };
 				auto textureAsset = ast::AssetCache<texture_source>::createAssetFromMemory(textureName, tex_source, ast::import_settings<texture_source>{});
 				auto texHandle = TextureCache::createTexture2D(textureName, textureAsset);
-				textures.emplace_back(new material_parameter<std::string>{.value = texHandle->getName()});
+				textures.emplace_back(new material_parameter<std::string>{ .value = texHandle->getName() });
 				stbi_image_free(textureData);
 			}
 		}
