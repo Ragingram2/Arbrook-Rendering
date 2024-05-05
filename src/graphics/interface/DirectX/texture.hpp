@@ -18,10 +18,6 @@ namespace rythe::rendering::internal
 		friend class RenderInterface;
 	private:
 		unsigned char* m_textureData;
-		/*ID3D11Texture2D* m_texture;
-		ID3D11DepthStencilView* m_depthStencilView = nullptr;
-		ID3D11ShaderResourceView* m_shaderResource = nullptr;
-		ID3D11SamplerState* m_texSamplerState = nullptr;*/
 		DXTexture2D m_texture;
 		DXDepthStencilView m_depthStencilView = nullptr;
 		DXShaderResourceView m_shaderResource = nullptr;
@@ -69,14 +65,17 @@ namespace rythe::rendering::internal
 				log::warn("Shader Resource is null, this is ok if this was intended, but this has the same effect as unbinding a texture here");
 			}
 
-			WindowProvider::activeWindow->devcon->VSSetShaderResources(static_cast<UINT>(slot), 1, m_shaderResource.GetAddressOf());
-			WindowProvider::activeWindow->devcon->VSSetSamplers(static_cast<UINT>(slot), 1, m_texSamplerState.GetAddressOf());
+			ID3D11ShaderResourceView* resource[1] = { m_shaderResource.Get() };
+			ID3D11SamplerState* sampler[1] = { m_texSamplerState.Get() };
 
-			WindowProvider::activeWindow->devcon->GSSetShaderResources(static_cast<UINT>(slot), 1, m_shaderResource.GetAddressOf());
-			WindowProvider::activeWindow->devcon->GSSetSamplers(static_cast<UINT>(slot), 1, m_texSamplerState.GetAddressOf());
+			WindowProvider::activeWindow->devcon->VSSetShaderResources(static_cast<UINT>(slot), 1, resource);
+			WindowProvider::activeWindow->devcon->VSSetSamplers(static_cast<UINT>(slot), 1, sampler);
 
-			WindowProvider::activeWindow->devcon->PSSetShaderResources(static_cast<UINT>(slot), 1, m_shaderResource.GetAddressOf());
-			WindowProvider::activeWindow->devcon->PSSetSamplers(static_cast<UINT>(slot), 1, m_texSamplerState.GetAddressOf());
+			WindowProvider::activeWindow->devcon->GSSetShaderResources(static_cast<UINT>(slot), 1, resource);
+			WindowProvider::activeWindow->devcon->GSSetSamplers(static_cast<UINT>(slot), 1, sampler);
+
+			WindowProvider::activeWindow->devcon->PSSetShaderResources(static_cast<UINT>(slot), 1, resource);
+			WindowProvider::activeWindow->devcon->PSSetSamplers(static_cast<UINT>(slot), 1, sampler);
 		}
 
 		void unbind(TextureSlot slot)
@@ -130,20 +129,13 @@ namespace rythe::rendering::internal
 			m_sampDesc.Filter = static_cast<D3D11_FILTER>(mode);
 		}
 
-
-
 		void loadData(unsigned char* textureData)
 		{
 			ZoneScopedN("[DX11 Texture] loadData()");
-			//if (m_texture != nullptr)
-			m_texture.Reset();
-			m_shaderResource.Reset();
-			//if (m_shaderResource != nullptr)
-			//{
-			//	unbind(slot);
-			//	internalHandle = nullptr;
-			//
-			//}
+			if (m_texture != nullptr)
+				m_texture.Reset();
+			if (m_shaderResource != nullptr)
+				m_shaderResource.Reset();
 
 			m_textureData = textureData;
 			ZeroMemory(&m_sampDesc, sizeof(m_sampDesc));
@@ -158,7 +150,7 @@ namespace rythe::rendering::internal
 			m_sampDesc.BorderColor[2] = params.borderColor.b;
 			m_sampDesc.BorderColor[3] = params.borderColor.a;
 
-			CHECKERROR(WindowProvider::activeWindow->dev->CreateSamplerState(&m_sampDesc, &m_texSamplerState), "Texture sampler failed creation", WindowProvider::activeWindow->checkError());
+			CHECKERROR(WindowProvider::activeWindow->dev->CreateSamplerState(&m_sampDesc, m_texSamplerState.GetAddressOf()), "Texture sampler failed creation", WindowProvider::activeWindow->checkError());
 
 			ZeroMemory(&m_texDesc, sizeof(m_texDesc));
 			m_texDesc.Width = resolution.x;

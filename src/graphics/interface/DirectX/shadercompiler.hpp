@@ -39,7 +39,7 @@ namespace rythe::rendering::internal
 			m_initialized = true;
 		}
 
-		static ID3DBlob* compile(ShaderType type, shader_source source)
+		static DXBlob compile(ShaderType type, shader_source source)
 		{
 			ZoneScopedN("[DX11 Shadercompiler] compile()");
 			std::string profile = m_profiles[static_cast<int>(type)];
@@ -55,8 +55,8 @@ namespace rythe::rendering::internal
 			flags |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
 #endif
 
-			ID3DBlob* errors;
-			ID3DBlob* ppShaderBlob;
+			DXBlob errors;
+			DXBlob ppShaderBlob;
 			std::string src = source.sources[static_cast<int>(type)].second;
 			std::string sourceName = std::format("{}.shader", source.name);
 
@@ -81,7 +81,7 @@ namespace rythe::rendering::internal
 
 			errors = nullptr;
 
-			ID3DBlob* shaderBlob;
+			DXBlob shaderBlob;
 			log::info("[{}] Compiling Shader", file);
 			CHECKERROR(D3DCompile(ppShaderBlob->GetBufferPointer(), ppShaderBlob->GetBufferSize(), sourceName.c_str(), nullptr, m_includer, "main", profile.c_str(), flags, 0, &shaderBlob, &errors), std::format("Shader failed to compile:\n{}", static_cast<char*>(errors->GetBufferPointer())), m_windowHandle->checkError(););
 
@@ -97,7 +97,7 @@ namespace rythe::rendering::internal
 			else
 				log::info("[{}] Shader Compilation Success", file);
 
-			return std::move(shaderBlob);
+			return shaderBlob;
 		}
 	};
 

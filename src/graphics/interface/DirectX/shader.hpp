@@ -8,6 +8,7 @@
 #include "graphics/data/bufferhandle.hpp"
 #include "graphics/data/shadersource.hpp"
 #include "graphics/cache/windowprovider.hpp"
+#include "graphics/cache/buffercache.hpp"
 #include "graphics/interface/DirectX/dx11includes.hpp"
 #include "graphics/interface/DirectX/shadercompiler.hpp"
 #include "graphics/interface/definitions/window.hpp"
@@ -24,11 +25,11 @@ namespace rythe::rendering::internal
 	struct shader
 	{
 	private:
-		ID3D11VertexShader* m_VS = nullptr;
-		ID3D11PixelShader* m_PS = nullptr;
-		ID3D11GeometryShader* m_GS = nullptr;
-		ID3D11HullShader* m_HS = nullptr;
-		ID3D11ComputeShader* m_CS = nullptr;
+		DXVertexShader m_VS = nullptr;
+		DXPixelShader m_PS = nullptr;
+		DXGeometryShader m_GS = nullptr;
+		DXHullShader m_HS = nullptr;
+		DXComputeShader m_CS = nullptr;
 		std::unordered_map<std::string, buffer_handle> m_constBuffers;
 		window_handle m_windowHandle;
 	public:
@@ -36,11 +37,11 @@ namespace rythe::rendering::internal
 		unsigned int programId;
 		std::string name;
 
-		ID3DBlob* VS = nullptr;
-		ID3DBlob* PS = nullptr;
-		ID3DBlob* GS = nullptr;
-		ID3DBlob* HS = nullptr;
-		ID3DBlob* CS = nullptr;
+		DXBlob VS = nullptr;
+		DXBlob PS = nullptr;
+		DXBlob GS = nullptr;
+		DXBlob HS = nullptr;
+		DXBlob CS = nullptr;
 
 		shader() = default;
 		shader(shader* other)
@@ -51,11 +52,11 @@ namespace rythe::rendering::internal
 		~shader()
 		{
 			if (m_VS != nullptr)
-				m_VS->Release();
+				m_VS.ReleaseAndGetAddressOf();
 			if (m_GS != nullptr)
-				m_GS->Release();
+				m_GS.ReleaseAndGetAddressOf();
 			if (m_PS != nullptr)
-				m_PS->Release();
+				m_PS.ReleaseAndGetAddressOf();
 		}
 		operator unsigned int() const { return programId; }
 
@@ -70,21 +71,21 @@ namespace rythe::rendering::internal
 			PS = ShaderCompiler::compile(ShaderType::FRAGMENT, source);
 
 			if (VS != nullptr)
-				m_windowHandle->dev->CreateVertexShader(VS->GetBufferPointer(), VS->GetBufferSize(), NULL, &m_VS);
+				m_windowHandle->dev->CreateVertexShader(VS->GetBufferPointer(), VS->GetBufferSize(), NULL, m_VS.GetAddressOf());
 
 			if (GS != nullptr)
-				m_windowHandle->dev->CreateGeometryShader(GS->GetBufferPointer(), GS->GetBufferSize(), NULL, &m_GS);
+				m_windowHandle->dev->CreateGeometryShader(GS->GetBufferPointer(), GS->GetBufferSize(), NULL, m_GS.GetAddressOf());
 
 			if (PS != nullptr)
-				m_windowHandle->dev->CreatePixelShader(PS->GetBufferPointer(), PS->GetBufferSize(), NULL, &m_PS);
+				m_windowHandle->dev->CreatePixelShader(PS->GetBufferPointer(), PS->GetBufferSize(), NULL, m_PS.GetAddressOf());
 		}
 
 		void bind()
 		{
 			ZoneScopedN("[DX11 Shader] bind()");
-			m_windowHandle->devcon->VSSetShader(m_VS, 0, 0);
-			m_windowHandle->devcon->GSSetShader(m_GS, 0, 0);
-			m_windowHandle->devcon->PSSetShader(m_PS, 0, 0);
+			m_windowHandle->devcon->VSSetShader(m_VS.Get(), 0, 0);
+			m_windowHandle->devcon->GSSetShader(m_GS.Get(), 0, 0);
+			m_windowHandle->devcon->PSSetShader(m_PS.Get(), 0, 0);
 
 
 			for (auto& [name, handle] : m_constBuffers)
@@ -127,9 +128,7 @@ namespace rythe::rendering::internal
 			ZoneScopedN("[DX11 Shader] setUniform()");
 			if (m_constBuffers.count(bufferName) != 0)
 			{
-				//m_constBuffers[bufferName]->bind();
-				m_constBuffers[bufferName]->bufferData(data);
-				//m_constBuffers[bufferName]->unbind();
+				m_constBuffers[bufferName]->bufferData<elementType>(data);
 				return;
 			}
 
@@ -137,9 +136,13 @@ namespace rythe::rendering::internal
 			if (buffer == nullptr)
 			{
 				addBuffer(BufferCache::createConstantBuffer<elementType>(bufferName, location, rendering::UsageType::STATICDRAW));
-				//m_constBuffers[bufferName]->bind();
 				m_constBuffers[bufferName]->bufferData<elementType>(data);
-				//m_constBuffers[bufferName]->unbind();
+				return;
+			}
+			else
+			{
+				addBuffer(buffer);
+				m_constBuffers[bufferName]->bufferData<elementType>(data);
 				return;
 			}
 

@@ -61,49 +61,49 @@ namespace rythe::rendering
 			auto filePath = "resources/shaders/lit.shader";
 			auto shaderName = "lit";
 			auto mat_source = material_source{ .name = matName, .shaderPath = filePath, .shaderName = shaderName };
-			auto diffuseTextures = initMaterial(scene, material, aiTextureType_DIFFUSE);
+			auto diffuseTextures = initMaterial(scene, material, aiTextureType_DIFFUSE, "default_diffuse");
 			for (auto texture : diffuseTextures)
 			{
 				texture->bufferRegister = 0;
 				texture->type = ParamType::Texture;
 				mat_source.parameters.emplace("Diffuse", texture);
 			}
-			auto specularTextures = initMaterial(scene, material, aiTextureType_SPECULAR);
+			auto specularTextures = initMaterial(scene, material, aiTextureType_SPECULAR,"default_specular");
 			for (auto texture : specularTextures)
 			{
 				texture->bufferRegister = 1;
 				texture->type = ParamType::Texture;
 				mat_source.parameters.emplace("Specular", texture);
 			}
-			auto normalTextures = initMaterial(scene, material, aiTextureType_NORMALS);
+			auto normalTextures = initMaterial(scene, material, aiTextureType_NORMALS,"default_normal");
 			for (auto texture : normalTextures)
 			{
 				texture->bufferRegister = 2;
 				texture->type = ParamType::Texture;
 				mat_source.parameters.emplace("Normals", texture);
 			}
-			auto heightTextures = initMaterial(scene, material, aiTextureType_DISPLACEMENT);
+			auto heightTextures = initMaterial(scene, material, aiTextureType_DISPLACEMENT,"default_height");
 			for (auto texture : heightTextures)
 			{
 				texture->bufferRegister = 3;
 				texture->type = ParamType::Texture;
 				mat_source.parameters.emplace("Height", texture);
 			}
-			auto metalTextures = initMaterial(scene, material, aiTextureType_METALNESS);
+			auto metalTextures = initMaterial(scene, material, aiTextureType_METALNESS,"default_metallic");
 			for (auto texture : metalTextures)
 			{
 				texture->bufferRegister = 4;
 				texture->type = ParamType::Texture;
 				mat_source.parameters.emplace("Metalness", texture);
 			}
-			auto ambientTextures = initMaterial(scene, material, aiTextureType_AMBIENT_OCCLUSION);
+			auto ambientTextures = initMaterial(scene, material, aiTextureType_AMBIENT_OCCLUSION,"default_ambient");
 			for (auto texture : ambientTextures)
 			{
 				texture->bufferRegister = 5;
 				texture->type = ParamType::Texture;
 				mat_source.parameters.emplace("AmbientOcclusion", texture);
 			}
-			auto emissiveTextures = initMaterial(scene, material, aiTextureType_EMISSIVE);
+			auto emissiveTextures = initMaterial(scene, material, aiTextureType_EMISSIVE,"default_emissive");
 			for (auto texture : emissiveTextures)
 			{
 				texture->bufferRegister = 6;
@@ -191,7 +191,7 @@ namespace rythe::rendering
 				}
 			}
 	}
-	std::vector<material_parameter<std::string>*> MeshImporter::initMaterial(const aiScene* scene, aiMaterial* mat, aiTextureType type)
+	std::vector<material_parameter<std::string>*> MeshImporter::initMaterial(const aiScene* scene, aiMaterial* mat, aiTextureType type, const std::string& defaultTexName )
 	{
 		std::vector<material_parameter<std::string>*> textures;
 		auto texCount = mat->GetTextureCount(type);
@@ -217,6 +217,13 @@ namespace rythe::rendering
 				textures.emplace_back(new material_parameter<std::string>{ .value = texHandle->getName() });
 				stbi_image_free(textureData);
 			}
+		}
+
+		if (textures.size() < 1)
+		{
+			auto textureAsset = ast::AssetCache<texture_source>::createAsset(defaultTexName, fs::path(std::format("resources/textures/default/{}.png", defaultTexName)), ast::import_settings<texture_source>{});
+			auto texHandle = TextureCache::createTexture2D(defaultTexName, textureAsset);
+			textures.emplace_back(new material_parameter<std::string>{ .value = texHandle->getName() });
 		}
 		return textures;
 	}

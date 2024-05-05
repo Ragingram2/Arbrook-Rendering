@@ -29,7 +29,7 @@ namespace rythe::rendering
 		{
 			log::error("Imgui GLFW initialization failed");
 		}
-		if (!ImGui_ImplDX11_Init(RI->getWindowHandle()->dev, RI->getWindowHandle()->devcon))
+		if (!ImGui_ImplDX11_Init(RI->getWindowHandle()->dev.Get(), RI->getWindowHandle()->devcon.Get()))
 		{
 			log::error("Imgui DX11 initialization failed");
 		}
@@ -54,7 +54,11 @@ namespace rythe::rendering
 #if RenderingAPI == RenderingAPI_OGL
 		ImGui_ImplOpenGL3_RenderDrawData(draw_data);
 #elif RenderingAPI == RenderingAPI_DX11
+		WindowProvider::activeWindow->checkError();
+		mainFBO->bind();
 		ImGui_ImplDX11_RenderDrawData(draw_data);
+		mainFBO->unbind();
+		WindowProvider::activeWindow->checkError();
 #endif
 		ImGuiIO& io = ImGui::GetIO();
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)

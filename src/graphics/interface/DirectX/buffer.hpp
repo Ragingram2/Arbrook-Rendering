@@ -39,7 +39,7 @@ namespace rythe::rendering::internal
 		unsigned int m_size;
 		unsigned int m_elementSize = 0;
 
-		ID3D11Buffer* m_internalBuffer;
+		DXBuffer m_internalBuffer;
 		D3D11_BUFFER_DESC m_bufferDesc;
 
 		BufferType m_type;
@@ -47,7 +47,7 @@ namespace rythe::rendering::internal
 		window_handle m_windowHandle;
 
 	public:
-		operator ID3D11Buffer* () const { return m_internalBuffer; }
+		operator DXBuffer () const { return m_internalBuffer; }
 		template<typename elementType>
 		void initialize(BufferType target, UsageType usage, int size, elementType data[] = nullptr)
 		{
@@ -68,15 +68,15 @@ namespace rythe::rendering::internal
 			switch (m_type)
 			{
 			case BufferType::VERTEX_BUFFER:
-				WindowProvider::activeWindow->devcon->IASetVertexBuffers(bindId, 1, &m_internalBuffer, &m_elementSize, &offset);
+				WindowProvider::activeWindow->devcon->IASetVertexBuffers(bindId, 1, m_internalBuffer.GetAddressOf(), &m_elementSize, &offset);
 				break;
 			case BufferType::INDEX_BUFFER:
-				WindowProvider::activeWindow->devcon->IASetIndexBuffer(m_internalBuffer, static_cast<DXGI_FORMAT>(FormatType::R32U), offset);
+				WindowProvider::activeWindow->devcon->IASetIndexBuffer(m_internalBuffer.Get(), static_cast<DXGI_FORMAT>(FormatType::R32U), offset);
 				break;
 			case BufferType::CONSTANT_BUFFER:
-				WindowProvider::activeWindow->devcon->VSSetConstantBuffers(bindId, 1, &m_internalBuffer);
-				WindowProvider::activeWindow->devcon->GSSetConstantBuffers(bindId, 1, &m_internalBuffer);
-				WindowProvider::activeWindow->devcon->PSSetConstantBuffers(bindId, 1, &m_internalBuffer);
+				WindowProvider::activeWindow->devcon->VSSetConstantBuffers(bindId, 1,m_internalBuffer.GetAddressOf());
+				WindowProvider::activeWindow->devcon->GSSetConstantBuffers(bindId, 1,m_internalBuffer.GetAddressOf());
+				WindowProvider::activeWindow->devcon->PSSetConstantBuffers(bindId, 1,m_internalBuffer.GetAddressOf());
 				break;
 			default:
 				log::error("That type is not supported");
@@ -128,15 +128,15 @@ namespace rythe::rendering::internal
 
 			D3D11_MAPPED_SUBRESOURCE resource;
 			ZeroMemory(&resource, sizeof(resource));
-			CHECKERROR(WindowProvider::activeWindow->devcon->Map(m_internalBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &resource),"Buffer Failed to be filled", WindowProvider::activeWindow->checkError() );
+			CHECKERROR(WindowProvider::activeWindow->devcon->Map(m_internalBuffer.Get(), NULL, D3D11_MAP_WRITE_DISCARD, NULL, &resource), "Buffer Failed to be filled", WindowProvider::activeWindow->checkError());
 			memcpy(resource.pData, data, m_size * sizeof(elementType));
-			WindowProvider::activeWindow->devcon->Unmap(m_internalBuffer, NULL);
+			WindowProvider::activeWindow->devcon->Unmap(m_internalBuffer.Get(), NULL);
 		}
 
 		void release()
 		{
 			ZoneScopedN("[DX11 Buffer] release()");
-			m_internalBuffer->Release();
+			m_internalBuffer.Reset();
 		}
 
 	private:
@@ -145,7 +145,7 @@ namespace rythe::rendering::internal
 		{
 			ZoneScopedN("[DX11 Buffer] createBuffer()");
 			if (m_internalBuffer != nullptr)
-				m_internalBuffer->Release();
+				m_internalBuffer.Reset();
 			ZeroMemory(&m_bufferDesc, sizeof(m_bufferDesc));
 
 			m_bufferDesc.Usage = static_cast<D3D11_USAGE>(m_usage);
@@ -164,7 +164,7 @@ namespace rythe::rendering::internal
 			if (data == nullptr)
 			{
 				ZoneScopedN("[DX11 Buffer][createBuffer()] creating the buffer with null data");
-				CHECKERROR(WindowProvider::activeWindow->dev->CreateBuffer(&m_bufferDesc, NULL, &m_internalBuffer), "Buffer failed to be created", WindowProvider::activeWindow->checkError())
+				CHECKERROR(WindowProvider::activeWindow->dev->CreateBuffer(&m_bufferDesc, NULL, m_internalBuffer.GetAddressOf()), "Buffer failed to be created", WindowProvider::activeWindow->checkError())
 			}
 			else
 			{
@@ -176,7 +176,7 @@ namespace rythe::rendering::internal
 				m_initData.SysMemPitch = 0;
 				m_initData.SysMemSlicePitch = 0;
 
-				CHECKERROR(WindowProvider::activeWindow->dev->CreateBuffer(&m_bufferDesc, &m_initData, &m_internalBuffer), "Buffer failed to be created", WindowProvider::activeWindow->checkError())
+				CHECKERROR(WindowProvider::activeWindow->dev->CreateBuffer(&m_bufferDesc, &m_initData, m_internalBuffer.GetAddressOf()), "Buffer failed to be created", WindowProvider::activeWindow->checkError())
 			}
 		}
 	};

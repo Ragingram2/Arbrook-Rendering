@@ -35,6 +35,6 @@ namespace rythe::rendering
 		virtual void free(mesh& asset) override;
 	private:
 		void initMesh(mesh* data, const aiMesh* _mesh);
-		std::vector<material_parameter<std::string>*> initMaterial(const aiScene* scene, aiMaterial* mat, aiTextureType type);
+		std::vector<material_parameter<std::string>*> initMaterial(const aiScene* scene, aiMaterial* mat, aiTextureType type, const std::string& defaultTexName);
 	};
 }

@@ -38,7 +38,8 @@ namespace rythe::rendering
 				depthTexture->unbind(DEPTH_STENCIL_SLOT);
 				depthFBO->unbind();
 
-				RI->setViewport(1, 0, 0, Screen_Width, Screen_Height);
+				//auto fboRes = mainFBO->getAttachment(AttachmentSlot::COLOR0)->getImpl().resolution;
+				//RI->setViewport(1, 0, 0, fboRes.x, fboRes.y);
 			}
 			depth->unbind();
 		}

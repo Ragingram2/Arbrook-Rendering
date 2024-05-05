@@ -58,7 +58,7 @@ namespace rythe::rendering::internal
 			if (attachment == AttachmentSlot::DEPTH_STENCIL)
 			{
 				if (m_depthStencilView != nullptr)
-					m_depthStencilView->Release();
+					m_depthStencilView.Reset();
 
 				m_depthTexture = handle;
 				m_depthStencilView = handle->m_impl.m_depthStencilView;

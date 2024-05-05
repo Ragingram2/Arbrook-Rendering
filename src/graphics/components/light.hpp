@@ -22,6 +22,15 @@ namespace rythe::rendering
 		float farPlane = 0.0f;
 	};
 
+	struct point_light_data_impl
+	{
+		bool enabled = true;
+		LightType type;
+		math::vec4 color = math::vec4(0.0f);
+		float intensity = 0.0f;
+		float range = 0.0f;
+	};
+
 	struct dir_light_data
 	{
 		math::mat4 lightProjection = math::mat4(0.0f);
@@ -31,6 +40,15 @@ namespace rythe::rendering
 		float intensity = 0.0f;
 	};
 
+	struct dir_light_data_impl
+	{
+		bool enabled = true;
+		LightType type;
+		math::vec4 color = math::vec4(0.0f);
+		float intensity = 0.0f;
+	};
+
+
 	struct light
 	{
 		bool enabled = true;
@@ -38,6 +56,26 @@ namespace rythe::rendering
 		int index = -1;
 		point_light_data point_data;
 		dir_light_data dir_data;
+
+		point_light_data_impl pointLightReflectedType;
+		dir_light_data_impl dirLightReflectedType;
+
+		point_light_data_impl& reflectionPointLight()
+		{
+			pointLightReflectedType.color = point_data.color;
+			pointLightReflectedType.intensity = point_data.intensity;
+			pointLightReflectedType.range = point_data.range;
+			return pointLightReflectedType;
+		}
+
+		dir_light_data_impl& reflectionDirLight()
+		{
+			dirLightReflectedType.color = dir_data.color;
+			dirLightReflectedType.intensity = dir_data.intensity;
+			return dirLightReflectedType;
+		}
+
+
 	};
 
 }

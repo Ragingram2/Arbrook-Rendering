@@ -308,6 +308,7 @@ namespace rythe::rendering::internal
 			m_viewport.MaxDepth = maxDepth;
 
 			m_windowHandle->devcon->RSSetViewports(numViewPorts, &m_viewport);
+			m_windowHandle->swapchain->ResizeBuffers(2, width, height, DXGI_FORMAT_UNKNOWN, 0);
 		}
 
 		math::vec4 readPixel(rendering::framebuffer& fbo, int x, int y, int width, int height)

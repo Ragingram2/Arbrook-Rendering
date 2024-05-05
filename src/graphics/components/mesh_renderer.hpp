@@ -21,11 +21,6 @@ namespace rythe::rendering
 		bool castShadows = true;
 		materialImpl mainMaterial;
 		modelImpl model;
-
-		//static mesh_rendererImpl from_class(const mesh_renderer& _m) noexcept
-		//{
-		//	return mesh_rendererImpl{ .instanced = _m.instanced,.castShadows = _m.castShadows, .mainMaterial = _m.mainMaterial, .model = _m.model };
-		//}
 	};
 
 	struct mesh_renderer
@@ -51,13 +46,3 @@ namespace rythe::rendering
 		}
 	};
 }
-//
-//namespace rfl {
-//	namespace parsing {
-//
-//		template <class ReaderType, class WriterType>
-//		struct Parser<ReaderType, WriterType, rythe::rendering::mesh_renderer>
-//			: public CustomParser<ReaderType, WriterType, rythe::rendering::mesh_renderer, rythe::rendering::mesh_rendererImpl> {};
-//
-//	}  // namespace parsing
-//}  // namespace rfl

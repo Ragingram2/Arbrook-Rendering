@@ -28,9 +28,9 @@ namespace rythe::rendering::internal
 		std::string m_windowName;
 
 		IDXGISwapChain* swapchain = nullptr;             // the pointer to the swap chain interface
-		ID3D11Device* dev = nullptr;                     // the pointer to our Direct3D device interface
-		ID3D11DeviceContext* devcon = nullptr;           // the pointer to our Direct3D device context
-		ID3D11InfoQueue* infoQueue = nullptr;
+		DXDevice dev = nullptr;                     // the pointer to our Direct3D device interface
+		DXDeviceContext devcon = nullptr;           // the pointer to our Direct3D device context
+		DXInfoQueue infoQueue = nullptr;
 	public:
 		window() = default;
 		window(window& hwnd)
@@ -170,7 +170,7 @@ namespace rythe::rendering::internal
 				switch (message->Severity)
 				{
 				case D3D11_MESSAGE_SEVERITY_CORRUPTION:
-					rsl::log::fatal("DX11: {}", message->pDescription);
+					rsl::log::error("DX11: {}", message->pDescription);
 					break;
 				case D3D11_MESSAGE_SEVERITY_ERROR:
 					rsl::log::error("DX11: {}", message->pDescription);
