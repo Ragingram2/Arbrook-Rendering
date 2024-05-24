@@ -1,13 +1,16 @@
 #pragma once
+#include <wrl\client.h>
 #include <D3D11.h>
 #include <D3DX11.h>
 #include <D3DX10.h>
 #include <D3Dcompiler.h>
-#include <d3d12shader.h>
+//#include <d3d12shader.h>
 #include <DxErr.h>
 #include <dxcerrors.h>
 #include <dxcapi.h>
-#include <wrl\client.h>
+#include <dxgi1_6.h>
+#include <dxgidebug.h>
+
 
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dx11.lib")
@@ -15,12 +18,14 @@
 #pragma comment (lib, "DxErr.lib")
 #pragma comment (lib, "D3DCompiler.lib")
 #pragma comment(lib, "dxcompiler.lib")
+#pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "legacy_stdio_definitions.lib")
 
 typedef Microsoft::WRL::ComPtr<IDXGISwapChain> DXSwapChain;
 typedef Microsoft::WRL::ComPtr<ID3D11Device> DXDevice;
 typedef Microsoft::WRL::ComPtr<ID3D11DeviceContext> DXDeviceContext;
 typedef Microsoft::WRL::ComPtr<ID3D11InfoQueue> DXInfoQueue;
+typedef Microsoft::WRL::ComPtr<IDXGIInfoQueue> DXGIInfoQueue;
 
 typedef Microsoft::WRL::ComPtr<ID3D11RasterizerState> DXRasterizerState;
 typedef Microsoft::WRL::ComPtr<ID3D11InputLayout> DXInputLayout;

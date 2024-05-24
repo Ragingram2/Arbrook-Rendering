@@ -180,6 +180,11 @@ namespace rythe::rendering::internal
 			glDrawElementsInstanced(static_cast<GLenum>(mode), indexCount, static_cast<GLenum>(DataType::UINT), reinterpret_cast<void*>(sizeof(unsigned int) * startIndex), instanceCount);
 		}
 
+		void flush()
+		{
+			glFlush();
+		}
+
 		void clear(bool clearColor, internal::DepthClearBit flags)
 		{
 			ZoneScopedN("[OpenGL RenderInterface] clear()");

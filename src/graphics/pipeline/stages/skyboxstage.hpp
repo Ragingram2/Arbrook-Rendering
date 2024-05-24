@@ -11,6 +11,7 @@ namespace rythe::rendering
 {
 	struct skybox_stage : public graphics_stage<skybox_stage, skybox_renderer>
 	{
+		framebuffer* mainFBO;
 		buffer_handle cameraBuffer;
 		ast::asset_handle<material> skyboxMat;
 		model cubeHandle;

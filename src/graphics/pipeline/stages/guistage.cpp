@@ -54,11 +54,11 @@ namespace rythe::rendering
 #if RenderingAPI == RenderingAPI_OGL
 		ImGui_ImplOpenGL3_RenderDrawData(draw_data);
 #elif RenderingAPI == RenderingAPI_DX11
-		WindowProvider::activeWindow->checkError();
 		mainFBO->bind();
-		ImGui_ImplDX11_RenderDrawData(draw_data);
-		mainFBO->unbind();
 		WindowProvider::activeWindow->checkError();
+		ImGui_ImplDX11_RenderDrawData(draw_data);
+		WindowProvider::activeWindow->checkError();
+		mainFBO->unbind();
 #endif
 		ImGuiIO& io = ImGui::GetIO();
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)

@@ -28,8 +28,9 @@ namespace rythe::rendering
 			auto& renderer = ent.getComponent<mesh_renderer>();
 			auto& transf = ent.getComponent<core::transform>();
 			model& model = renderer.model;
+			if (!ent->enabled || !renderer.enabled || !renderer.model.meshHandle || !renderer.mainMaterial) continue;
+
 			ast::asset_handle<mesh> mesh = renderer.model.meshHandle;
-			if (!ent->enabled || !renderer.enabled) continue;
 
 			if (renderer.dirty)
 				initializeModel(renderer);
@@ -56,9 +57,9 @@ namespace rythe::rendering
 		}
 		pickingFBO->unbind();
 
-		mainFBO->bind();
 		auto fboRes = mainFBO->getAttachment(AttachmentSlot::COLOR0)->getImpl().resolution;
 		RI->setViewport(1, 0, 0, fboRes.x, fboRes.y);
+		mainFBO->bind();
 	}
 
 	rsl::priority_type picking_stage::priority() const { return OPAQUE_PRIORITY - 9; }
@@ -67,6 +68,9 @@ namespace rythe::rendering
 	void picking_stage::initializeModel(mesh_renderer& renderer)
 	{
 		auto& model = renderer.model;
+		if (model.vertexBuffer == nullptr)
+			return;
+
 		auto& layout = renderer.layout;
 
 		layout.release();

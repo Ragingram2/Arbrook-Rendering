@@ -132,10 +132,7 @@ namespace rythe::rendering::internal
 		void loadData(unsigned char* textureData)
 		{
 			ZoneScopedN("[DX11 Texture] loadData()");
-			if (m_texture != nullptr)
-				m_texture.Reset();
-			if (m_shaderResource != nullptr)
-				m_shaderResource.Reset();
+
 
 			m_textureData = textureData;
 			ZeroMemory(&m_sampDesc, sizeof(m_sampDesc));
@@ -150,7 +147,7 @@ namespace rythe::rendering::internal
 			m_sampDesc.BorderColor[2] = params.borderColor.b;
 			m_sampDesc.BorderColor[3] = params.borderColor.a;
 
-			CHECKERROR(WindowProvider::activeWindow->dev->CreateSamplerState(&m_sampDesc, m_texSamplerState.GetAddressOf()), "Texture sampler failed creation", WindowProvider::activeWindow->checkError());
+			CHECKERROR(WindowProvider::activeWindow->dev->CreateSamplerState(&m_sampDesc, &m_texSamplerState), "Texture sampler failed creation", WindowProvider::activeWindow->checkError());
 
 			ZeroMemory(&m_texDesc, sizeof(m_texDesc));
 			m_texDesc.Width = resolution.x;
@@ -256,6 +253,18 @@ namespace rythe::rendering::internal
 				//bind(slot);
 				loadData(m_textureData);
 			}
+		}
+
+		void release()
+		{
+			if (m_texture != nullptr)
+				m_texture.Reset();
+
+			if (m_shaderResource != nullptr)
+				m_shaderResource.Reset();
+
+			if (m_depthStencilView != nullptr)
+				m_depthStencilView.Reset();
 		}
 	};
 }

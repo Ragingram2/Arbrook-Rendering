@@ -111,7 +111,7 @@ namespace rythe::rendering
 		for (auto ent : m_filter)
 		{
 			mesh_renderer& renderer = ent.getComponent<mesh_renderer>();
-			if (!ent->enabled || !renderer.enabled) continue;
+			if (!ent->enabled || !renderer.enabled|| !renderer.model.meshHandle || !renderer.mainMaterial) continue;
 			initializeModel(renderer);
 		}
 	}
@@ -120,10 +120,16 @@ namespace rythe::rendering
 	{
 		ZoneScopedN("[Renderer] [Clear Stage] Render");
 		WindowProvider::activeWindow->checkError();
-		mainFBO->bind();
+
 		WindowProvider::activeWindow->checkError();
 		auto fboRes = mainFBO->getAttachment(AttachmentSlot::COLOR0)->getImpl().resolution;
 		RI->setViewport(1, 0, 0, fboRes.x, fboRes.y);
+		mainFBO->bind();
+		//if (fboRes.x <= 0.0 || fboRes.y <= 0.0)
+		//{
+		//	return;
+		//}
+
 		RI->depthTest(true);
 		RI->depthWrite(true);
 		RI->setDepthFunction(DepthFuncs::LESS);
@@ -136,7 +142,7 @@ namespace rythe::rendering
 		for (auto ent : m_filter)
 		{
 			mesh_renderer& renderer = ent.getComponent<mesh_renderer>();
-			if (!ent->enabled || !renderer.enabled) continue;
+			if (!ent->enabled || !renderer.enabled|| !renderer.model.meshHandle || !renderer.mainMaterial) continue;
 
 			if (renderer.dirty)
 				initializeModel(renderer);

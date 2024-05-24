@@ -40,7 +40,7 @@ namespace rythe::rendering
 			{
 				auto textureParam = static_cast<material_parameter<std::string>*>(param);
 				auto path = fs::path(textureParam->value);
-				if (path.has_extension() && (path.extension() == "png" || path.extension() == "jpg"))
+				if (path.has_extension() && (path.extension() == ".png" || path.extension() == ".jpg"))
 				{
 					auto textureSlot = slot + param->bufferRegister;
 					mat->addTexture(textureSlot, TextureCache::createTexture2D(ast::AssetCache<texture_source>::createAsset(path.stem().string(), textureParam->value, default_texture_import_params)));
@@ -51,11 +51,11 @@ namespace rythe::rendering
 					mat->addTexture(textureSlot, TextureCache::getTexture(path.string()));
 				}
 
-				if (key == "Diffuse")
-					mat->data.hasDiffuse = 1;
+				if (key == "Albedo")
+					mat->data.hasAlbedo = 1;
 
-				if (key == "Specular")
-					mat->data.hasSpecular = 1;
+				if (key == "Roughness")
+					mat->data.hasRoughness = 1;
 
 				if (key == "Normal")
 					mat->data.hasNormal = 1;

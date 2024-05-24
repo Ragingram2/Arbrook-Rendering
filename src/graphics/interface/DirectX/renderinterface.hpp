@@ -64,29 +64,19 @@ namespace rythe::rendering::internal
 
 			ZeroMemory(&m_swapChainDesc, sizeof(DXGI_SWAP_CHAIN_DESC));
 
-			m_swapChainDesc.BufferCount = 1;
+			m_swapChainDesc.BufferCount = 2;
 			m_swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 			m_swapChainDesc.BufferDesc.Width = res.x;
 			m_swapChainDesc.BufferDesc.Height = res.y;
+			m_swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_CENTERED;
 			m_swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 			m_swapChainDesc.OutputWindow = static_cast<HWND>(m_windowHandle->getHWND());
 			m_swapChainDesc.SampleDesc.Count = 1;
 			m_swapChainDesc.Windowed = TRUE;
-			m_swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-			m_swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
+			m_swapChainDesc.Flags = 0;
+			m_swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
 			UINT creationFlags = D3D11_CREATE_DEVICE_DEBUG;
-
-			//D3D_FEATURE_LEVEL features[]=
-			//{
-			//	D3D_FEATURE_LEVEL_11_1,
-			//	D3D_FEATURE_LEVEL_11_0,
-			//	D3D_FEATURE_LEVEL_10_1,
-			//	D3D_FEATURE_LEVEL_10_0,
-			//	D3D_FEATURE_LEVEL_9_3,
-			//	D3D_FEATURE_LEVEL_9_2,
-			//	D3D_FEATURE_LEVEL_9_1,
-			//};
 
 			HRESULT hr = D3D11CreateDeviceAndSwapChain(NULL,
 				D3D_DRIVER_TYPE_HARDWARE,
@@ -104,19 +94,35 @@ namespace rythe::rendering::internal
 #ifdef _DEBUG
 			hr = m_windowHandle->dev->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)&m_windowHandle->infoQueue);
 			CHECKERROR(hr, "Retrieving the info queue failed", checkError());
+
+			typedef HRESULT(WINAPI* LPDXGIGETDEBUGINTERFACE)(REFIID, void**);
+
+			HMODULE dxgidebug = LoadLibraryEx(L"dxgidebug.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
+			if (dxgidebug)
+			{
+				auto dxgiGetDebugInterface = reinterpret_cast<LPDXGIGETDEBUGINTERFACE>(
+					reinterpret_cast<void*>(GetProcAddress(dxgidebug, "DXGIGetDebugInterface")));
+
+				hr = DXGIGetDebugInterface1(0, IID_PPV_ARGS(m_windowHandle->dxgiInfoQueue.GetAddressOf()));
+				CHECKERROR(hr, "Retrieving the info queue failed", checkError());
+
+				m_windowHandle->dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR, true);
+				m_windowHandle->dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION, true);
+			}
 #endif
 
-			ID3D11RenderTargetView* renderTargetView;
+			DXRenderTargetView renderTargetView;
 			//getting the default color attachment
-			ID3D11Texture2D* m_backBuffer;
+			DXTexture2D m_backBuffer;
+			//ID3D11Texture2D* m_backBuffer;
 			hr = m_windowHandle->swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&m_backBuffer);
 			CHECKERROR(hr, "Retrieving the backbuffer failed", checkError());
 
 			//assigning the default color attachment
-			hr = m_windowHandle->dev->CreateRenderTargetView(m_backBuffer, NULL, &renderTargetView);
+			hr = m_windowHandle->dev->CreateRenderTargetView(m_backBuffer.Get(), NULL, &renderTargetView);
 			CHECKERROR(hr, "Creating a render target view failed", checkError());
 
-			m_backBuffer->Release();
+			m_backBuffer.Reset();
 
 			D3D11_TEXTURE2D_DESC m_depthTexDesc;
 			//creating a texture for depth attachment
@@ -267,6 +273,11 @@ namespace rythe::rendering::internal
 			m_windowHandle->devcon->DrawIndexedInstanced(indexCount, instanceCount, startIndex, baseVertex, startInstance);
 		}
 
+		void flush()
+		{
+			m_windowHandle->devcon->Flush();
+		}
+
 		void clear(bool clearColor, internal::DepthClearBit flags)
 		{
 			ZoneScopedN("[DX11 Renderinterface] clear()");
@@ -308,7 +319,7 @@ namespace rythe::rendering::internal
 			m_viewport.MaxDepth = maxDepth;
 
 			m_windowHandle->devcon->RSSetViewports(numViewPorts, &m_viewport);
-			m_windowHandle->swapchain->ResizeBuffers(2, width, height, DXGI_FORMAT_UNKNOWN, 0);
+
 		}
 
 		math::vec4 readPixel(rendering::framebuffer& fbo, int x, int y, int width, int height)

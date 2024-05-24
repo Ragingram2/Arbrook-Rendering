@@ -235,6 +235,11 @@ namespace rythe::rendering::internal
 				loadData(m_textureData);
 			}
 		}
+
+		void release()
+		{
+
+		}
 	private:
 
 		void createTexture(GLenum texType, GLenum internalFormat, unsigned char* textureData)

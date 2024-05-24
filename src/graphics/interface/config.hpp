@@ -3,10 +3,12 @@
 
 
 #ifdef _DEBUG
-#define CHECKERROR(hr,text,func) if(FAILED(hr))  { log::error(text); func; __debugbreak();}
+#define CHECKERROR(hr,text,func) if(FAILED(hr))  { log::error(text); func;}
 #else
 #define CHECKERROR(hr,text,func) hr;
 #endif
+
+#define SAFE_RELEASE(p) if(p) { p->Release() (p) = NULL} 
 
 #ifdef RenderingAPI_OGL
 #include <imgui/backends/imgui_impl_opengl3.h>

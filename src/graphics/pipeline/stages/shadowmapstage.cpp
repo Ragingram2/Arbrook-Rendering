@@ -29,8 +29,7 @@ namespace rythe::rendering
 		for (auto& ent : m_filter)
 		{
 			auto& renderer = ent.getComponent<mesh_renderer>();
-			if (!renderer.enabled) continue;
-			if (!renderer.castShadows) continue;
+			if (!ent->enabled || !renderer.enabled || !renderer.castShadows || !renderer.model.meshHandle || !renderer.mainMaterial) continue;
 			initializeModel(renderer, dirShadowMap);
 		}
 	}
@@ -54,23 +53,22 @@ namespace rythe::rendering
 		pointLightPass(camTransf, cam);
 		depthCubeFBO->unbind();
 
-		mainFBO->bind();
+
 		auto fboRes = mainFBO->getAttachment(AttachmentSlot::COLOR0)->getImpl().resolution;
 		RI->setViewport(1, 0, 0, fboRes.x, fboRes.y);
 		RI->cullFace(CullMode::BACK);
+		mainFBO->bind();
 	}
 
 	rsl::priority_type shadow_map_stage::priority() const { return OPAQUE_PRIORITY - 5; }
 
 	void shadow_map_stage::directionalLightPass(core::transform& camTransf, camera& cam)
 	{
-
 		camera_data data[] = { camera_data{.viewPosition = camTransf.position, .projection = cam.projection, .view = cam.view, .model = math::mat4(1.0f)} };
 		for (auto& ent : m_filter)
 		{
 			auto& renderer = ent.getComponent<mesh_renderer>();
-			if (!renderer.enabled) continue;
-			if (!renderer.castShadows) continue;
+			if (!ent->enabled || !renderer.enabled  || !renderer.castShadows || !renderer.model.meshHandle || !renderer.mainMaterial) continue;
 
 			model& model = renderer.model;
 			ast::asset_handle<mesh> mesh = model.meshHandle;
@@ -116,8 +114,7 @@ namespace rythe::rendering
 			for (auto& ent : m_filter)
 			{
 				auto& renderer = ent.getComponent<mesh_renderer>();
-				if (!ent->enabled || !renderer.enabled) continue;
-				if (!renderer.castShadows) continue;
+				if (!ent->enabled || !renderer.enabled || !renderer.castShadows || !renderer.model.meshHandle || !renderer.mainMaterial) continue;
 
 				model& model = renderer.model;
 				ast::asset_handle<mesh> mesh = model.meshHandle;

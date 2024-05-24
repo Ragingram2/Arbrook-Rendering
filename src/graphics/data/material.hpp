@@ -11,8 +11,8 @@ namespace rythe::rendering
 	struct material_data
 	{
 		math::vec4 diffuseColor;
-		unsigned int hasDiffuse = 0;
-		unsigned int hasSpecular = 0;
+		unsigned int hasAlbedo = 0;
+		unsigned int hasRoughness = 0;
 		unsigned int hasNormal = 0;
 		unsigned int hasHeight = 0;
 		unsigned int hasMetallic = 0;

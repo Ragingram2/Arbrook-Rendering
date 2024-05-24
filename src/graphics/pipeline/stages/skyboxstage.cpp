@@ -39,7 +39,6 @@ namespace rythe::rendering
 		}
 
 		camera_data data{ .viewPosition = camTransf.position,.projection = cam.projection,.view = cam.view, .model = math::mat4(1.0f) };
-
 		RI->setDepthFunction(DepthFuncs::LESS_EQUAL);
 		RI->updateDepthStencil();
 		RI->cullFace(CullMode::FRONT);

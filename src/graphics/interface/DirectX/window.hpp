@@ -31,6 +31,7 @@ namespace rythe::rendering::internal
 		DXDevice dev = nullptr;                     // the pointer to our Direct3D device interface
 		DXDeviceContext devcon = nullptr;           // the pointer to our Direct3D device context
 		DXInfoQueue infoQueue = nullptr;
+		DXGIInfoQueue dxgiInfoQueue = nullptr;
 	public:
 		window() = default;
 		window(window& hwnd)
@@ -149,18 +150,9 @@ namespace rythe::rendering::internal
 		{
 			ZoneScopedN("[DX11 Window] checkError()");
 #if _DEBUG
-			UINT64 message_count = infoQueue->GetNumStoredMessages();
-			D3D11_MESSAGE_ID hide[]
-			{
-					 D3D11_MESSAGE_ID_SETPRIVATEDATA_CHANGINGPARAMS,
-					 D3D11_MESSAGE_ID_SETPRIVATEDATA_INVALIDFREEDATA
-			};
-			D3D11_INFO_QUEUE_FILTER filter;
-			ZeroMemory(&filter, sizeof(filter));
-			filter.DenyList.NumIDs = sizeof(hide);
-			filter.DenyList.pIDList = hide;
-			infoQueue->AddStorageFilterEntries(&filter);
 
+			//DX11 error checking
+			UINT64 message_count = infoQueue->GetNumStoredMessages();
 			for (UINT64 i = 0; i < message_count; i++) {
 				SIZE_T message_size = 0;
 				infoQueue->GetMessage(i, nullptr, &message_size);
@@ -176,6 +168,7 @@ namespace rythe::rendering::internal
 					rsl::log::error("DX11: {}", message->pDescription);
 					break;
 				case D3D11_MESSAGE_SEVERITY_INFO:
+				case D3D11_MESSAGE_SEVERITY_MESSAGE:
 					rsl::log::info("DX11: {}", message->pDescription);
 					break;
 				case D3D11_MESSAGE_SEVERITY_WARNING:
@@ -186,6 +179,35 @@ namespace rythe::rendering::internal
 				free(message);
 			}
 			infoQueue->ClearStoredMessages();
+
+			DXGI_DEBUG_ID id = DXGI_DEBUG_DXGI;
+			//DXGI Errors
+			message_count = dxgiInfoQueue->GetNumStoredMessages(id);
+			for (UINT64 i = 0; i < message_count; i++) {
+				SIZE_T message_size = 0;
+				dxgiInfoQueue->GetMessageW(id, i, nullptr, &message_size);
+				DXGI_INFO_QUEUE_MESSAGE* message = (DXGI_INFO_QUEUE_MESSAGE*)malloc(message_size);
+				dxgiInfoQueue->GetMessageW(id, i, message, &message_size);
+				switch (message->Severity)
+				{
+				case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION:
+					rsl::log::error("DXGI: {}", message->pDescription);
+					break;
+				case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR:
+					rsl::log::error("DXGI: {}", message->pDescription);
+					break;
+				case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_INFO:
+				case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_MESSAGE:
+					rsl::log::info("DXGI: {}", message->pDescription);
+					break;
+				case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_WARNING:
+					rsl::log::warn("DXGI: {}", message->pDescription);
+					break;
+				}
+
+				free(message);
+			}
+			dxgiInfoQueue->ClearStoredMessages(id);
 #endif
 		}
 	};

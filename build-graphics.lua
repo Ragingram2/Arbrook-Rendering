@@ -1,7 +1,7 @@
 createProject("engine","graphics","StaticLib")
 includedirs {
     basicIncludes,
-    "C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/Include",
+    -- "C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/Include",
     "include/imgui/",
     "include/imgui/addons/"
 }  

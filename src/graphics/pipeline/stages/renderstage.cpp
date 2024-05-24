@@ -20,7 +20,7 @@ namespace rythe::rendering
 		for (auto& ent : m_filter)
 		{
 			auto& renderer = ent.getComponent<mesh_renderer>();
-			if (!ent->enabled || !renderer.enabled) continue;
+			if (!ent->enabled || !renderer.enabled || !renderer.model.meshHandle || !renderer.mainMaterial) continue;
 			initializeModel(renderer);
 			renderer.dirty = false;
 		}
@@ -33,8 +33,9 @@ namespace rythe::rendering
 		for (auto& ent : m_filter)
 		{
 			auto& renderer = ent.getComponent<mesh_renderer>();
-			if (!ent->enabled || !renderer.enabled) continue;
 			model& model = renderer.model;
+			if (!ent->enabled || !renderer.enabled || !renderer.model.meshHandle || !renderer.mainMaterial) continue;
+
 			ast::asset_handle<mesh> mesh = renderer.model.meshHandle;
 
 			if (renderer.dirty)
@@ -62,6 +63,7 @@ namespace rythe::rendering
 						subMat.setUniform("CameraBuffer", data, SV_CAMERA);
 						subMat.bind();
 						RI->drawIndexed(PrimitiveType::TRIANGLESLIST, submesh.count, submesh.indexOffset, submesh.vertexOffset);
+						//RI->flush();
 						WindowProvider::activeWindow->checkError();
 						subMat.unbind();
 					}
@@ -72,6 +74,7 @@ namespace rythe::rendering
 						subMat.setUniform("CameraBuffer", data, SV_CAMERA);
 						subMat.bind();
 						RI->drawIndexed(PrimitiveType::TRIANGLESLIST, submesh.count, submesh.indexOffset, submesh.vertexOffset);
+						//RI->flush();
 						WindowProvider::activeWindow->checkError();
 						subMat.unbind();
 					}

@@ -23,7 +23,7 @@ namespace rythe::rendering
 
 	ast::asset_handle<mesh> MeshImporter::load(rsl::id_type id, fs::path filePath, mesh* data, const ast::import_settings<mesh>& settings)
 	{
-		const aiScene* scene = m_importer.ReadFile(filePath.string(), aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType | aiProcess_FlipWindingOrder | aiProcess_PreTransformVertices);
+		const aiScene* scene = m_importer.ReadFile(filePath.string(), /*aiProcess_GenSmoothNormals |*/ aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType | aiProcess_FlipWindingOrder | aiProcess_PreTransformVertices);
 		if (!scene)
 		{
 			log::error("Problem in loading mesh file");
@@ -61,49 +61,49 @@ namespace rythe::rendering
 			auto filePath = "resources/shaders/lit.shader";
 			auto shaderName = "lit";
 			auto mat_source = material_source{ .name = matName, .shaderPath = filePath, .shaderName = shaderName };
-			auto diffuseTextures = initMaterial(scene, material, aiTextureType_DIFFUSE, "default_diffuse");
-			for (auto texture : diffuseTextures)
+			auto albedoTextures = initMaterial(scene, material, aiTextureType_DIFFUSE, "default-albedo");
+			for (auto texture : albedoTextures)
 			{
 				texture->bufferRegister = 0;
 				texture->type = ParamType::Texture;
-				mat_source.parameters.emplace("Diffuse", texture);
+				mat_source.parameters.emplace("Albedo", texture);
 			}
-			auto specularTextures = initMaterial(scene, material, aiTextureType_SPECULAR,"default_specular");
-			for (auto texture : specularTextures)
+			auto roughnessTextures = initMaterial(scene, material, aiTextureType_SPECULAR, "default-roughness");
+			for (auto texture : roughnessTextures)
 			{
 				texture->bufferRegister = 1;
 				texture->type = ParamType::Texture;
-				mat_source.parameters.emplace("Specular", texture);
+				mat_source.parameters.emplace("Roughness", texture);
 			}
-			auto normalTextures = initMaterial(scene, material, aiTextureType_NORMALS,"default_normal");
+			auto normalTextures = initMaterial(scene, material, aiTextureType_NORMALS, "default-normal");
 			for (auto texture : normalTextures)
 			{
 				texture->bufferRegister = 2;
 				texture->type = ParamType::Texture;
 				mat_source.parameters.emplace("Normals", texture);
 			}
-			auto heightTextures = initMaterial(scene, material, aiTextureType_DISPLACEMENT,"default_height");
+			auto heightTextures = initMaterial(scene, material, aiTextureType_DISPLACEMENT, "default-height");
 			for (auto texture : heightTextures)
 			{
 				texture->bufferRegister = 3;
 				texture->type = ParamType::Texture;
 				mat_source.parameters.emplace("Height", texture);
 			}
-			auto metalTextures = initMaterial(scene, material, aiTextureType_METALNESS,"default_metallic");
+			auto metalTextures = initMaterial(scene, material, aiTextureType_METALNESS, "default-metallic");
 			for (auto texture : metalTextures)
 			{
 				texture->bufferRegister = 4;
 				texture->type = ParamType::Texture;
-				mat_source.parameters.emplace("Metalness", texture);
+				mat_source.parameters.emplace("Metallic", texture);
 			}
-			auto ambientTextures = initMaterial(scene, material, aiTextureType_AMBIENT_OCCLUSION,"default_ambient");
+			auto ambientTextures = initMaterial(scene, material, aiTextureType_AMBIENT_OCCLUSION, "default-ao");
 			for (auto texture : ambientTextures)
 			{
 				texture->bufferRegister = 5;
 				texture->type = ParamType::Texture;
 				mat_source.parameters.emplace("AmbientOcclusion", texture);
 			}
-			auto emissiveTextures = initMaterial(scene, material, aiTextureType_EMISSIVE,"default_emissive");
+			auto emissiveTextures = initMaterial(scene, material, aiTextureType_EMISSIVE, "default-emissive");
 			for (auto texture : emissiveTextures)
 			{
 				texture->bufferRegister = 6;
@@ -116,8 +116,8 @@ namespace rythe::rendering
 			matHandle->data = material_data
 			{
 				.diffuseColor = math::vec4(1.0,1.0,1.0,1.0),
-				.hasDiffuse = (unsigned int)(diffuseTextures.size() > 0),
-				.hasSpecular = (unsigned int)(specularTextures.size() > 0),
+				.hasAlbedo = (unsigned int)(albedoTextures.size() > 0),
+				.hasRoughness = (unsigned int)(roughnessTextures.size() > 0),
 				.hasNormal = (unsigned int)(normalTextures.size() > 0),
 				.hasHeight = (unsigned int)(heightTextures.size() > 0),
 				.hasMetallic = (unsigned int)(metalTextures.size() > 0),
