@@ -1,5 +1,9 @@
 #pragma once
 #include <string>
+#include <chrono>
+#include <functional>
+#include <thread>
+#include <future>
 
 #include "core/utils/profiler.hpp"
 
@@ -25,6 +29,7 @@ namespace rythe::rendering::internal
 		std::unordered_map<std::string, buffer_handle> m_constBuffers;
 		std::unordered_map<int, rsl::id_type> m_idOfLocation;
 	public:
+
 		shader() = default;
 		shader(shader* other)
 		{
@@ -38,11 +43,24 @@ namespace rythe::rendering::internal
 			this->name = name;
 			programId = glCreateProgram();
 
+			unsigned int vs = 0;
+			unsigned int gs = 0;
+			unsigned int fs = 0;
+			
+			//This is the code I need to async
 			ShaderCompiler::initialize();
-			unsigned int vs = ShaderCompiler::compile(ShaderType::VERTEX, source);
-			unsigned int gs = ShaderCompiler::compile(ShaderType::GEOMETRY, source);
-			unsigned int fs = ShaderCompiler::compile(ShaderType::FRAGMENT, source);
+			ShaderCompiler::setSource(source);
+			vs = ShaderCompiler::compile(ShaderType::VERTEX);
+			gs = ShaderCompiler::compile(ShaderType::GEOMETRY);
+			fs = ShaderCompiler::compile(ShaderType::FRAGMENT);
+			//auto shaderFuture = std::async(std::launch::async, [=,&vs, &gs, &fs]()
+			//	{
+			//		vs = ShaderCompiler::compile(ShaderType::VERTEX);
+			//		gs = ShaderCompiler::compile(ShaderType::GEOMETRY);
+			//		fs = ShaderCompiler::compile(ShaderType::FRAGMENT);
+			//	});
 
+			//shaderFuture.wait();
 
 			if (vs != 0)
 				glAttachShader(programId, vs);
@@ -159,6 +177,19 @@ namespace rythe::rendering::internal
 		{
 			ZoneScopedN("[OpenGL Shader] clearBuffers()");
 			m_constBuffers.clear();
+		}
+
+	private:
+		std::future<void> compileAsync(ShaderType type)
+		{
+			return std::async(std::launch::async, [type] {
+				ShaderCompiler::compile(type);
+				});
+		}
+
+		void createProgram()
+		{
+
 		}
 	};
 

@@ -3,6 +3,12 @@
 #include <memory>
 #include <unordered_map>
 
+//INcludes for async
+#include <chrono>
+#include <functional>
+#include <thread>
+#include <future>
+
 #include "core/assets/assethandle.hpp"
 #include "core/assets/assetcache.hpp"
 #include "graphics/data/shadersource.hpp"
@@ -22,7 +28,7 @@ namespace rythe::rendering
 	public:
 		static shader_handle createShader(const std::string& name, ast::asset_handle<shader_source> shaderSource);
 		static void createShaders(std::vector<ast::asset_handle<shader_source>> assets);
-		static void compileShaders();
+		static void compileShaders(bool async = false);
 		static shader_handle getShader(const std::string& name);
 		static shader_handle getShader(rsl::id_type nameHash);
 		static void deleteShader(const std::string& name);

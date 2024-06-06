@@ -29,6 +29,8 @@ namespace rythe::rendering::internal
 		static window_handle m_windowHandle;
 		static std::vector<std::string> IncludeDirectoryList;
 		static std::string glslSource;
+		static std::string file;
+		static shader_source shaderSource;
 	public:
 		static void initialize()
 		{
@@ -47,11 +49,15 @@ namespace rythe::rendering::internal
 			m_windowHandle = WindowProvider::activeWindow;
 			m_initialized = true;
 		}
+		static void setSource(const shader_source& source)
+		{
+			shaderSource = source;
+		}
 
-		static unsigned int compile(ShaderType type, shader_source source)
+		static unsigned int compile(ShaderType type)
 		{
 			ZoneScopedN("[OpenGL ShaderCompiler] compile()");
-
+			WindowProvider::activeWindow->makeCurrent();
 			EShLanguage profile;
 			int shaderIdx = 0;
 			std::string shaderType;
@@ -86,17 +92,17 @@ namespace rythe::rendering::internal
 				break;
 			}
 
-			std::string file{ std::format("{}-{}", source.name, shaderType) };
-			std::string hlslSource = source.sources[shaderIdx].second;
+			file = { std::format("{}-{}", shaderSource.name, shaderType) };
+			std::string hlslSource = shaderSource.sources[shaderIdx].second;
 
 			if (hlslSource.empty())
 			{
 				return 0;
 			}
 
-			hlslSource = std::string("#define OpenGL\n").append(hlslSource);
+			hlslSource = std::string("#define OpenGL\n #define ").append(shaderType).append("\n").append(hlslSource);
 
-			std::vector<unsigned int> spirVBin = compileToSpirV(profile, shaderType, source.name, hlslSource);
+			std::vector<unsigned int> spirVBin = compileToSpirV(profile, hlslSource);
 			if (spirVBin.size() < 1)
 			{
 				log::error("[{}] SpirV file is too small", file);
@@ -109,6 +115,11 @@ namespace rythe::rendering::internal
 				return 0;
 			}
 
+			return createShader(type);
+		}
+
+		static unsigned int createShader(ShaderType type)
+		{
 			unsigned int id = glCreateShader(static_cast<GLenum>(type));
 
 			log::info("[{}] Compiling GLSL Shader", file);
@@ -132,12 +143,10 @@ namespace rythe::rendering::internal
 			}
 
 			log::info("[{}] GLSL Shader Compilation Success", file);
-
 			return id;
 		}
-
 	private:
-		static std::vector<unsigned int> compileToSpirV(EShLanguage profile, const std::string& shaderType, const std::string& fileName, const std::string& source)
+		static std::vector<unsigned int> compileToSpirV(EShLanguage profile, const std::string& source)
 		{
 			ZoneScopedN("[OpenGL ShaderCompiler] compileToSpirV()");
 			std::vector<unsigned int> spirVBin;
@@ -174,7 +183,6 @@ namespace rythe::rendering::internal
 			_shader->setEnvInputVulkanRulesRelaxed();
 			//_shader->setDebugInfo(true);
 
-			std::string file = std::format("{}-{}", fileName, shaderType);
 			std::string str;
 			auto resource = GetResources();
 			if (!_shader->preprocess(resource, defaultVersion, ENoProfile, false, false, message, &str, m_includer))
@@ -183,7 +191,6 @@ namespace rythe::rendering::internal
 				log::error(_shader->getInfoLog());
 				return spirVBin;
 			}
-
 			if (!_shader->parse(GetResources(), defaultVersion, false, message, m_includer))
 			{
 				log::error("[{}] Shader Compilation failed", file);
@@ -221,10 +228,14 @@ namespace rythe::rendering::internal
 			glsl.build_combined_image_samplers();
 
 			auto samplers = glsl.get_combined_image_samplers();
+
+			//if (shaderSource.name == "pbr")
+			//{
+			//	log::debug("PBR SHADER");
+			//}
 			for (auto& resource : samplers)
 			{
 				uint32_t binding = glsl.get_decoration(resource.image_id, spv::DecorationBinding);
-
 				glsl.set_decoration(resource.combined_id, spv::DecorationBinding, binding);
 				glsl.set_name(resource.combined_id, "Texture" + std::to_string(binding));
 			}
@@ -247,6 +258,10 @@ namespace rythe::rendering::internal
 			glsl.set_common_options(options);
 
 			glslSource = glsl.compile();
+			//if (shaderSource.name == "pbr")
+			//{
+			//	log::debug(glslSource);
+			//}
 			return true;
 		}
 	};
@@ -261,4 +276,6 @@ namespace rythe::rendering::internal
 	inline bool ShaderCompiler::m_initialized = false;
 	inline window_handle ShaderCompiler::m_windowHandle;
 	inline std::string ShaderCompiler::glslSource;
+	inline std::string ShaderCompiler::file;
+	inline shader_source ShaderCompiler::shaderSource;
 }

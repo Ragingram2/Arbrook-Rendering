@@ -28,7 +28,7 @@ namespace rythe::rendering
 		}
 	}
 
-	void ShaderCache::compileShaders()
+	void ShaderCache::compileShaders(bool async)
 	{
 		log::info("Compiling all shaders");
 		for (auto& [id, shad] : m_shaders)

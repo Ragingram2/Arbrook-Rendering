@@ -54,7 +54,7 @@ namespace rythe::rendering
 				if (key == "Albedo")
 					mat->data.hasAlbedo = 1;
 
-				if (key == "Roughness")
+				if (key == "Roughness" || key == "MRDAo")
 					mat->data.hasRoughness = 1;
 
 				if (key == "Normal")
@@ -63,10 +63,10 @@ namespace rythe::rendering
 				if (key == "Height")
 					mat->data.hasHeight = 1;
 
-				if (key == "Metallic")
+				if (key == "Metallic" || key == "MRDAo")
 					mat->data.hasMetallic = 1;
 
-				if (key == "AmbientOcclusion")
+				if (key == "AmbientOcclusion" || key == "MRDAo")
 					mat->data.hasAmbientOcclusion = 1;
 
 				if (key == "Emissive")
