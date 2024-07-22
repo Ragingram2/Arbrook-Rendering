@@ -15,6 +15,7 @@
 
 #include "graphics/cache/windowprovider.hpp"
 #include "graphics/data/shadersource.hpp"
+#include "graphics/cache/texturecache.hpp"
 #include "graphics/interface/DirectX/dx11includes.hpp"
 #include "graphics/interface/definitions/window.hpp"
 #include "graphics/interface/definitions/framebuffer.hpp"
@@ -31,7 +32,7 @@ namespace rythe::rendering::internal
 		ID3D11RasterizerState* m_rasterizerState = nullptr;
 		ID3D11DepthStencilState* m_depthStencilState = nullptr;
 		D3D11_VIEWPORT m_viewport;
-		DXGI_SWAP_CHAIN_DESC m_swapChainDesc;
+		DXGI_SWAP_CHAIN_DESC1 m_swapChainDesc;
 		D3D11_RASTERIZER_DESC m_rasterizerDesc;
 		D3D11_DEPTH_STENCIL_DESC m_depthStencilDesc;
 		float m_colorData[4];
@@ -47,6 +48,8 @@ namespace rythe::rendering::internal
 		void initialize(math::ivec2 res, const std::string& name, GLFWwindow* window = nullptr)
 		{
 			ZoneScopedN("[DX11 Renderinterface] initialize()");
+
+			HRESULT hr;
 			log::info("Initializing DX11");
 			if (!window && WindowProvider::get(name) == nullptr)
 				m_windowHandle = WindowProvider::addWindow(name);
@@ -62,38 +65,71 @@ namespace rythe::rendering::internal
 			m_windowHandle->initialize(res, name, window);
 			m_windowHandle->makeCurrent();
 
-			ZeroMemory(&m_swapChainDesc, sizeof(DXGI_SWAP_CHAIN_DESC));
-
-			m_swapChainDesc.BufferCount = 2;
-			m_swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-			m_swapChainDesc.BufferDesc.Width = res.x;
-			m_swapChainDesc.BufferDesc.Height = res.y;
-			m_swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_CENTERED;
-			m_swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-			m_swapChainDesc.OutputWindow = static_cast<HWND>(m_windowHandle->getHWND());
-			m_swapChainDesc.SampleDesc.Count = 1;
-			m_swapChainDesc.Windowed = TRUE;
-			m_swapChainDesc.Flags = 0;
-			m_swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-
-			UINT creationFlags = D3D11_CREATE_DEVICE_DEBUG;
-
-			HRESULT hr = D3D11CreateDeviceAndSwapChain(NULL,
-				D3D_DRIVER_TYPE_HARDWARE,
-				NULL,
-				creationFlags,
-				NULL,
-				NULL,
+			if (FAILED(CreateDXGIFactory1(IID_PPV_ARGS(&m_windowHandle->dxgiFactory))))
+			{
+				rsl::log::error("DXGI: Unable to create DXGIFactory");
+				return;
+			}
+			UINT deviceFlags = D3D11_CREATE_DEVICE_FLAG::D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+#if defined(_DEBUG)
+			deviceFlags |= D3D11_CREATE_DEVICE_FLAG::D3D11_CREATE_DEVICE_DEBUG;
+#endif
+			constexpr D3D_FEATURE_LEVEL deviceFeatureLevel = D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_11_0;
+			if (FAILED(D3D11CreateDevice(
+				nullptr,
+				D3D_DRIVER_TYPE::D3D_DRIVER_TYPE_HARDWARE,
+				nullptr,
+				deviceFlags,
+				&deviceFeatureLevel,
+				1,
 				D3D11_SDK_VERSION,
-				&m_swapChainDesc,
-				&m_windowHandle->swapchain,
 				&m_windowHandle->dev,
-				NULL,
-				&m_windowHandle->devcon);
+				nullptr,
+				&m_windowHandle->devcon)))
+			{
+				rsl::log::error("D3D11: Failed to create device and device Context");
+				return;
+			}
+
+			ZeroMemory(&m_swapChainDesc, sizeof(DXGI_SWAP_CHAIN_DESC1));
+
+			m_swapChainDesc.Width = res.x;
+			m_swapChainDesc.Height = res.y;
+			m_swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+			m_swapChainDesc.SampleDesc.Count = 1;
+			m_swapChainDesc.SampleDesc.Quality = 0;
+			m_swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+			m_swapChainDesc.BufferCount = 2;
+			m_swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT::DXGI_SWAP_EFFECT_DISCARD;
+			m_swapChainDesc.Scaling = DXGI_SCALING::DXGI_SCALING_STRETCH;
+			m_swapChainDesc.Flags = {};
+
+			DXGI_SWAP_CHAIN_FULLSCREEN_DESC swapChainFullscreenDescriptor = {};
+			swapChainFullscreenDescriptor.Windowed = true;
+			swapChainFullscreenDescriptor.Scaling = DXGI_MODE_SCALING::DXGI_MODE_SCALING_CENTERED;
+
+			if (FAILED(m_windowHandle->dxgiFactory->CreateSwapChainForHwnd(
+				m_windowHandle->dev.Get(),
+				static_cast<HWND>(m_windowHandle->getHWND()),
+				&m_swapChainDesc,
+				&swapChainFullscreenDescriptor,
+				nullptr,
+				m_windowHandle->swapchain.GetAddressOf())))
+			{
+				rsl::log::error("DXGI: Failed to create swapchain");
+				return;
+			}
 
 #ifdef _DEBUG
 			hr = m_windowHandle->dev->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)&m_windowHandle->infoQueue);
-			CHECKERROR(hr, "Retrieving the info queue failed", checkError());
+			CHECKERROR(hr, "DXD11: Retrieving the info queue failed", checkError());
+
+			if (FAILED(m_windowHandle->dev.As(&m_windowHandle->debug)))
+			{
+				rsl::log::error("D3D11: Failed to get the debug layer from the device");
+			}
+
+			Microsoft::WRL::ComPtr<IDXGIInfoQueue> dxgiInfoQueue;
 
 			typedef HRESULT(WINAPI* LPDXGIGETDEBUGINTERFACE)(REFIID, void**);
 
@@ -103,26 +139,36 @@ namespace rythe::rendering::internal
 				auto dxgiGetDebugInterface = reinterpret_cast<LPDXGIGETDEBUGINTERFACE>(
 					reinterpret_cast<void*>(GetProcAddress(dxgidebug, "DXGIGetDebugInterface")));
 
-				hr = DXGIGetDebugInterface1(0, IID_PPV_ARGS(m_windowHandle->dxgiInfoQueue.GetAddressOf()));
-				CHECKERROR(hr, "Retrieving the info queue failed", checkError());
-
-				m_windowHandle->dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR, true);
-				m_windowHandle->dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION, true);
+				if (SUCCEEDED(dxgiGetDebugInterface(IID_PPV_ARGS(dxgiInfoQueue.GetAddressOf()))))
+				{
+					dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR, true);
+					dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION, true);
+				}
 			}
 #endif
 
-			DXRenderTargetView renderTargetView;
 			//getting the default color attachment
 			DXTexture2D m_backBuffer;
-			//ID3D11Texture2D* m_backBuffer;
-			hr = m_windowHandle->swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&m_backBuffer);
-			CHECKERROR(hr, "Retrieving the backbuffer failed", checkError());
 
+			if (FAILED(m_windowHandle->swapchain->GetBuffer(0, IID_PPV_ARGS(m_backBuffer.GetAddressOf()))))
+			{
+				std::cout << "D3D11: Failed to get Back Buffer from the SwapChain\n";
+				checkError();
+			}
 			//assigning the default color attachment
-			hr = m_windowHandle->dev->CreateRenderTargetView(m_backBuffer.Get(), NULL, &renderTargetView);
-			CHECKERROR(hr, "Creating a render target view failed", checkError());
+
+			if (FAILED(m_windowHandle->dev->CreateRenderTargetView(
+				m_backBuffer.Get(),
+				nullptr,
+				m_windowHandle->renderTargetView.GetAddressOf())))
+			{
+				std::cout << "D3D11: Failed to create RTV from Back Buffer\n";
+				checkError();
+			}
 
 			m_backBuffer.Reset();
+			m_windowHandle->devcon->ClearState();
+			m_windowHandle->devcon->Flush();
 
 			D3D11_TEXTURE2D_DESC m_depthTexDesc;
 			//creating a texture for depth attachment
@@ -139,9 +185,8 @@ namespace rythe::rendering::internal
 			m_depthTexDesc.CPUAccessFlags = 0;
 			m_depthTexDesc.MiscFlags = 0;
 
-			ID3D11Texture2D* depthStencilBuffer;
 
-			hr = m_windowHandle->dev->CreateTexture2D(&m_depthTexDesc, NULL, &depthStencilBuffer);
+			hr = m_windowHandle->dev->CreateTexture2D(&m_depthTexDesc, NULL, m_windowHandle->depthStencil.GetAddressOf());
 			CHECKERROR(hr, "Creating the depth texture failed", checkError());
 
 			ZeroMemory(&m_depthStencilDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
@@ -150,7 +195,6 @@ namespace rythe::rendering::internal
 			updateDepthStencil();
 
 
-			ID3D11DepthStencilView* depthStencilView;
 			D3D11_DEPTH_STENCIL_VIEW_DESC m_depthStencilViewDesc;
 			ZeroMemory(&m_depthStencilViewDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
 
@@ -158,11 +202,12 @@ namespace rythe::rendering::internal
 			m_depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
 
 			//assigning texture to depth attachment
-			hr = m_windowHandle->dev->CreateDepthStencilView(depthStencilBuffer, &m_depthStencilViewDesc, &depthStencilView);
+			hr = m_windowHandle->dev->CreateDepthStencilView(m_windowHandle->depthStencil.Get(), &m_depthStencilViewDesc, m_windowHandle->depthStencilView.GetAddressOf());
+			log::debug("Creating Default DepthStencil View \"{}\"", static_cast<void*>(m_windowHandle->depthStencilView.Get()));
 			CHECKERROR(hr, "Creating the depth stencil view failed", checkError());
 
 			//binding attachments
-			m_windowHandle->devcon->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+			m_windowHandle->devcon->OMSetRenderTargets(1, &m_windowHandle->renderTargetView, m_windowHandle->depthStencilView.Get());
 
 			ZeroMemory(&m_rasterizerDesc, sizeof(D3D11_RASTERIZER_DESC));
 
@@ -275,20 +320,65 @@ namespace rythe::rendering::internal
 
 		void flush()
 		{
+			m_windowHandle->devcon->ClearState();
 			m_windowHandle->devcon->Flush();
+		}
+
+		void resize(int width, int height)
+		{
+			DXTexture2D m_backBuffer;
+			if (FAILED(m_windowHandle->swapchain->GetBuffer(0, IID_PPV_ARGS(&m_backBuffer))))
+			{
+				std::cout << "D3D11: Failed to get Back Buffer from the SwapChain\n";
+				checkError();
+			}
+
+			ID3D11RenderTargetView* nullViews[] = { nullptr };
+			m_windowHandle->devcon->OMSetRenderTargets(0, nullViews, nullptr);
+
+			m_windowHandle->depthStencilView.Reset();
+			m_windowHandle->depthStencil.Reset();
+			m_windowHandle->renderTargetView.Reset();
+			m_backBuffer.Reset();
+
+			m_windowHandle->devcon->ClearState();
+			m_windowHandle->devcon->Flush();
+
+
+			CHECKERROR(m_windowHandle->swapchain->ResizeBuffers(
+				0,
+				width,
+				height,
+				DXGI_FORMAT_UNKNOWN,
+				0u
+			), "Failed Swapchain Resize", checkError();	m_windowHandle->debug->ReportLiveDeviceObjects(D3D11_RLDO_SUMMARY | D3D11_RLDO_DETAIL));
+
+			m_windowHandle->swapchain->GetBuffer(0, IID_PPV_ARGS(m_backBuffer.GetAddressOf()));
+
+			CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc(D3D11_RTV_DIMENSION_TEXTURE2D, DXGI_FORMAT_UNKNOWN);
+			m_windowHandle->dev->CreateRenderTargetView(
+				m_backBuffer.Get(),
+				&renderTargetViewDesc,
+				m_windowHandle->renderTargetView.GetAddressOf()
+			);
+
+			setViewport(1, 0, 0, width, height, 0, 1);
 		}
 
 		void clear(bool clearColor, internal::DepthClearBit flags)
 		{
 			ZoneScopedN("[DX11 Renderinterface] clear()");
-			ID3D11RenderTargetView* views = NULL;
-			ID3D11DepthStencilView* depthStencilView = NULL;
-			m_windowHandle->devcon->OMGetRenderTargets(1, &views, &depthStencilView);
+			DXRenderTargetView rtvs = nullptr;
+			DXDepthStencilView depthStencilView = nullptr;
+			m_windowHandle->devcon->OMGetRenderTargets(1, &rtvs, &depthStencilView);
 
 			if ((flags == internal::DepthClearBit::DEPTH_STENCIL || flags == internal::DepthClearBit::DEPTH || flags == internal::DepthClearBit::STENCIL) && depthStencilView != NULL)
-				m_windowHandle->devcon->ClearDepthStencilView(depthStencilView, static_cast<D3D11_CLEAR_FLAG>(flags), 1.0f, 0);
-			if (clearColor && views != NULL)
-				m_windowHandle->devcon->ClearRenderTargetView(views, m_colorData);
+				m_windowHandle->devcon->ClearDepthStencilView(depthStencilView.Get(), static_cast<D3D11_CLEAR_FLAG>(flags), 1.0f, 0);
+			if (clearColor && rtvs != NULL)
+				m_windowHandle->devcon->ClearRenderTargetView(rtvs.Get(), m_colorData);
+
+			depthStencilView.Reset();
+			rtvs.Reset();
 		}
 
 		void setClearColor(math::vec4 color)
@@ -331,7 +421,7 @@ namespace rythe::rendering::internal
 			desc.BindFlags = 0;
 			desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
 			desc.MiscFlags = 0;
-			ID3D11Texture2D* stagingTexture;
+			DXTexture2D stagingTexture;
 			HRESULT hr = m_windowHandle->dev->CreateTexture2D(&desc, nullptr, &stagingTexture);
 			if (FAILED(hr))
 			{
@@ -347,14 +437,14 @@ namespace rythe::rendering::internal
 			srcBox.front = 0;
 			srcBox.back = 1;
 
-			m_windowHandle->devcon->CopySubresourceRegion(stagingTexture, 0, 0, 0, 0, handle->m_impl.m_texture.Get(), NULL, &srcBox);
+			m_windowHandle->devcon->CopySubresourceRegion(stagingTexture.Get(), 0, 0, 0, 0, handle->m_impl.m_texture.Get(), NULL, &srcBox);
 
 			D3D11_MAPPED_SUBRESOURCE mappedResource;
 			ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
-			m_windowHandle->devcon->Map(stagingTexture, 0, D3D11_MAP_READ, 0, &mappedResource);
+			m_windowHandle->devcon->Map(stagingTexture.Get(), 0, D3D11_MAP_READ, 0, &mappedResource);
 			auto pixel = static_cast<rsl::uint32*>(mappedResource.pData);
-			m_windowHandle->devcon->Unmap(stagingTexture, 0);
-			stagingTexture->Release();
+			m_windowHandle->devcon->Unmap(stagingTexture.Get(), 0);
+			stagingTexture.Reset();
 			return math::vec4(pixel[0], pixel[1], pixel[2], pixel[3]);
 		}
 

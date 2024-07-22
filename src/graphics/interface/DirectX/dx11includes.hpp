@@ -4,7 +4,6 @@
 #include <D3DX11.h>
 #include <D3DX10.h>
 #include <D3Dcompiler.h>
-//#include <d3d12shader.h>
 #include <DxErr.h>
 #include <dxcerrors.h>
 #include <dxcapi.h>
@@ -20,6 +19,8 @@
 #pragma comment(lib, "dxcompiler.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "legacy_stdio_definitions.lib")
+#pragma comment(lib, "winmm.lib")
+#pragma comment(lib, "dxguid.lib")
 
 typedef Microsoft::WRL::ComPtr<IDXGISwapChain> DXSwapChain;
 typedef Microsoft::WRL::ComPtr<ID3D11Device> DXDevice;

@@ -27,4 +27,12 @@ namespace rythe::rendering
 			m_buffers.erase(name);
 		}
 	}
+
+	void BufferCache::resetBuffers()
+	{
+		for (auto& [id, handle] : m_buffers)
+		{
+			handle->release();
+		}
+	}
 }

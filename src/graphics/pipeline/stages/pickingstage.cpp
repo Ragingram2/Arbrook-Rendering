@@ -50,7 +50,6 @@ namespace rythe::rendering
 				}
 			else
 				RI->drawArrays(PrimitiveType::TRIANGLESLIST, 0, mesh->vertices.size());
-
 			model.unbind();
 			renderer.layout.unbind();
 			pickingShader->unbind();

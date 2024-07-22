@@ -65,7 +65,7 @@ namespace rythe::rendering::internal
 				log::warn("Shader Resource is null, this is ok if this was intended, but this has the same effect as unbinding a texture here");
 			}
 
-			ID3D11ShaderResourceView* resource[1] = { m_shaderResource.Get() };
+		ID3D11ShaderResourceView* resource[1] = { m_shaderResource.Get() };
 			ID3D11SamplerState* sampler[1] = { m_texSamplerState.Get() };
 
 			WindowProvider::activeWindow->devcon->VSSetShaderResources(static_cast<UINT>(slot), 1, resource);
@@ -217,11 +217,15 @@ namespace rythe::rendering::internal
 					shaderResourceViewDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 					shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 					CHECKERROR(WindowProvider::activeWindow->dev->CreateShaderResourceView(m_texture.Get(), &shaderResourceViewDesc, &m_shaderResource), "Failed to create the Shader Resource View", WindowProvider::activeWindow->checkError());
+
+					//log::debug("[{}] Creating DSV for cubemap {}", name, static_cast<void*>(m_depthStencilView.Get()));
+					//log::debug("[{}] Creating SRV for cubemap {}", name, static_cast<void*>(m_shaderResource.Get()));
 				}
 				else
 				{
 					shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 					CHECKERROR(WindowProvider::activeWindow->dev->CreateShaderResourceView(m_texture.Get(), &shaderResourceViewDesc, &m_shaderResource), "Failed to create the Shader Resource View", WindowProvider::activeWindow->checkError());
+					//log::debug("[{}] Creating SRV for cubemap {}", name, static_cast<void*>(m_shaderResource.Get()));
 				}
 				break;
 			case TextureType::DEPTH_STENCIL:
@@ -236,6 +240,9 @@ namespace rythe::rendering::internal
 				shaderResourceViewDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 				shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 				CHECKERROR(WindowProvider::activeWindow->dev->CreateShaderResourceView(m_texture.Get(), &shaderResourceViewDesc, &m_shaderResource), "Failed to create the Shader Resource View", WindowProvider::activeWindow->checkError());
+
+				//log::debug("[{}] Creating DSV for DepthStencil {}", name, static_cast<void*>(m_depthStencilView.Get()));
+				//log::debug("[{}] Creating SRV for DepthStencil {}", name, static_cast<void*>(m_shaderResource.Get()));
 				break;
 			default:
 				break;
@@ -250,7 +257,6 @@ namespace rythe::rendering::internal
 
 			if (params.textures == 1)
 			{
-				//bind(slot);
 				loadData(m_textureData);
 			}
 		}
@@ -258,13 +264,23 @@ namespace rythe::rendering::internal
 		void release()
 		{
 			if (m_texture != nullptr)
+			{
+				//log::debug("[{}] Release Texture \"{}\"", name, static_cast<void*>(m_texture.Get()));
 				m_texture.Reset();
-
+			}
 			if (m_shaderResource != nullptr)
+			{
+				//log::debug("[{}] Release SRV \"{}\"", name, static_cast<void*>(m_shaderResource.Get()));
 				m_shaderResource.Reset();
-
+			}
 			if (m_depthStencilView != nullptr)
+			{
+				//log::debug("[{}] Release DSV \"{}\"", name, static_cast<void*>(m_depthStencilView.Get()));
 				m_depthStencilView.Reset();
+			}
+
+			WindowProvider::activeWindow->devcon->ClearState();
+			WindowProvider::activeWindow->devcon->Flush();
 		}
 	};
 }

@@ -34,12 +34,12 @@ namespace rythe::rendering
 			depthFBO->bind();
 
 
-			auto colorHandle = TextureCache::createTexture("shadowMap-color", TextureType::RENDER_TARGET, { 0, nullptr }, math::ivec2(Shadow_Width, Shadow_Height), texture_parameters
-				{
-					.usage = rendering::UsageType::DEFAULT,
-					.minFilterMode = rendering::FilterMode::LINEAR,
-					.magFilterMode = rendering::FilterMode::LINEAR
-				});
+			//auto colorHandle = TextureCache::createTexture("shadowMap-color", TextureType::RENDER_TARGET, { 0, nullptr }, math::ivec2(Shadow_Width, Shadow_Height), texture_parameters
+			//	{
+			//		.usage = rendering::UsageType::DEFAULT,
+			//		.minFilterMode = rendering::FilterMode::LINEAR,
+			//		.magFilterMode = rendering::FilterMode::LINEAR
+			//	});
 
 
 			depthHandle = TextureCache::createTexture("shadowMap-depth", TextureType::DEPTH_STENCIL, { 0, nullptr }, math::ivec2(Shadow_Width, Shadow_Height), texture_parameters
@@ -55,7 +55,7 @@ namespace rythe::rendering
 				});
 
 			//adding a color attachment is only required cause dx11 throws a warning otherwise
-			depthFBO->attach(AttachmentSlot::COLOR0, colorHandle, true, true);
+			//depthFBO->attach(AttachmentSlot::COLOR0, colorHandle, true, true);
 			depthFBO->attach(AttachmentSlot::DEPTH_STENCIL, depthHandle, false, false);
 			depthFBO->unbind();
 		}
@@ -119,16 +119,9 @@ namespace rythe::rendering
 	void clear_stage::render(core::transform camTransf, camera& cam)
 	{
 		ZoneScopedN("[Renderer] [Clear Stage] Render");
-		WindowProvider::activeWindow->checkError();
-
-		WindowProvider::activeWindow->checkError();
+		mainFBO->bind();
 		auto fboRes = mainFBO->getAttachment(AttachmentSlot::COLOR0)->getImpl().resolution;
 		RI->setViewport(1, 0, 0, fboRes.x, fboRes.y);
-		mainFBO->bind();
-		//if (fboRes.x <= 0.0 || fboRes.y <= 0.0)
-		//{
-		//	return;
-		//}
 
 		RI->depthTest(true);
 		RI->depthWrite(true);

@@ -63,7 +63,6 @@ namespace rythe::rendering
 						subMat.setUniform("CameraBuffer", data, SV_CAMERA);
 						subMat.bind();
 						RI->drawIndexed(PrimitiveType::TRIANGLESLIST, submesh.count, submesh.indexOffset, submesh.vertexOffset);
-						//RI->flush();
 						WindowProvider::activeWindow->checkError();
 						subMat.unbind();
 					}
@@ -74,7 +73,6 @@ namespace rythe::rendering
 						subMat.setUniform("CameraBuffer", data, SV_CAMERA);
 						subMat.bind();
 						RI->drawIndexed(PrimitiveType::TRIANGLESLIST, submesh.count, submesh.indexOffset, submesh.vertexOffset);
-						//RI->flush();
 						WindowProvider::activeWindow->checkError();
 						subMat.unbind();
 					}

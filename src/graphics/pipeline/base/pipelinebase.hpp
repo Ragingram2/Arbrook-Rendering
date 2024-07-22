@@ -30,6 +30,15 @@ namespace rythe::rendering
 			m_abort = true;
 		}
 
+		void releaseFramebuffers()
+		{
+			for (auto& [id, fbo] : m_framebuffers)
+			{
+				//log::debug("Releasing framebuffer \"{}\"", m_names[id].c_str());
+				fbo->release();
+			}
+		}
+
 		bool hasFramebuffer(const std::string& name) const { return hasFramebuffer(rsl::nameHash(name)); }
 		bool hasFramebuffer(rsl::id_type nameHash) const { return m_framebuffers.count(nameHash); }
 
@@ -43,7 +52,9 @@ namespace rythe::rendering
 			}
 
 			auto fbo = m_framebuffers.emplace(id,std::make_unique<framebuffer>()).first->second.get();
+			m_names[id] = name;
 			fbo->initialize();
+			//log::debug("Framebuffer created \"{}\"", name);
 			return fbo;
 		}		
 		framebuffer* getFramebuffer(rsl::id_type nameHash) { if (hasFramebuffer(nameHash)) return m_framebuffers[nameHash].get(); return nullptr; }

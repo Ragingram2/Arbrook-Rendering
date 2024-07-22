@@ -28,6 +28,7 @@ namespace rythe::rendering
 		static buffer_handle createBuffer(const std::string& name, BufferType target, UsageType usage = UsageType::STATICDRAW, elementType* data = nullptr, int size = 1);
 		static buffer_handle getBuffer(const std::string& name);
 		static void deleteBuffer(const std::string& name);
+		static void resetBuffers();
 	};
 
 	template<typename elementType>

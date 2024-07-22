@@ -163,4 +163,12 @@ namespace rythe::rendering
 		return names;
 	}
 
+	void TextureCache::resetTextures()
+	{
+		for (auto& [id, handle] : m_textures)
+		{
+			handle->release();
+		}
+	}
+
 }

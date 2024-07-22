@@ -57,7 +57,7 @@ namespace rythe::rendering::internal
 				return m_attachments[attachment];
 			}
 
-			log::error("Attachment \"{}\", was not attached");
+			log::error("Attachment \"{}\", was not attached", static_cast<int>(attachment));
 			return { nullptr };
 		}
 

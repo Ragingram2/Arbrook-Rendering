@@ -33,6 +33,7 @@ namespace rythe::rendering
 		void drawIndexed(PrimitiveType mode, unsigned int indexCount, unsigned int startIndex, unsigned int baseVertex) { m_impl.drawIndexed(static_cast<internal::PrimitiveType>(mode), indexCount, startIndex, baseVertex); }
 		void drawIndexedInstanced(PrimitiveType mode, unsigned int indexCount, unsigned int instanceCount, unsigned int startIndex, unsigned int baseVertex, unsigned int startInstance) { m_impl.drawIndexedInstanced(static_cast<internal::PrimitiveType>(mode), indexCount, instanceCount, startIndex, baseVertex, startInstance); }
 
+		void resize(int width, int height) { m_impl.resize(width, height); }
 		void flush() { m_impl.flush(); }
 		void clear(bool clearColor, DepthClearBit flags = DepthClearBit::NONE) { m_impl.clear(clearColor, static_cast<internal::DepthClearBit>(flags)); }
 		void setClearColor(math::vec4 color) { m_impl.setClearColor(color); }

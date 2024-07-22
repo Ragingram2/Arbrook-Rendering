@@ -31,6 +31,8 @@ namespace rythe::rendering
 		static texture_handle createCubemap(const std::string& name, ast::asset_handle<texture_source> textureData, texture_parameters params = default_texture_params);
 		//static texture_handle createCubemap(const std::string& name, ast::asset_handle<texture_source>* textureDataArray, texture_parameters params = default_texture_params);
 
+		static void resetTextures();
+
 		static texture_handle getTexture(const std::string& name);
 		static texture_handle getTexture(rsl::id_type nameHash);
 		static void deleteTexture(const std::string& name);

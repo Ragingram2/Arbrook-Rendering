@@ -74,9 +74,9 @@ namespace rythe::rendering::internal
 				WindowProvider::activeWindow->devcon->IASetIndexBuffer(m_internalBuffer.Get(), static_cast<DXGI_FORMAT>(FormatType::R32U), offset);
 				break;
 			case BufferType::CONSTANT_BUFFER:
-				WindowProvider::activeWindow->devcon->VSSetConstantBuffers(bindId, 1,m_internalBuffer.GetAddressOf());
-				WindowProvider::activeWindow->devcon->GSSetConstantBuffers(bindId, 1,m_internalBuffer.GetAddressOf());
-				WindowProvider::activeWindow->devcon->PSSetConstantBuffers(bindId, 1,m_internalBuffer.GetAddressOf());
+				WindowProvider::activeWindow->devcon->VSSetConstantBuffers(bindId, 1, m_internalBuffer.GetAddressOf());
+				WindowProvider::activeWindow->devcon->GSSetConstantBuffers(bindId, 1, m_internalBuffer.GetAddressOf());
+				WindowProvider::activeWindow->devcon->PSSetConstantBuffers(bindId, 1, m_internalBuffer.GetAddressOf());
 				break;
 			default:
 				log::error("That type is not supported");
@@ -116,7 +116,8 @@ namespace rythe::rendering::internal
 			{
 				size = m_size;
 			}
-			else if (size != m_size)
+
+			if (size != m_size || m_internalBuffer == nullptr)
 			{
 				m_size = size;
 				m_elementSize = sizeof(elementType);
@@ -136,7 +137,11 @@ namespace rythe::rendering::internal
 		void release()
 		{
 			ZoneScopedN("[DX11 Buffer] release()");
-			m_internalBuffer.Reset();
+			if (m_internalBuffer != nullptr)
+			{
+				log::debug("[{}] Release buffer \"{}\"", name, static_cast<void*>(m_internalBuffer.Get()));
+				m_internalBuffer.Reset();
+			}
 		}
 
 	private:
@@ -178,6 +183,8 @@ namespace rythe::rendering::internal
 
 				CHECKERROR(WindowProvider::activeWindow->dev->CreateBuffer(&m_bufferDesc, &m_initData, m_internalBuffer.GetAddressOf()), "Buffer failed to be created", WindowProvider::activeWindow->checkError())
 			}
+
+			log::debug("[{}] Creating buffer \"{}\"", name, static_cast<void*>(m_internalBuffer.Get()));
 		}
 	};
 }

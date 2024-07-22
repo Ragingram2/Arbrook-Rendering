@@ -12,10 +12,6 @@ namespace rythe::rendering
 	struct submit_stage : public graphics_stage<submit_stage, core::transform>
 	{
 		framebuffer* mainFBO;
-		framebuffer* depthFBO;
-		inputlayout layout;
-		shader_handle screenShader;
-		ast::asset_handle<model> screenQuad;
 		virtual void setup(core::transform camTransf, camera& cam) override;
 		virtual void render(core::transform camTransf, camera& cam) override;
 		virtual rsl::priority_type priority() const override;
